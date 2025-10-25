@@ -1,0 +1,60 @@
+.entry-block {
+    width: 500px;
+    height: 700px;
+    margin: 0 auto;
+    background-color: #283740;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.entry-block img {
+    width: 200px;
+    height: 200px;
+    margin-top: 20px;
+}
+
+.entry-header {
+    font-size: 32px;
+    color: #FFFBF4;
+    margin: 0;
+    margin-top: 10px;
+}
+
+.entry-input-block {
+    display: flex;          
+    flex-direction: column; 
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.entry-input,
+.entry-input-btn {
+    width: 400px;
+    height: 45px;
+    background-color: #BFB1A4;
+    border-radius: 20px;
+    padding-left: 20px;
+    text-decoration: none;
+    color: #283740;
+}
+
+.entry-input p,
+.entry-input-btn p {
+    margin: 0;
+    line-height: 45px;
+}
+
+.entry-input-btn {
+    background-color: #4F6273;
+    text-align: center;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    color: #FFFBF4;
+}
+
+.entry-input-btn :hover {
+    transform: scale(1.05); /* увеличиваем на 5% */
+    cursor: pointer; 
+}
+

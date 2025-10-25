@@ -1,0 +1,28 @@
+.header {
+    width: 100%;
+}
+.header-content {
+    height: 100px;
+    display: flex;
+    flex-direction: row;           
+    justify-content: space-between; 
+    align-items: center;           
+    padding: 0 60px;    
+}
+
+.header-content h1 {
+    margin: 0;
+    font-family: 'Rubik Doodle Shadow';
+    font-size: 64px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+}
+
+.header-buzz-icon {
+    display: none;
+}
+
+.header-icons {
+    display: flex;
+    gap: 15px;
+}
