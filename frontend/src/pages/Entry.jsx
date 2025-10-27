@@ -1,9 +1,11 @@
 import { useState } from "react";
 
 import Header from "../components/header"
-import Auth from "../components/auth"
-import Recovery from "../components/recovery";
-import Registration from "../components/registration"
+import Auth from "../components/entry/auth"
+import Recovery from "../components/entry/recovery";
+import Registration from "../components/entry/registration"
+
+import '../css/entry.css'
 
 export default function Entry() {
 

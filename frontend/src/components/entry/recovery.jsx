@@ -1,8 +1,6 @@
-import '../css/entry.css'
+import buzzlogo from "../../assets/buzz-logo.png"
 
-import buzzlogo from "../assets/buzz-logo.png"
-
-import EntrySwitch from "../components/switch"
+import EntrySwitch from "./entry-switch"
 
 import {Link} from "react-router-dom"
 

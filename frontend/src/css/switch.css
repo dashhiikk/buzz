@@ -1,4 +1,4 @@
-.entry-switch {
+.switch {
     display: flex;
     margin-top: auto;
     height: 60px;
@@ -7,7 +7,9 @@
 
 .entry-switch-btn-left,
 .entry-switch-btn-center,
-.entry-switch-btn-right {
+.entry-switch-btn-right,
+.start-switch-btn-left,
+.start-switch-btn-right {
     height: 100%;
     display: flex;
     justify-content: center;
@@ -15,15 +17,28 @@
     text-align: center;
 
     font-size: 20px;
+    font-weight: 700;
 
     background-color: #283740;
     color: #BFB1A4;
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
+.entry-switch-btn-left p,
+.entry-switch-btn-center p,
+.entry-switch-btn-right p,
+.start-switch-btn-left p,
+.start-switch-btn-right p {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
 .entry-switch-btn-left p:hover,
 .entry-switch-btn-center p:hover,
-.entry-switch-btn-right p:hover {
+.entry-switch-btn-right p:hover,
+.start-switch-btn-left p:hover,
+.start-switch-btn-right p:hover {
     transform: scale(1.05); /* увеличиваем на 5% */
     cursor: pointer;         /* меняем курсор на указатель */
 }
@@ -46,7 +61,17 @@
     border-radius: 0 0 20px 0;
 }
 
-.entry-switch-btn-active {
+.start-switch-btn-left {
+    width: 225px;
+    border-radius: 0 0 0 20px;
+}
+
+.start-switch-btn-right {
+    width: 225px;
+    border-radius: 0 0 20px 0;
+}
+.switch-btn-active {
     background-color: #BFB1A4 !important;
     color: #283740 !important;
 }
+

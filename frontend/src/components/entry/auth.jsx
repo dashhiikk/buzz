@@ -1,24 +1,26 @@
-import '../css/entry.css'
 import {Link} from "react-router-dom"
 
-import buzzlogo from "../assets/buzz-logo.png"
+import buzzlogo from "../../assets/buzz-logo.png"
 
-export default function NewPassword() {
+import EntrySwitch from "./entry-switch"
+
+export default function Auth({ active, setActive }) {
     return (
         <main className="entry-block">
             <img src={buzzlogo}></img>
-            <p className='entry-header'>Восстановление пароля</p>
+            <p className='entry-header'>Авторизация</p>
             <div className='entry-input-block'>
                 <div className='entry-input'>
-                    <p>Введите новый пароль</p>
+                    <p>Введите ник</p>
                 </div>
                 <div className='entry-input'>
-                    <p>Повторите пароль</p>
+                    <p>Введите пароль</p>
                 </div>
                 <Link to="/start" className='entry-input-btn'>
-                    <p>Сохранить</p>
+                    <p>Войти</p>
                 </Link>
             </div>
+            <EntrySwitch active={active} setActive={setActive} />
         </main>
     );
 }

@@ -7,7 +7,9 @@ export default function Header() {
   return (
       <main className="header">
         <div className="header-content">
-            <img src={buzziconbee} className="header-buzz-icon"></img>
+            <div className="header-buzz-icon">
+              <img src={buzziconbee} ></img>
+            </div>
             <h1>buzz</h1>
             <div className="header-icons">
                 <img src={settings} alt="settings"></img>

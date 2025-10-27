@@ -17,6 +17,7 @@
 
 .entry-header {
     font-size: 32px;
+    font-weight: 700;
     color: #FFFBF4;
     margin: 0;
     margin-top: 10px;
@@ -44,6 +45,16 @@
 .entry-input-btn p {
     margin: 0;
     line-height: 45px;
+}
+
+.entry-input p {
+    font-size: 16px;
+    font-weight: 300;
+}
+
+.entry-input-btn p {
+    font-size: 20px;
+    font-weight: 500;
 }
 
 .entry-input-btn {

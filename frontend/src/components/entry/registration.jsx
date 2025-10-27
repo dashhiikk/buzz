@@ -1,10 +1,8 @@
-import '../css/entry.css'
-
 import {Link} from "react-router-dom"
 
-import buzzlogo from "../assets/buzz-logo.png"
+import buzzlogo from "../../assets/buzz-logo.png"
 
-import EntrySwitch from "../components/switch"
+import EntrySwitch from "./entry-switch"
 
 export default function Registation({ active, setActive }) {
     return (
