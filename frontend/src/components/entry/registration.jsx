@@ -1,10 +1,10 @@
-import {Link} from "react-router-dom"
-
+import { Link } from "react-router-dom";
 import buzzlogo from "../../assets/buzz-logo.png"
 
 import EntrySwitch from "./entry-switch"
 
 export default function Registation({ active, setActive }) {
+
     return (
         <main className="entry-block">
             <img src={buzzlogo}></img>
@@ -22,7 +22,11 @@ export default function Registation({ active, setActive }) {
                 <div className='entry-input'>
                     <p>Повторите пароль</p>
                 </div>
-                <Link to="/start" className='entry-input-btn'>
+                <Link
+                    to="/start"
+                    state={{ fromRegistration: true }} // <-- state напрямую, НЕ в объекте
+                    className="entry-input-btn"
+                >
                     <p>Зарегистрироваться</p>
                 </Link>
             </div>

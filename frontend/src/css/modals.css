@@ -1,0 +1,37 @@
+.notice-modal {
+    position: fixed;           /* Привязка к вьюпорту */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;   /* Горизонтальное центрирование */
+    align-items: center;       /* Вертикальное центрирование */
+    z-index: 9999;             /* Поверх всего */
+    overflow: hidden;
+
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.notice-modal-content {
+    width: 700px;
+    height: 100px;
+    background-color: #4F6273;
+    border-radius: 20px;
+
+    display: flex;
+    text-align: center;
+    justify-content: center;
+}
+
+.notice-modal-content h2 {
+    font-weight: 700;
+    font-size: 30px;
+    margin: 0;
+    color: #FFFBF4;
+}
+
+.notice-modal-content button {
+    background-color: #4F6273;
+    border: none;
+}
