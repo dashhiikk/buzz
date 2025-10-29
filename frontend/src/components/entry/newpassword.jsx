@@ -14,7 +14,11 @@ export default function NewPassword() {
                 <div className='entry-input'>
                     <p>Повторите пароль</p>
                 </div>
-                <Link to="/start" className='entry-input-btn'>
+                <Link 
+                    to="/start"
+                    state={{ fromRecovery: true }}
+                    className='entry-input-btn'
+                >
                     <p>Сохранить</p>
                 </Link>
             </div>

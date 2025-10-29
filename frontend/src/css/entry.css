@@ -7,6 +7,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 50px;
 }
 
 .entry-block img {
@@ -67,5 +68,24 @@
 .entry-input-btn :hover {
     transform: scale(1.05); /* увеличиваем на 5% */
     cursor: pointer; 
+}
+
+@media (max-width: 1919px) {
+    .entry-block {
+        height: 600px;
+    }
+
+    .entry-block img {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .entry-header {
+        font-size: 28px;
+    }
+
+    .entry-input-block {
+        margin-top: 20px;
+    }
 }
 

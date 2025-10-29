@@ -14,6 +14,7 @@
     border-radius: 20px;
     box-sizing: border-box;
     padding: 0 20px;
+    margin-bottom: 50px;
     
     display: flex;               /* превращаем в флекс-контейнер */
     justify-content: center;     /* центрируем по горизонтали */
@@ -48,6 +49,8 @@
     background-color: #283740;
     border-radius: 20px;
     box-sizing: border-box;
+
+    margin-bottom: 50px;
 }
 
 .start-list-header {

@@ -7,6 +7,7 @@ import StartListRoom from "../components/start/start-list-block-room"
 import StartChatFriend from "../components/start/start-chat-block-friend"
 import StartListFriend from "../components/start/start-list-block-friend"
 import RegistationNotice from "../modals/registration-notice";
+import RecoveryNotice from "../modals/recovery-notice";
 
 import '../css/start.css'
 
@@ -15,10 +16,12 @@ export default function Start() {
     const [active, setActive] = useState("room");
 
     const location = useLocation();
-    const [isModalOpen, setIsModalOpen] = useState(!!location.state?.fromRegistration); // Открываем модал, если пришли из Registration
+    const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(!!location.state?.fromRegistration); // Открываем модал, если пришли из Registration
+    const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(!!location.state?.fromRecovery);
 
     const handleCloseModal = () => {
-        setIsModalOpen(false);
+        setIsRegistrationModalOpen(false);
+        setIsRecoveryModalOpen(false);
     };
 
     return (
@@ -31,7 +34,8 @@ export default function Start() {
                 {active === "friend" && <StartListFriend active={active} setActive={setActive} />}
                 {active === "friend" && <StartChatFriend active={active} setActive={setActive} />}
             </div>
-            <RegistationNotice isOpen={isModalOpen} onClose={handleCloseModal} />
+            <RegistationNotice isOpen={isRegistrationModalOpen} onClose={handleCloseModal} />
+            <RecoveryNotice isOpen={isRecoveryModalOpen} onClose={handleCloseModal} />
         </main>
     );
 }

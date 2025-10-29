@@ -14,19 +14,20 @@
 }
 
 .notice-modal-content {
-    width: 700px;
+    position: relative;
+    width: 600px;
     height: 100px;
     background-color: #4F6273;
     border-radius: 20px;
 
     display: flex;
-    text-align: center;
+    align-items: center;
     justify-content: center;
 }
 
 .notice-modal-content h2 {
     font-weight: 700;
-    font-size: 30px;
+    font-size: 28px;
     margin: 0;
     color: #FFFBF4;
 }
@@ -34,4 +35,13 @@
 .notice-modal-content button {
     background-color: #4F6273;
     border: none;
+    position: absolute;
+    right: 10px;                 /* отступ от правого края */
+    top: 10px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.notice-modal-content button :hover {
+    transform: scale(1.05); /* увеличиваем на 5% */
+    cursor: pointer;
 }
