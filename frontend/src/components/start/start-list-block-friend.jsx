@@ -4,6 +4,8 @@ import friend from "../../assets/friend-icon.jpg"
 
 import StartSwitch from "./start-switch"
 
+import {Link} from 'react-router-dom'
+
 export default function StartListFriend({ active, setActive }) {
     return (
         <main className="start-list-block">
@@ -13,26 +15,26 @@ export default function StartListFriend({ active, setActive }) {
                 <img src={plus}></img>
             </div>
             <ul className="start-list">
-                <li className="start-list-element">
+                <Link to="/friend" className="start-list-element">
                     <img src={friend}></img>
                     <p>Ник друга</p>
-                </li>
-                <li className="start-list-element">
+                </Link> 
+                <Link to="/friend" className="start-list-element">
                     <img src={friend}></img>
                     <p>Ник друга</p>
-                </li>
-                <li className="start-list-element">
+                </Link> 
+                <Link to="/friend" className="start-list-element">
                     <img src={friend}></img>
                     <p>Ник друга</p>
-                </li>
-                <li className="start-list-element">
+                </Link> 
+                <Link to="/friend" className="start-list-element">
                     <img src={friend}></img>
                     <p>Ник друга</p>
-                </li>
-                <li className="start-list-element">
+                </Link> 
+                <Link to="/friend" className="start-list-element">
                     <img src={friend}></img>
                     <p>Ник друга</p>
-                </li>
+                </Link> 
             </ul>
             <StartSwitch active={active} setActive={setActive} />
         </main>

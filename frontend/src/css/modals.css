@@ -10,7 +10,9 @@
     z-index: 9999;             /* Поверх всего */
     overflow: hidden;
 
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px); /* вот ключевое свойство */
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .notice-modal-content {

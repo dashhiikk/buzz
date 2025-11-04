@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Header from "../components/header"
 import StartChatRoom from "../components/start/start-chat-block-room"
@@ -16,6 +16,7 @@ export default function Start() {
     const [active, setActive] = useState("room");
 
     const location = useLocation();
+    
     const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(!!location.state?.fromRegistration); // Открываем модал, если пришли из Registration
     const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(!!location.state?.fromRecovery);
 
@@ -23,6 +24,14 @@ export default function Start() {
         setIsRegistrationModalOpen(false);
         setIsRecoveryModalOpen(false);
     };
+    
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (location.state) {
+        navigate(location.pathname, { replace: true }); 
+        // replace: true — чтобы не добавлять новую запись в историю
+        }
+    }, [location, navigate]);
 
     return (
         <main>

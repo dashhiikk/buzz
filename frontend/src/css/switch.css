@@ -1,8 +1,10 @@
 .switch {
     display: flex;
     margin-top: auto;
-    height: 60px;
     border-top: 2px solid #BFB1A4;
+
+    width: 100%;
+    height: 60px;
 }
 
 .entry-switch-btn-left,
@@ -10,6 +12,7 @@
 .entry-switch-btn-right,
 .start-switch-btn-left,
 .start-switch-btn-right {
+    flex: 1;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -29,7 +32,7 @@
 .entry-switch-btn-right p,
 .start-switch-btn-left p,
 .start-switch-btn-right p {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     margin: 0;
 }
@@ -45,29 +48,24 @@
 
 
 .entry-switch-btn-left {
-    width: 170px;
     border-radius: 0 0 0 20px;
 }
 
 .entry-switch-btn-center {
-    width: 160px;
     border-left: 2px solid #BFB1A4;
     border-right: 2px solid #BFB1A4;
     box-sizing: border-box;
 }
 
 .entry-switch-btn-right {
-    width: 170px;
     border-radius: 0 0 20px 0;
 }
 
 .start-switch-btn-left {
-    width: 225px;
     border-radius: 0 0 0 20px;
 }
 
 .start-switch-btn-right {
-    width: 225px;
     border-radius: 0 0 20px 0;
 }
 .switch-btn-active {
