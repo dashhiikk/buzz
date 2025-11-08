@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Header from "../components/header"
-import StartChatRoom from "../components/start/start-chat-block-room"
-import StartListRoom from "../components/start/start-list-block-room"
-import StartChatFriend from "../components/start/start-chat-block-friend"
-import StartListFriend from "../components/start/start-list-block-friend"
+import StartChatRoom from "../components/start/start-chat-room"
+import StartListRoom from "../components/start/start-menu-room"
+import StartChatFriend from "../components/start/start-chat-friend"
+import StartListFriend from "../components/start/start-menu-friend"
 import RegistationNotice from "../modals/registration-notice";
 import RecoveryNotice from "../modals/recovery-notice";
-
-import '../css/start.css'
 
 export default function Start() {
 
@@ -36,8 +34,7 @@ export default function Start() {
     return (
         <main>
             <Header/>
-            
-            <div className="start-page">
+            <div className="page">
                 {active === "room" && <StartListRoom active={active} setActive={setActive} />}
                 {active === "room" && <StartChatRoom active={active} setActive={setActive} />}
                 {active === "friend" && <StartListFriend active={active} setActive={setActive} />}

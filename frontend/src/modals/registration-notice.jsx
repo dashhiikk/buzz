@@ -6,10 +6,10 @@ export default function RegistationNotice({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="notice-modal">
+        <div className="modal">
             <div className="notice-modal-content">
-                <h2>Добро пожаловать в buzz!</h2>
-                <button onClick={onClose}>
+                <h2 className="modal-header">Добро пожаловать в buzz!</h2>
+                <button className="modal-close-button" onClick={onClose}>
                     <img src={close}></img>
                 </button>
             </div>

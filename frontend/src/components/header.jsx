@@ -1,6 +1,6 @@
-import buzziconbee from "../assets/buzz-icon-bee.png"
-import settings from "../assets/settings-icon.png"
-import user from "../assets/user-icon.png"
+import buzziconbee from "../assets/buzz-icon-bee.svg"
+import settings from "../assets/settings-icon.svg"
+import user from "../assets/user-icon.svg"
 import '../css/header.css'
 
 export default function Header() {

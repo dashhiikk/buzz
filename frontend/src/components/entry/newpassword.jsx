@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom"
 
-import buzzlogo from "../../assets/buzz-logo.png"
+import buzzlogo from "../../assets/buzz-logo.svg"
 
 export default function NewPassword() {
     return (

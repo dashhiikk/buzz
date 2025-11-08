@@ -1,0 +1,86 @@
+.chat-block {
+    width: 100%;
+    max-width: 810px;
+    height: calc(100vh - 150px);
+    background-color: #283740;
+    border-radius: 20px;
+    
+    display: flex;               /* превращаем в флекс-контейнер */
+    justify-content: center;     /* центрируем по горизонтали */
+    align-items: center;
+    flex-direction: column;
+}
+
+.start-chat-content {
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+    display: flex;
+    gap: 15px;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.start-chat-content img {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.start-chat-content p {
+    color: #FFFBF4;
+    font-size: clamp(15px, 1.5vw + 0.3vh, 28px);
+    font-weight: 600;
+    margin: 0;
+}
+
+.chat-header {
+    width: 100%;
+    height: 70px;
+    border-bottom: 2px solid #BFB1A4;
+    text-align: center;
+}
+
+.chat-header p {
+    color: #FFFBF4;
+    font-weight: 700;
+    margin: 0;
+    line-height: 70px;
+}
+
+.message-block {
+    flex: 1;
+    width: 90%;
+    margin: 10px 20px;
+}
+
+.friend-message,
+.user-message {
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.friend-message {
+    margin-right: auto;
+    justify-content: flex-start;
+}
+
+.user-message {
+    margin-left: auto;
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.friend-message img,
+.user-message img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+
+.message-name,
+.message-text {
+    color: #FFFBF4;
+    margin: 0;
+}

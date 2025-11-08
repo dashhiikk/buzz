@@ -1,4 +1,6 @@
-.notice-modal {
+/* Общий стиль */
+
+.modal {
     position: fixed;           /* Привязка к вьюпорту */
     top: 0;
     left: 0;
@@ -15,6 +17,9 @@
     -webkit-backdrop-filter: blur(10px);
 }
 
+
+/* Модальное окно - уведомление */
+
 .notice-modal-content {
     position: relative;
     width: 600px;
@@ -27,23 +32,140 @@
     justify-content: center;
 }
 
-.notice-modal-content h2 {
+
+/* Общий стлиь - заголовок */
+
+.modal-header {
     font-weight: 700;
     font-size: 28px;
     margin: 0;
     color: #FFFBF4;
+    text-align: center;
+    line-height: 80px;
 }
 
-.notice-modal-content button {
+
+/* Общий стиль - кнопка закрыть */
+
+.modal-close-button {
     background-color: #4F6273;
     border: none;
     position: absolute;
-    right: 10px;                 /* отступ от правого края */
-    top: 10px;
+    right: 15px;                 /* отступ от правого края */
+    top: 15px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    padding: 0;
+}
+
+.modal-close-button:hover {
+    transform: scale(1.05); /* увеличиваем на 5% */
+    cursor: pointer;
+}
+
+
+/* Модальное окно - добавление */
+
+.add-modal-content {
+    position: relative;
+    width: 700px;
+    height: 270px;
+    background-color: #4F6273;
+    border-radius: 20px;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+.add-modal-input {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.add-modal-input-name {
+    width: 100%;
+    background-color: #BFB1A4;
+    border-radius: 20px;
+    height: 70px;
+    text-align: center;
+}
+
+.add-modal-input-name p {
+    color: #283740;
+    font-size: clamp(15px, 1.5vw + 0.3vh, 22px);
+    font-weight: 300;
+    line-height: 70px;
+    margin: 0;
+}
+
+.add-modal-input-btn {
+    width: 100%;
+    background-color: #283740;
+    border-radius: 20px;
+    height: 70px;
+    text-align: center;
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.notice-modal-content button :hover {
-    transform: scale(1.05); /* увеличиваем на 5% */
+.add-modal-input-btn:hover {
+    transform: scale(1.02); /* увеличиваем на 5% */
     cursor: pointer;
+}
+
+.add-modal-input-btn p {
+    color: #FFFBF4;
+    font-size: clamp(15px, 1.6vw + 0.3vh, 22px);
+    line-height: 70px;
+    font-weight: 500;
+    margin: 0;
+}
+
+
+/* Модальное окно - добавить комнату */
+
+.add-room-modal-input-part,
+.add-room-modal-input-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add-room-modal-input-avatar {
+    width: 260px;
+    text-align: center;
+}
+
+.add-room-modal-input-avatar img {
+    width: 100px;
+    height: 100px;
+    margin: 0;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.add-room-modal-input-avatar img:hover {
+    transform: scale(1.03); /* увеличиваем на 5% */
+    cursor: pointer;
+}
+
+.add-room-modal-input-avatar p {
+    color: #FFFBF4;
+    font-size: clamp(15px, 1.3vw + 0.3vh, 22px);
+    margin: 0;
+}
+
+.add-room-modal-input-part {
+    width: 400px;
+}
+
+
+/* Модальное окно - добавить друга */
+
+.add-friend-modal-input-part {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }

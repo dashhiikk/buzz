@@ -11,13 +11,12 @@
 }
 
 .entry-block img {
-    width: 200px;
-    height: 200px;
+    width: 30%;
     margin-top: 20px;
 }
 
 .entry-header {
-    font-size: 28px;
+    font-size: clamp(15px, 1.5vw + 0.3vh, 28px);
     font-weight: 700;
     color: #FFFBF4;
     margin: 0;
@@ -30,13 +29,16 @@
     gap: 15px;
     margin-top: 30px;
     width: 90%;
+    height: 40%;
 }
 
 .entry-input,
 .entry-input-btn {
-    height: 45px;
+    height: 18%;
     border-radius: 20px;
     text-decoration: none;
+    display: flex;
+    align-items: center;
 }
 
 .entry-input{
@@ -47,7 +49,7 @@
 
 .entry-input-btn {
     background-color: #4F6273;
-    text-align: center;
+    justify-content: center;
     transition: transform 0.2s ease, background-color 0.2s ease;
     color: #FFFBF4;
 }
@@ -55,16 +57,15 @@
 .entry-input p,
 .entry-input-btn p {
     margin: 0;
-    line-height: 45px;
 }
 
 .entry-input p {
-    font-size: 16px;
+    font-size: 98%;
     font-weight: 300;
 }
 
 .entry-input-btn p {
-    font-size: 20px;
+    font-size: 110%;
     font-weight: 500;
 }
 

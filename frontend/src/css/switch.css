@@ -29,10 +29,15 @@
 
 .entry-switch-btn-left p,
 .entry-switch-btn-center p,
-.entry-switch-btn-right p,
+.entry-switch-btn-right p{
+    font-size: clamp(12px, 0.9vw + 0.3vh, 18px);
+    font-weight: 700;
+    margin: 0;
+}
+
 .start-switch-btn-left p,
 .start-switch-btn-right p {
-    font-size: 18px;
+    font-size: clamp(14px, 1.2vw + 0.3vh, 20px);
     font-weight: 700;
     margin: 0;
 }

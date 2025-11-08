@@ -18,3 +18,22 @@ body {
   font-family: 'Comfortaa', sans-serif;
 }
 
+.page {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 60px;
+  padding: 0 5%;
+  box-sizing: border-box;
+  margin-bottom: 50px;
+}
+
+.left-block {
+  width: 100%;
+  max-width: 450px;
+  height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  justify-content: space-between;
+}

@@ -1,9 +1,11 @@
 .header {
     width: 100%;
+    padding: 0 5%;
+    box-sizing: border-box;
 }
 .header-content {
     height: 100px;
-    width: 1320px;
+    max-width: 1320px;
     display: flex;
     flex-direction: row;           
     justify-content: space-between; 

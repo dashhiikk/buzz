@@ -1,8 +1,9 @@
-import buzzlogofull from "../../assets/buzz-logo-full.png"
+import buzzlogofull from "../../assets/buzz-logo.svg"
+import '../../css/chat.css'
 
 export default function StartChatFriend() {
     return (
-        <main className="start-chat-block">
+        <main className="chat-block">
             <div className="start-chat-content">
                 <img src={buzzlogofull}></img>
                 <p>Выберите друга, чтобы начать общение</p>
