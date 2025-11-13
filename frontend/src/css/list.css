@@ -31,7 +31,7 @@
 
 .start-list-element p {
     color: #FFFBF4;
-    font-size: clamp(14px, 1.2vw + 0.3vh, 22px);
+    font-size: clamp(14px, 1.0vw + 0.3vh, 18px);
     font-weight: 400;
     margin: 0;
 }

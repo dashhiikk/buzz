@@ -50,8 +50,9 @@
 .entry-input-btn {
     background-color: #4F6273;
     justify-content: center;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;;
     color: #FFFBF4;
+    cursor: pointer; 
 }
 
 .entry-input p,
@@ -69,9 +70,8 @@
     font-weight: 500;
 }
 
-.entry-input-btn :hover {
-    transform: scale(1.05); /* увеличиваем на 5% */
-    cursor: pointer; 
+.entry-input-btn:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
 }
 
 

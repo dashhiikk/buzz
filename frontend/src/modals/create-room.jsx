@@ -13,16 +13,14 @@ export default function CreateRoom({ isOpen, onClose }) {
                 <button className="modal-close-button" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                <div className="add-modal-input">
                     <div className="add-room-modal-input-avatar">
                         <img src={avatar}></img>
-                        <p>Добавьте<br />аватар</p>
+                        <p>Добавьте аватар</p>
                     </div>
-                    <div className="add-room-modal-input-part">
+                    <div className="add-modal-input-part">
                         <div className="add-modal-input-name"><p>Введите название</p></div>
                         <div className="add-modal-input-btn"><p>Создать</p></div>
                     </div>
-                </div>
             </div>
         </div>
     );

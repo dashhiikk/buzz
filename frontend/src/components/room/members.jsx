@@ -1,30 +1,24 @@
-import search from "../../assets/search-icon.png"
-import plus from "../../assets/plus-icon.png"
-import friend from "../../assets/friend-icon.jpg"
-
-import AddFriend from "../../modals/add-friend"
-import StartSwitch from "./start-switch"
-
-import {Link} from 'react-router-dom'
-import { useState } from "react"
-
 import '../../css/left-block.css'
 import '../../css/list.css'
+import friend from "../../assets/friend-icon.jpg"
+import backward from "../../assets/backward-icon.png"
+import room from "../../assets/room-icon.jpg"
 
-export default function StartListFriend({ active, setActive }) {
-
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-    const openModal = () => setIsAddModalOpen(true);
-    const closeModal = () => setIsAddModalOpen(false);
-
+export default function RoomMembers() {
     return (
         <main className="left-block">
             <div className="left-block-header">
-                <img src={search} className="left-block-header-btn"></img>
-                <p>Друзья</p>
-                <img src={plus} onClick = {openModal} className="left-block-header-btn"></img>
+                <Link to="/start">
+                    <img src={backward} className="left-block-header-btn"/>
+                </Link>
+                <div className="left-block-header-name">
+                    <p>Участники</p>
+                </div>
+                <div className="left-block-header-name">
+                    <img src={room}></img>
+                </div>
             </div>
+
             <ul className="start-list">
                 <Link to="/friend" className="start-list-element">
                     <img src={friend}></img>
@@ -47,8 +41,6 @@ export default function StartListFriend({ active, setActive }) {
                     <p>Ник друга</p>
                 </Link> 
             </ul>
-            <StartSwitch active={active} setActive={setActive} />
-            <AddFriend isOpen={isAddModalOpen} onClose={closeModal}/>
         </main>
-    );
+    )
 }

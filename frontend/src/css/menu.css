@@ -1,0 +1,99 @@
+.menu {
+    width: fit-content;
+    height: fit-content;
+    border-radius: 20px;
+    background-color: #4F6273;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 10px;
+}
+
+.left-menu {
+    position: absolute;
+    top: 100%; /* под иконкой */
+    left: 50%; /* центр относительно иконки */
+    transform: translateX(-50%); /* смещение для центрирования */
+    z-index: 10;
+}
+    
+.red-menu-btn,
+.gray-menu-btn {
+    width: 180px;
+    height: fit-content;
+    padding: 8px 10px;
+    text-align: center;
+    border: none;
+    text-decoration: none;
+    border-radius: 20px;
+
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.red-menu-btn:hover,
+.gray-menu-btn:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.red-menu-btn,
+.gray-menu-btn{
+    font-family: 'Comfortaa', sans-serif;
+    font-size: clamp(10px, 0.6vw + 0.3vh, 16px);
+    color: #FFFBF4;
+}
+
+.red-menu-btn {
+    background-color: #7F2829;
+}
+
+.gray-menu-btn {
+    background-color: #283740;
+}
+
+.friend-message-menu {
+    position: absolute;
+    top: 50%; 
+    left: 100%; 
+    transform: translateY(-50%); 
+    z-index: 10;
+
+    padding: 10px 10px;
+}
+
+.user-message-menu {
+    position: absolute;
+    top: 50%; 
+    right: 100%;
+    transform: translateY(-50%);
+    z-index: 10;
+
+    padding: 10px 10px;
+}
+
+.message-menu-btn {
+    width: fit-content;
+    min-width: 110px;
+    height: fit-content;
+    padding: 8px 5px;
+    padding-top: 0;
+    text-align: center;
+    border: none;
+    background-color: rgba(0, 0, 0, 0);
+    border-bottom: 2px solid #BFB1A4;
+    border-radius: 0 0 5px 5px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.message-menu-btn{
+    font-family: 'Comfortaa', sans-serif;
+    font-size: clamp(10px, 0.6vw + 0.3vh, 16px);
+    color: #FFFBF4;
+}
+
+.message-menu-btn:hover {
+    color: #BFB1A4;
+    font-weight: 700;
+}

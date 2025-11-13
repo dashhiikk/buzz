@@ -19,11 +19,11 @@ export default function StartListRoom({ active, setActive }) {
     const closeModal = () => setIsCreateModalOpen(false);
 
     return (
-        <main className="left-block start-menu">
+        <main className="left-block">
             <div className="left-block-header">
-                <img src={search} alt="Поиск"></img>
+                <img src={search} alt="Поиск" className="left-block-header-btn"></img>
                 <p>Комнаты</p>
-                <img src={plus} alt="Создать комнату" onClick={openModal}></img>
+                <img src={plus} alt="Создать комнату" onClick={openModal} className="left-block-header-btn"></img>
             </div>
             <ul className="start-list">
                 <Link to="/room" className="start-list-element">

@@ -1,19 +1,18 @@
 import RoomChat from "../components/room/room-chat";
-import PinnedMessage from "../components/room/room-pinned-message";
 import RoomVoiceChat from "../components/room/room-voice";
-import Members from "../components/room/room.members";
 import Header from "../components/header";
+import RoomMembers from "../components/room/members";
+
+import { useState } from "react";
 
 export default function Room () {
+    const [active, setActive] = useState("voice");
     return (
         <main >
             <Header/>
-            <Members/>
             <div className="page">
-                <div className="left-block">
-                    <RoomVoiceChat/>
-                    <PinnedMessage/>
-                </div>
+                {active === "members" && <RoomMembers active={active} setActive={setActive} />}
+                {active === "voice" && <RoomVoiceChat active={active} setActive={setActive} />}
                 <RoomChat/>
             </div>
             

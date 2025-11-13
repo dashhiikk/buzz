@@ -12,12 +12,10 @@ export default function AddFriend({ isOpen, onClose }) {
                 <button className="modal-close-button" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                <div className="add-modal-input">
-                    <div className="add-friend-modal-input-part">
+                    <div className="add-modal-input-part">
                         <div className="add-modal-input-name"><p>Введите ник и код пользователя (name#1234)</p></div>
                         <div className="add-modal-input-btn"><p>Добавить</p></div>
                     </div>
-                </div>
             </div>
         </div>
     );

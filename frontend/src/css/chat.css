@@ -11,6 +11,8 @@
     flex-direction: column;
 }
 
+/* Стартовый пустой чат */
+
 .start-chat-content {
     width: 100%;
     max-width: 700px;
@@ -22,20 +24,22 @@
 }
 
 .start-chat-content img {
-    width: 60%;
+    width: 50%;
     margin: 0 auto;
 }
 
 .start-chat-content p {
     color: #FFFBF4;
-    font-size: clamp(15px, 1.5vw + 0.3vh, 28px);
+    font-size: clamp(15px, 1.2vw + 0.3vh, 22px);
     font-weight: 600;
     margin: 0;
 }
 
+/* Заголовок чата */
+
 .chat-header {
     width: 100%;
-    height: 70px;
+    height: 60px;
     border-bottom: 2px solid #BFB1A4;
     text-align: center;
 }
@@ -44,13 +48,87 @@
     color: #FFFBF4;
     font-weight: 700;
     margin: 0;
-    line-height: 70px;
+    line-height: 60px;
+    color: #FFFBF4;
+    font-size: clamp(15px, 1.3vw + 0.3vh, 24px);
 }
+
+/* Блок закрепленного сообщения */
+
+.pinned-message {
+  background-color: #283740;
+  width: 100%;
+  height: 5%;
+  min-height: 70px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 3%;
+  position: relative;
+  padding: 0 3%;
+  box-sizing: border-box;
+  border-bottom: 2px solid #BFB1A4;
+}
+
+.pinned-message img {
+    margin-top: 10px;
+    width: 32px;
+    height: 32px;
+}
+
+.copy-pinned-message {
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.copy-pinned-message:hover {
+    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+}
+
+.pinned-message-wrapper {
+  position: relative;
+  flex: 1;
+  margin-top: 5px;
+  overflow: hidden; /* скрываем лишнее для градиента */
+}
+
+.pinned-message-text {
+  margin: 0;
+  color: #FFFBF4;
+  font-size: clamp(13px, 0.8vw + 0.4vh, 16px);
+  overflow-y: auto;
+  max-height: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.pinned-message-text::-webkit-scrollbar {
+  display: none;
+}
+
+.pin-gradient-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(40,55,64,0) 0%, #283740 100%);
+}
+
+/* Блок с сообщениями */
 
 .message-block {
     flex: 1;
-    width: 90%;
-    margin: 10px 20px;
+    width: 94%;
+    margin-top: 20px;
+    overflow-y: auto; 
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.message-block::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .friend-message,
@@ -59,6 +137,7 @@
     display: flex;
     flex-direction: row;
     gap: 15px;
+    margin-bottom: 10px;
 }
 
 .friend-message {
@@ -79,8 +158,95 @@
     border-radius: 50%;
 }
 
-.message-name,
+.message-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.message-name img {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.message-name img:hover {
+    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+}
+
+.message-name p{
+    font-weight: 500;
+    font-size: clamp(14px, 0.7vw + 0.3vh, 18px);
+    margin: 0;
+    color: #BFB1A4;
+}
+
+.minidots-wrapper {
+    position: relative;
+}
+
 .message-text {
     color: #FFFBF4;
     margin: 0;
+    font-weight: 300;
+    font-size: clamp(12px, 0.8vw + 0.3vh, 17px);
+}
+
+/* БЛОК ВВОДА СООБЩЕНИЯ */
+
+.input-block {
+    background-color: #BFB1A4;
+    width: 94%;
+    height: 15%;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+}
+
+.input-block textarea {
+    flex: 1;
+    color: #283740;
+    background-color: #BFB1A4;
+    border: none;
+    font-size: clamp(12px, 0.7vw + 0.3vh, 16px);
+    font-weight: 400;
+    margin: 0;
+
+    outline: none; /* убираем синий контур при фокусе */
+    resize: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.input-block textarea::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.input-block textarea::placeholder {
+    color: #283740; /* тот же цвет, что у текста */
+    opacity: 0.6; /* можно чуть прозрачнее, если хочешь */
+    font-family: 'Comfortaa', sans-serif;
+    font-size: clamp(12px, 0.7vw + 0.3vh, 16px);
+    font-weight: 300;
+}
+
+.input-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-icons img {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.input-icons img:hover {
+    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
 }
