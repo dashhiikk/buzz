@@ -15,7 +15,7 @@ import RoomMenu from "./room-menu"
 import RoomSwitch from "./room-switch"
 import '../../css/left-block.css'
 
-export default function RoomVoiceChat({ active, setActive }) {
+export default function RoomVoiceChat({ active, setActive }) { 
 
     const listRef = useRef(null);
     const [canScroll, setCanScroll] = useState(false);

@@ -25,26 +25,36 @@ export default function StartListRoom({ active, setActive }) {
                 <p>Комнаты</p>
                 <img src={plus} alt="Создать комнату" onClick={openModal} className="left-block-header-btn"></img>
             </div>
-            <ul className="start-list">
-                <Link to="/room" className="start-list-element">
-                    <img src={room}></img>
-                    <p>Название комнаты</p>
+            <ul className="list">
+                <Link to="/room" className="list-element">
+                    <div className="list-element-name">
+                        <img src={room}></img>
+                        <p>Название комнаты</p>
+                    </div>
                 </Link>
-                <Link to="/room" className="start-list-element">
-                    <img src={room}></img>
-                    <p>Название комнаты</p>
+                <Link to="/room" className="list-element">
+                    <div className="list-element-name">
+                        <img src={room}></img>
+                        <p>Название комнаты</p>
+                    </div>
                 </Link>
-                <Link to="/room" className="start-list-element">
-                    <img src={room}></img>
-                    <p>Название комнаты</p>
+                <Link to="/room" className="list-element">
+                    <div className="list-element-name">
+                        <img src={room}></img>
+                        <p>Название комнаты</p>
+                    </div>
                 </Link>
-                <Link to="/room" className="start-list-element">
-                    <img src={room}></img>
-                    <p>Название комнаты</p>
+                <Link to="/room" className="list-element">
+                    <div className="list-element-name">
+                        <img src={room}></img>
+                        <p>Название комнаты</p>
+                    </div>
                 </Link>
-                <Link to="/room" className="start-list-element">
-                    <img src={room}></img>
-                    <p>Название комнаты</p>
+                <Link to="/room" className="list-element">
+                    <div className="list-element-name">
+                        <img src={room}></img>
+                        <p>Название комнаты</p>
+                    </div>
                 </Link>
             </ul>
             <StartSwitch active={active} setActive={setActive} />

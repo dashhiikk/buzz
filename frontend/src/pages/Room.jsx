@@ -15,8 +15,6 @@ export default function Room () {
                 {active === "voice" && <RoomVoiceChat active={active} setActive={setActive} />}
                 <RoomChat/>
             </div>
-            
-            
         </main>
     )
 }

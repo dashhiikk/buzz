@@ -25,27 +25,37 @@ export default function StartListFriend({ active, setActive }) {
                 <p>Друзья</p>
                 <img src={plus} onClick = {openModal} className="left-block-header-btn"></img>
             </div>
-            <ul className="start-list">
-                <Link to="/friend" className="start-list-element">
-                    <img src={friend}></img>
-                    <p>Ник друга</p>
-                </Link> 
-                <Link to="/friend" className="start-list-element">
-                    <img src={friend}></img>
-                    <p>Ник друга</p>
-                </Link> 
-                <Link to="/friend" className="start-list-element">
-                    <img src={friend}></img>
-                    <p>Ник друга</p>
-                </Link> 
-                <Link to="/friend" className="start-list-element">
-                    <img src={friend}></img>
-                    <p>Ник друга</p>
-                </Link> 
-                <Link to="/friend" className="start-list-element">
-                    <img src={friend}></img>
-                    <p>Ник друга</p>
-                </Link> 
+            <ul className="list">
+                <Link to="/friend" className="list-element">
+                    <div className='list-element-name'>
+                        <img src={friend}></img>
+                        <p>Ник друга</p>
+                    </div>
+                </Link>  
+                <Link to="/friend" className="list-element">
+                    <div className='list-element-name'>
+                        <img src={friend}></img>
+                        <p>Ник друга</p>
+                    </div>
+                </Link>  
+                <Link to="/friend" className="list-element">
+                    <div className='list-element-name'>
+                        <img src={friend}></img>
+                        <p>Ник друга</p>
+                    </div>
+                </Link>   
+                <Link to="/friend" className="list-element">
+                    <div className='list-element-name'>
+                        <img src={friend}></img>
+                        <p>Ник друга</p>
+                    </div>
+                </Link>   
+                <Link to="/friend" className="list-element">
+                    <div className='list-element-name'>
+                        <img src={friend}></img>
+                        <p>Ник друга</p>
+                    </div>
+                </Link>  
             </ul>
             <StartSwitch active={active} setActive={setActive} />
             <AddFriend isOpen={isAddModalOpen} onClose={closeModal}/>

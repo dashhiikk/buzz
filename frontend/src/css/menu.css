@@ -20,7 +20,8 @@
 }
     
 .red-menu-btn,
-.gray-menu-btn {
+.gray-menu-btn,
+.beige-menu-btn {
     width: 180px;
     height: fit-content;
     padding: 8px 10px;
@@ -33,12 +34,14 @@
 }
 
 .red-menu-btn:hover,
-.gray-menu-btn:hover {
+.gray-menu-btn:hover,
+.beige-menu-btn:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 .red-menu-btn,
-.gray-menu-btn{
+.gray-menu-btn,
+.beige-menu-btn {
     font-family: 'Comfortaa', sans-serif;
     font-size: clamp(10px, 0.6vw + 0.3vh, 16px);
     color: #FFFBF4;
@@ -50,6 +53,10 @@
 
 .gray-menu-btn {
     background-color: #283740;
+}
+
+.beige-menu-btn {
+    background-color: #BFB1A4;
 }
 
 .friend-message-menu {

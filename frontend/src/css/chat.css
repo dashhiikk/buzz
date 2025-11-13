@@ -199,7 +199,7 @@
     background-color: #BFB1A4;
     width: 94%;
     height: 15%;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     border-radius: 20px;
     padding: 10px 10px;
     box-sizing: border-box;
@@ -239,7 +239,7 @@
 .input-icons {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    justify-content: space-between;
 }
 
 .input-icons img {

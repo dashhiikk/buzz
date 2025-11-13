@@ -2,9 +2,8 @@
     display: flex;
     margin-top: auto;
     border-top: 2px solid #BFB1A4;
-
     width: 100%;
-    height: 60px;
+    height: 45px;
 }
 
 .entry-switch-btn-left,
