@@ -30,3 +30,24 @@
     display: flex;
     gap: 15px;
 }
+
+.settings-wrapper {
+    position: relative;
+    z-index: 20;
+}
+
+.settings-wrapper img {
+  position: relative; /* чтобы z-index сработал */
+  z-index: 30; /* выше чем у Settings */
+  transition: transform 0.3s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.settings-wrapper img:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.settings-wrapper img.rotated {
+  transform: rotate(360deg); /* повернуть на 180° */
+}

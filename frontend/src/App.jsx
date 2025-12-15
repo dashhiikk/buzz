@@ -1,5 +1,6 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'; // Убрал неиспользуемый Navigate
 import { lazy, Suspense } from 'react';
+import Background from './components/background'; // Импортируй компонент (предполагаю путь src/components/Background.jsx)
 
 const Entry = lazy(() => import('./pages/Entry'));
 const Friend = lazy(() => import('./pages/Friend'));
@@ -8,7 +9,6 @@ const Settings = lazy(() => import('./pages/Settings'));
 const Start = lazy(() => import('./pages/Start'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Recovery = lazy(() => import('./pages/Recovery'));
-
 
 const router = createBrowserRouter([
   { path: '*', element: <NotFound /> },
@@ -22,8 +22,11 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
+    <>
+      <Background /> {/* Фон с анимацией - absolute, так что будет под всем контентом */}
       <Suspense fallback={<div>Загрузка...</div>}>
         <RouterProvider router={router} />
       </Suspense>
+    </>
   );
 }

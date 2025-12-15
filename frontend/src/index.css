@@ -16,6 +16,7 @@ body {
   min-height: 100vh;
   background: linear-gradient(180deg, #D7D9D8 54%, #283740 100%);
   font-family: 'Comfortaa', sans-serif;
+  z-index: 0;
 }
 
 .page {
