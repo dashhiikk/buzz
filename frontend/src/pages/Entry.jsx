@@ -13,7 +13,7 @@ export default function Entry() {
 
     return (
         <main>
-            <Header/>
+            <Header hideIconsAndLogo={true}/>
             {active === "auth" && <Auth active={active} setActive={setActive} />}
             {active === "recovery" && <Recovery active={active} setActive={setActive} />}
             {active === "registration" && <Registration active={active} setActive={setActive} />}

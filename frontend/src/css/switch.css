@@ -25,26 +25,11 @@
     transition: transform 0.2s ease;
 }
 
-.entry-switch-btn-left p,
-.entry-switch-btn-center p,
-.entry-switch-btn-right p{
-    font-size: clamp(12px, 0.9vw + 0.3vh, 18px);
-    font-weight: 500;
-    margin: 0;
-}
-
-.start-switch-btn-left p,
-.start-switch-btn-right p {
-    font-size: clamp(14px, 1.2vw + 0.3vh, 20px);
-    font-weight: 500;
-    margin: 0;
-}
-
-.entry-switch-btn-left p:hover,
-.entry-switch-btn-center p:hover,
-.entry-switch-btn-right p:hover,
-.start-switch-btn-left p:hover,
-.start-switch-btn-right p:hover {
+.entry-switch-btn-left :hover,
+.entry-switch-btn-center :hover,
+.entry-switch-btn-right :hover,
+.start-switch-btn-left :hover,
+.start-switch-btn-right :hover {
     font-weight: 700;
     transform: scale(1.05);
 }
@@ -75,8 +60,4 @@
 .switch-btn-active {
     background-color: #BFB1A4 !important;
     color: #283740 !important;
-}
-
-.switch-btn-active p {
-    font-weight: 700;
 }

@@ -6,7 +6,7 @@ import '../css/header.css'
 import Settings from "./settings/settings"
 import { useState } from "react"
 
-export default function Header() {
+export default function Header({ hideIconsAndLogo }) {
 
   const [openSettings, setOpenSettings] = useState(false)
   const [rotated, setRotated] = useState(false);
@@ -16,15 +16,11 @@ export default function Header() {
     setRotated(prev => !prev);
   };
 
-  
-
   return (
-    <main className="header">
+    <main className={`header ${hideIconsAndLogo ? "hidden" : ""}`}>
       <div className="header-content">
-        <div className="header-buzz-icon">
-          <img src={buzziconbee} ></img>
-        </div>
-        <h1>buzz</h1>
+        <img className="header-buzz-img" src={buzziconbee} ></img>
+        <h1 className="buzz">buzz</h1>
         <div className="header-icons">
           <div className="settings-wrapper">
             <img 

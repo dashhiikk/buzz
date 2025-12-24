@@ -1,0 +1,32 @@
+.large-text {
+    margin: 0;
+    font-weight: 700;
+    font-size: clamp(15px, 1.3vw + 0.3vh, 24px);
+}
+
+.medium-text {
+    margin: 0;
+    font-weight: 600;
+    font-size: clamp(15px, 1.0vw + 0.3vh, 20px);
+}
+
+.small-text {
+    margin: 0;
+    font-weight: 400;
+    font-size: clamp(14px, 1.0vw + 0.3vh, 18px);  
+}
+
+.input-text {
+    margin: 0;
+    font-weight: 300;
+    font-size: clamp(12px, 0.9vw + 0.3vh, 16px);
+    text-rendering: optimizeLegibility;
+}
+
+.text--light {
+    color: #FFFBF4;
+}
+
+.text--dark {
+    color: #283740;
+}

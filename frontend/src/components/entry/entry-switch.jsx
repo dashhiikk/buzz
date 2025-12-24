@@ -8,19 +8,19 @@ export default function EntrySwitch({ active, setActive }) {
         className={`entry-switch-btn-left ${active === "recovery" ? "switch-btn-active" : ""}`}
         onClick={() => setActive("recovery")}
       >
-        <p>Забыл пароль</p>
+        <p className='small-text'>Забыл пароль</p>
       </div>
       <div
         className={`entry-switch-btn-center ${active === "auth" ? "switch-btn-active" : ""}`}
         onClick={() => setActive("auth")}
       >
-        <p>Вход</p>
+        <p className='small-text'>Вход</p>
       </div>
       <div
         className={`entry-switch-btn-right ${active === "registration" ? "switch-btn-active" : ""}`}
         onClick={() => setActive("registration")}
       >
-        <p>Регистрация</p>
+        <p className='small-text'>Регистрация</p>
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
 .header {
     width: 100%;
+    height: fit-content;
     padding: 0 5%;
     box-sizing: border-box;
 }
+
 .header-content {
     height: 100px;
     max-width: 1320px;
@@ -10,30 +12,35 @@
     flex-direction: row;           
     justify-content: space-between; 
     align-items: center;
-    margin: 0 auto;        
+    margin: 0 auto;  
 }
 
-.header-content h1 {
+.header-buzz-img {
+    height: 70px;
+    width: 115px;
+}
+
+.buzz {
     margin: 0;
     font-family: 'Rubik Doodle Shadow';
-    font-size: 64px;
+    font-size: clamp(32px, 10vw + 1vh, 64px);
+    line-height: 1;
     font-weight: 400;
     letter-spacing: 0.1em;
-}
-
-.header-buzz-icon {
-    width: 115px;
-    height: 70px;
 }
 
 .header-icons {
     display: flex;
     gap: 15px;
+    height: 50px;
+    align-items: center;
 }
 
 .settings-wrapper {
     position: relative;
     z-index: 20;
+    display: flex; 
+    align-items: center;
 }
 
 .settings-wrapper img {
@@ -50,4 +57,45 @@
 
 .settings-wrapper img.rotated {
   transform: rotate(360deg); /* повернуть на 180° */
+}
+
+.header.hidden .header-content{
+    justify-content: center;
+}
+
+.header.hidden .header-buzz-img,
+.header.hidden .header-icons {
+  display: none;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: row; /* оставляем горизонтально */
+        justify-content: space-between;
+        align-items: center;
+        height: auto;
+        padding: 5px 0;
+        gap: 10px;
+    }
+
+    .header-buzz-img {
+        height: 40px; /* меньше логотип */
+        width: auto;  /* сохраняем пропорции */
+    }
+
+    .buzz {
+        font-size: clamp(20px, 6vw + 1vh, 32px); /* уменьшаем размер текста */
+        line-height: 1;
+    }
+
+    .header-icons {
+        gap: 10px;
+        height: auto;
+    }
+
+    .settings-wrapper img,
+    .header-icons img:last-child {
+        width: 30px;  /* уменьшаем иконки */
+        height: 30px;
+    }
 }

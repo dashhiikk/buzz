@@ -6,20 +6,20 @@ export default function NewPassword() {
     return (
         <main className="entry-block">
             <img src={buzzlogo}></img>
-            <p className='entry-header'>Восстановление пароля</p>
+            <p className='large-text text--light'>Восстановление пароля</p>
             <div className='entry-input-block'>
                 <div className='entry-input'>
-                    <p>Введите новый пароль</p>
+                    <p className="input-text text--dark">Введите новый пароль</p>
                 </div>
                 <div className='entry-input'>
-                    <p>Повторите пароль</p>
+                    <p className="input-text text--dark">Повторите пароль</p>
                 </div>
                 <Link 
                     to="/start"
                     state={{ fromRecovery: true }}
                     className='entry-input-btn'
                 >
-                    <p>Сохранить</p>
+                    <p className="small-text text--light">Сохранить</p>
                 </Link>
             </div>
         </main>

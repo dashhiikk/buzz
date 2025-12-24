@@ -1,12 +1,14 @@
 .entry-block {
     height: calc(100vh - 150px);
     aspect-ratio: 1 / 1.5;
+    max-width: 90%;
     margin: 0 auto;
     background-color: #283740;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 15px;
     margin-bottom: 50px;
 }
 
@@ -15,19 +17,11 @@
     margin-top: 20px;
 }
 
-.entry-header {
-    font-size: clamp(15px, 1.5vw + 0.3vh, 28px);
-    font-weight: 700;
-    color: #FFFBF4;
-    margin: 0;
-    margin-top: 10px;
-}
-
 .entry-input-block {
     display: flex;          
     flex-direction: column; 
     gap: 15px;
-    margin-top: 30px;
+    margin-top: 15px;
     width: 90%;
     height: 40%;
 }
@@ -43,7 +37,6 @@
 
 .entry-input{
     background-color: #BFB1A4;
-    color: #283740;
     padding-left: 20px;
 }
 
@@ -51,23 +44,7 @@
     background-color: #4F6273;
     justify-content: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;;
-    color: #FFFBF4;
     cursor: pointer; 
-}
-
-.entry-input p,
-.entry-input-btn p {
-    margin: 0;
-}
-
-.entry-input p {
-    font-size: 98%;
-    font-weight: 300;
-}
-
-.entry-input-btn p {
-    font-size: 110%;
-    font-weight: 500;
 }
 
 .entry-input-btn:hover {
