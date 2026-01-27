@@ -7,9 +7,9 @@ export default function RecoveryNotice({ isOpen, onClose }) {
 
     return (
         <div className="modal">
-            <div className="notice-modal-content">
-                <h2 className="modal-header">Пароль был изменен</h2>
-                <button className="modal-close-button" onClick={onClose}>
+            <div className="modal-content">
+                <p className="medium-text text--light">Пароль был изменен</p>
+                <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>
                 </button>
             </div>

@@ -2,18 +2,16 @@ import {Link} from "react-router-dom"
 
 import buzzlogo from "../../assets/buzz-logo.svg"
 
+import Input from "../input"
+
 export default function NewPassword() {
     return (
         <main className="entry-block">
             <img src={buzzlogo}></img>
             <p className='large-text text--light'>Восстановление пароля</p>
             <div className='entry-input-block'>
-                <div className='entry-input'>
-                    <p className="input-text text--dark">Введите новый пароль</p>
-                </div>
-                <div className='entry-input'>
-                    <p className="input-text text--dark">Повторите пароль</p>
-                </div>
+                <Input placeholder="Введите новый пароль"/>
+                <Input placeholder="Повторите пароль"/>
                 <Link 
                     to="/start"
                     state={{ fromRecovery: true }}

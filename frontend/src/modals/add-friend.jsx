@@ -1,20 +1,24 @@
 import React from "react";
-import "../css/modals.css"; // Подключите стили для модального окна
+import "../css/modals.css";
 import close from "../assets/close-icon.png"
+
+import Input from "../components/input";
 
 export default function AddFriend({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
         <div className="modal">
-            <div className="add-modal-content">
-                <h2 className="modal-header">Добавить друга</h2>
-                <button className="modal-close-button" onClick={onClose}>
+            <div className="modal-content">
+                <p className="medium-text text--light">Добавить друга</p>
+                <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                    <div className="add-modal-input-part">
-                        <div className="add-modal-input-name"><p>Введите ник и код пользователя (name#1234)</p></div>
-                        <div className="add-modal-input-btn"><p>Добавить</p></div>
+                    <div className="modal-input-block">
+                        <Input placeholder={"Ник друга#1234"}/>
+                        <div className="modal-input-btn">
+                            <p className="small-text text--light">Добавить</p>
+                        </div>
                     </div>
             </div>
         </div>

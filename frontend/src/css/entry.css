@@ -8,6 +8,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     gap: 15px;
     margin-bottom: 50px;
 }
@@ -26,21 +27,13 @@
     height: fit-content;
 }
 
-.entry-input,
 .entry-input-btn {
     height: 40px;
-    border-radius: 10px;
+    border-radius: 15px;
     text-decoration: none;
     display: flex;
     align-items: center;
-}
 
-.entry-input{
-    background-color: #BFB1A4;
-    padding-left: 20px;
-}
-
-.entry-input-btn {
     background-color: #4F6273;
     justify-content: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;;

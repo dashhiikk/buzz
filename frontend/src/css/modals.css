@@ -20,104 +20,67 @@
 
 /* Модальное окно - уведомление */
 
-.notice-modal-content {
+.modal-content {
     position: relative;
-    width: 600px;
-    height: 100px;
+    width: fit-content;
+    max-width: 500px;
+    margin: 0 20px;
+    height: fit-content;
     background-color: #4F6273;
     border-radius: 20px;
 
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-
-/* Общий стлиь - заголовок */
-
-.modal-header {
-    font-size: clamp(16px, 1.3vw + 0.3vh, 24px);
-    margin: 0;
-    color: #FFFBF4;
+    flex-direction: column;
     text-align: center;
-    line-height: 30px;
+    gap: 15px;
+    padding: 20px 25px;
+    box-sizing: border-box;
 }
 
 
 /* Общий стиль - кнопка закрыть */
 
-.modal-close-button {
+.modal-close-btn {
     background-color: #4F6273;
     border: none;
     position: absolute;
     right: 15px;
     top: 15px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease;
     padding: 0;
 }
 
-.modal-close-button:hover {
-    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+.modal-close-btn:hover {
+    transform: translateY(-2px);
     cursor: pointer;
 }
 
 
 /* Модальное окно - добавление */
 
-.add-modal-content {
-    position: relative;
-    width: fit-content;
-    height: fit-content;
-    background-color: #4F6273;
-    border-radius: 20px;
-    padding: 15px 15px;
-
+.modal-input-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 15px;
+    text-decoration: none;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     align-items: center;
-    gap: 20px;
-}
+    justify-content: center;
 
-.add-modal-input-name,
-.add-modal-input-btn {
-    width: 300px;
-    height: fit-content;
-    padding: 5px 5px;
-    border-radius: 20px;
-    text-align: center;
-}
-
-.add-modal-input-name {
-    background-color: #BFB1A4;
-}
-
-.add-modal-input-name p {
-    color: #283740;
-    font-size: clamp(12px, 0.9vw + 0.3vh, 18px);
-    font-weight: 300;
-    margin: 0;
-}
-
-.add-modal-input-btn {
     background-color: #283740;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.add-modal-input-btn:hover {
+.modal-input-btn:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
     cursor: pointer;
 }
 
-.add-modal-input-btn p {
-    color: #FFFBF4;
-    font-size: clamp(14px, 1.2vw + 0.3vh, 20px);
-    font-weight: 500;
-    margin: 0;
-}
-
-.add-modal-input-part,
-.add-room-modal-input-avatar {
+.modal-input-block,
+.modal-input-avatar {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -125,25 +88,14 @@
     gap: 10px;
 }
 
-.add-room-modal-input-avatar {
-    gap: 5px;
-}
-
-.add-room-modal-input-avatar img {
-    width: 100px;
-    height: 100px;
+.modal-input-avatar img {
     border-radius: 50%;
     margin: 0;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.add-room-modal-input-avatar img:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+.modal-input-avatar img:hover {
+    box-shadow: 0 0px 8px rgba(0, 0, 0, 0.4);
     cursor: pointer;
 }
 
-.add-room-modal-input-avatar p {
-    color: #FFFBF4;
-    font-size: clamp(13px, 1.0vw + 0.3vh, 18px);
-    margin: 0;
-}

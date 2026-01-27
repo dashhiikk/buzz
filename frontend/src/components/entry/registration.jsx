@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import buzzlogo from "../../assets/buzz-logo.svg"
 
 import EntrySwitch from "./entry-switch"
+import Input from "../input"
 
 export default function Registation({ active, setActive }) {
 
@@ -10,21 +11,13 @@ export default function Registation({ active, setActive }) {
             <img src={buzzlogo}></img>
             <p className='large-text text--light'>Регистрация</p>
             <div className='entry-input-block'>
-                <div className='entry-input'>
-                    <p className="input-text text--dark">Введите ник</p>
-                </div>
-                <div className='entry-input'>
-                    <p className="input-text text--dark">Введите почту</p>
-                </div>
-                <div className='entry-input'>
-                    <p className="input-text text--dark">Введите пароль</p>
-                </div>
-                <div className='entry-input'>
-                    <p className="input-text text--dark">Повторите пароль</p>
-                </div>
+                <Input placeholder="Введите ник"/>
+                <Input placeholder="Введите почту" type="email"/>
+                <Input placeholder="Введите пароль"/>
+                <Input placeholder="Повторите пароль"/>
                 <Link
                     to="/start"
-                    state={{ fromRegistration: true }} // <-- state напрямую, НЕ в объекте
+                    state={{ fromRegistration: true }}
                     className="entry-input-btn"
                 >
                     <p className="small-text text--light">Зарегистрироваться</p>
