@@ -13,8 +13,7 @@ import {Link} from "react-router-dom";
 import { useState } from "react";
 
 import '../../css/left-block.css'
-
-
+import '../../css/voice-chat.css'
 
 export default function FriendVoiceChat() {
 
@@ -35,7 +34,7 @@ export default function FriendVoiceChat() {
                 </Link>
                 <div className="left-block-header-name">
                     <img src={friend}></img>
-                    <p>Название комнаты</p>
+                    <p className="medium-text text--light">Название комнаты</p>
                 </div>
                 <div className="dots-wrapper">
                     <img src={dots} className="left-block-header-btn" onClick={toggleMenu}></img>

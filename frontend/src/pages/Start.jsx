@@ -9,10 +9,12 @@ import StartListFriend from "../components/start/start-menu-friend"
 import RegistationNotice from "../modals/registration-notice";
 import RecoveryNotice from "../modals/recovery-notice";
 
+import useIsPortrait from "../hooks/is-portrait";
+
 export default function Start() {
 
     const [active, setActive] = useState("room");
-
+    const isPortrait = useIsPortrait();
     const location = useLocation();
     
     const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(!!location.state?.fromRegistration); // Открываем модал, если пришли из Registration
@@ -35,10 +37,36 @@ export default function Start() {
         <main>
             <Header/>
             <div className="page">
-                {active === "room" && <StartListRoom active={active} setActive={setActive} />}
-                {active === "room" && <StartChatRoom active={active} setActive={setActive} />}
-                {active === "friend" && <StartListFriend active={active} setActive={setActive} />}
-                {active === "friend" && <StartChatFriend active={active} setActive={setActive} />}
+                {active === "room" && (
+                    <>
+                        <StartListRoom
+                            active={active}
+                            setActive={setActive}
+                        />
+
+                        {!isPortrait && (
+                            <StartChatRoom
+                                active={active}
+                                setActive={setActive}
+                            />
+                        )}
+                    </>
+                )}
+                {active === "friend" && (
+                    <>
+                        <StartListFriend
+                            active={active}
+                            setActive={setActive}
+                        />
+
+                        {!isPortrait && (
+                            <StartChatFriend
+                                active={active}
+                                setActive={setActive}
+                            />
+                        )}
+                    </>
+                )}
             </div>
             <RegistationNotice isOpen={isRegistrationModalOpen} onClose={handleCloseModal} />
             <RecoveryNotice isOpen={isRecoveryModalOpen} onClose={handleCloseModal} />

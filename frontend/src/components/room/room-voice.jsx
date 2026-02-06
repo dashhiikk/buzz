@@ -8,27 +8,25 @@ import headON from "../../assets/headphone-on.svg"
 import micOFF from "../../assets/mic-off.png"
 import headOFF from "../../assets/head-off.png"
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {Link} from "react-router-dom";
 
 import RoomMenu from "./room-menu"
-import RoomSwitch from "./room-switch"
+import RoomMembers from "./members"
+import List from "../list"
+
 import '../../css/left-block.css'
+import '../../css/voice-chat.css'
 
-export default function RoomVoiceChat({ active, setActive }) { 
-
-    const listRef = useRef(null);
-    const [canScroll, setCanScroll] = useState(false);
-
-    // Проверяем, превышает ли scrollHeight высоту контейнера
-    useLayoutEffect(() => {
-        const el = listRef.current;
-        if (el) {
-        setCanScroll(el.scrollHeight > el.clientHeight);
-        }
-    }, []);
+export default function RoomVoiceChat() { 
 
     const [menuVisible, setMenuVisible] = useState(false);
+    const [isMembersOpen, setIsMembersOpen] = useState(false);
+
+    const openMembersModal = () => {
+        setMenuVisible(false);      // закрываем меню
+        setIsMembersOpen(true);     // открываем модалку
+    };
 
     const toggleMenu = () => {
         setMenuVisible(prev => !prev); // переключаем состояние
@@ -36,6 +34,19 @@ export default function RoomVoiceChat({ active, setActive }) {
 
     const [micOn, setMicOn] = useState(true);
     const [headphonesOn, setHeadphonesOn] = useState(true);
+
+    const members = [
+        { id: 1, name: "Ник друга", avatar: friend},
+        { id: 2, name: "Ник друга", avatar: friend},
+        { id: 3, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+
+    ];
 
     return (
         <main className="left-block">
@@ -45,7 +56,7 @@ export default function RoomVoiceChat({ active, setActive }) {
                 </Link>
                 <div className="left-block-header-name">
                     <img src={room}></img>
-                    <p>Название комнаты</p>
+                    <p className="medium-text text--light">Название комнаты</p>
                 </div>
                 <div className="dots-wrapper">
                     <img
@@ -56,43 +67,21 @@ export default function RoomVoiceChat({ active, setActive }) {
                     />
 
                     {menuVisible && (
-                        <RoomMenu onCancel={() => setMenuVisible(false)} />
+                        <RoomMenu 
+                            onCancel={() => setMenuVisible(false)}
+                            onOpenMembers={openMembersModal} 
+                        />
                     )}
+
+                    <RoomMembers
+                        isOpen={isMembersOpen}
+                        onClose={() => setIsMembersOpen(false)}
+                    />
                 </div>
             </div>
             <div className="voice-chat">
                 <p className="voice-chat-header">Голосовой чат</p>
-                <ul ref={listRef} className="voice-chat-members">
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                </ul>
-                {canScroll && <div className="voice-gradient-overlay" />}
+                <List items={members} />
                 <button className="invite-voice-chat-btn"> 
                     <p>Присоединиться</p>
                 </button>
@@ -113,7 +102,6 @@ export default function RoomVoiceChat({ active, setActive }) {
                 </div>
 
             </div>
-            <RoomSwitch active={active} setActive={setActive}/>
         </main>
     )
 }

@@ -22,38 +22,38 @@ export default function StartListRoom({ active, setActive }) {
         <main className="left-block">
             <div className="left-block-header">
                 <img src={search} alt="Поиск" className="left-block-header-btn"></img>
-                <p>Комнаты</p>
+                <p className="medium-text text--light">Комнаты</p>
                 <img src={plus} alt="Создать комнату" onClick={openModal} className="left-block-header-btn"></img>
             </div>
             <ul className="list">
                 <Link to="/room" className="list-element">
                     <div className="list-element-name">
                         <img src={room}></img>
-                        <p>Название комнаты</p>
+                        <p className="small-text text--light">Название комнаты</p>
                     </div>
                 </Link>
                 <Link to="/room" className="list-element">
                     <div className="list-element-name">
                         <img src={room}></img>
-                        <p>Название комнаты</p>
+                        <p className="small-text text--light">Название комнаты</p>
                     </div>
                 </Link>
                 <Link to="/room" className="list-element">
                     <div className="list-element-name">
                         <img src={room}></img>
-                        <p>Название комнаты</p>
+                        <p className="small-text text--light">Название комнаты</p>
                     </div>
                 </Link>
                 <Link to="/room" className="list-element">
                     <div className="list-element-name">
                         <img src={room}></img>
-                        <p>Название комнаты</p>
+                        <p className="small-text text--light">Название комнаты</p>
                     </div>
                 </Link>
                 <Link to="/room" className="list-element">
                     <div className="list-element-name">
                         <img src={room}></img>
-                        <p>Название комнаты</p>
+                        <p className="small-text text--light">Название комнаты</p>
                     </div>
                 </Link>
             </ul>

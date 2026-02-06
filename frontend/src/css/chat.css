@@ -11,6 +11,12 @@
     flex-direction: column;
 }
 
+@media (max-width: 900px) {
+    .chat-block {
+        height: calc(100vh - 120px);
+    }
+}
+
 /* Стартовый пустой чат */
 
 .start-chat-content {
@@ -33,10 +39,6 @@
     font-size: clamp(15px, 1.2vw + 0.3vh, 22px);
     font-weight: 600;
     margin: 0;
-}
-
-@media (max-width: 768px) {
-    
 }
 
 /* Заголовок чата */

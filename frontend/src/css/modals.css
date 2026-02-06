@@ -18,13 +18,13 @@
 }
 
 
-/* Модальное окно - уведомление */
+/* Модальное окно */
 
 .modal-content {
     position: relative;
     width: fit-content;
+    min-width: 250px;
     max-width: 500px;
-    margin: 0 20px;
     height: fit-content;
     background-color: #4F6273;
     border-radius: 20px;
@@ -35,10 +35,15 @@
     flex-direction: column;
     text-align: center;
     gap: 15px;
-    padding: 20px 25px;
+    padding: 10px 0;
     box-sizing: border-box;
 }
 
+@media (max-width: 550px) {
+    .modal-content {
+        width: 90%;
+    }
+}
 
 /* Общий стиль - кнопка закрыть */
 
@@ -80,7 +85,7 @@
 
 .modal-input-block,
 .modal-input-avatar {
-    width: 100%;
+    width: 80%;
     display: flex;
     flex-direction: column;
     align-items: center;

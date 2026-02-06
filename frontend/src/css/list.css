@@ -4,21 +4,48 @@
     margin: 0 20px;
     margin-bottom: 15px;
     flex:1;
+
+    overflow-y: auto;
+    scrollbar-width: thin; /* тонкая полоса */
+    scrollbar-color: #BFB1A4 rgba(0,0,0,0); /* цвет ползунка и фона */
 }
 
-.list-element,
-.list-element-with-status {
-    border-bottom: 1px solid #BFB1A4;
-    height: 60px;
+.list--light {
+    scrollbar-color: #BFB1A4 rgba(0,0,0,0);
+}
 
-    text-decoration: none;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+.list--dark {
+    scrollbar-color: #4F6273 rgba(0,0,0,0);
+}
+
+.list::-webkit-scrollbar {
+  width: 8px; /* ширина полосы */
+}
+
+.list::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0);
+  border-radius: 10px;
+}
+
+.list--light::-webkit-scrollbar-thumb {
+  background-color: #BFB1A4; /* цвет ползунка */
+  border-radius: 10px;
+}
+
+.list--dark::-webkit-scrollbar-thumb {
+  background-color: #4F6273; /* цвет ползунка */
+  border-radius: 10px;
 }
 
 .list-element {
+    border-bottom: 1px solid #BFB1A4;
+    height: 60px;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease;
     display: flex;
     justify-content:space-between;
     align-items: center;
+    gap:15px
 }
 
 .list-element-name {

@@ -11,6 +11,20 @@
 
     background-color: #283740;
     border-radius: 20px;
+
+    position: relative;
+}
+
+@media (max-width: 1024px) {
+    .left-block {
+        max-width: 810px;
+    }
+}
+
+@media (max-width: 900px) {
+    .left-block {
+        height: calc(100vh - 100px);
+    }
 }
 
 
@@ -44,13 +58,6 @@
     box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
 }
 
-.left-block-header p,
-.left-block-header-name p{
-    color: #FFFBF4;
-    font-size: clamp(15px, 1.0vw + 0.3vh, 20px);
-    font-weight: 700;
-    margin: 0;
-}
 
 .left-block-header-name img {
     border-radius: 50%;
@@ -63,161 +70,6 @@
   display: inline-block;
 }
 
-/* Блок голосовго чата */
-
-.voice-chat {
-    flex: 1;
-    min-height: 0;
-    margin: 10px 20px;
-    margin-top: 15px;
-    background: linear-gradient(180deg, #D7D9D8 0%, #BFB1A4 60%);
-    border-radius: 20px;
-    padding-top: 15px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-.voice-chat-header {
-    font-weight: 600;
-    margin: 0 15px;
-    color: #283740;
-    font-size: clamp(15px, 1.2vw + 0.3vh, 20px);
-}
-
-.voice-chat-members {
-    list-style: none;
-    padding: 0;
-    margin: 5px 15px;
-    overflow-y: auto; 
-    flex: 1;
-
-    scrollbar-width: thin; /* тонкая полоса */
-    scrollbar-color: #4F6273 rgba(0,0,0,0); /* цвет ползунка и фона */
-}
-
-.voice-chat-members::-webkit-scrollbar {
-  width: 8px; /* ширина полосы */
-}
-
-.voice-chat-members::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0);
-  border-radius: 10px;
-}
-
-.voice-chat-members::-webkit-scrollbar-thumb {
-  background-color: #4F6273; /* цвет ползунка */
-  border-radius: 10px;
-}
-
-
-.voice-chat-member {
-    width: 100%;
-    height: 50px;
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    align-items: center;
-}
-
-.voice-chat-member p {
-    font-weight: 400;
-    margin: 0;
-    color: #283740;
-    font-size: clamp(12px, 0.8vw + 0.3vh, 18px);
-}
-
-.voice-chat-member img {
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-}
-
-.invite-voice-chat-btn {
-    height: 40px;
-    border: none;
-    border-top: 2px solid #4F6273;
-    border-radius: 0 0 20px 20px;
-    background-color: rgb(0,0,0,0);
-    transition: transform 0.2s ease, background-color 0.2s ease;
-    z-index: 10;
-}
-
-.invite-voice-chat-btn :hover {
-    transform: scale(1.02);
-    font-weight: 700;
-}
-
-.invite-voice-chat-btn p {
-    font-family: 'Comfortaa', sans-serif;
-    font-weight: 500;
-    font-size: clamp(15px, 0.9vw + 0.4vh, 20px);
-    color: #283740;
-    margin: 0;
-}
-
-/* Панель пользователя в голосовом чате */
-
-.user-voice {
-    margin: 0 20px;
-    margin-top: auto;
-    margin-bottom: 10px;
-    height: 60px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.user-voice-chat-member {
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    align-items: center;
-}
-
-.user-voice-chat-member p {
-    font-weight: 400;
-    margin: 0;
-    color: #FFFBF4;
-    font-size: clamp(14px, 0.9vw + 0.3vh, 20px);
-}
-
-.user-voice-chat-member img {
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-}
-
-.voice-icons {
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    align-items: center;
-}
-
-.voice-icons img {
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.voice-icons img:hover {
-    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
-}
-
-.friend-voice-chat {
-    min-height: 200px;
-    margin: 10px 20px;
-    margin-top: 15px;
-    background: linear-gradient(180deg, #D7D9D8 0%, #BFB1A4 60%);
-    border-radius: 20px;
-    padding-top: 15px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
 
 
 

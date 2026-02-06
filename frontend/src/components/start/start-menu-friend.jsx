@@ -22,38 +22,38 @@ export default function StartListFriend({ active, setActive }) {
         <main className="left-block">
             <div className="left-block-header">
                 <img src={search} className="left-block-header-btn"></img>
-                <p>Друзья</p>
+                <p className="medium-text text--light">Друзья</p>
                 <img src={plus} onClick = {openModal} className="left-block-header-btn"></img>
             </div>
             <ul className="list">
                 <Link to="/friend" className="list-element">
                     <div className='list-element-name'>
                         <img src={friend}></img>
-                        <p>Ник друга</p>
+                        <p className="small-text text--light">Ник друга</p>
                     </div>
                 </Link>  
                 <Link to="/friend" className="list-element">
                     <div className='list-element-name'>
                         <img src={friend}></img>
-                        <p>Ник друга</p>
+                        <p className="small-text text--light">Ник друга</p>
                     </div>
                 </Link>  
                 <Link to="/friend" className="list-element">
                     <div className='list-element-name'>
                         <img src={friend}></img>
-                        <p>Ник друга</p>
+                        <p className="small-text text--light">Ник друга</p>
                     </div>
                 </Link>   
                 <Link to="/friend" className="list-element">
                     <div className='list-element-name'>
                         <img src={friend}></img>
-                        <p>Ник друга</p>
+                        <p className="small-text text--light">Ник друга</p>
                     </div>
                 </Link>   
                 <Link to="/friend" className="list-element">
                     <div className='list-element-name'>
                         <img src={friend}></img>
-                        <p>Ник друга</p>
+                        <p className="small-text text--light">Ник друга</p>
                     </div>
                 </Link>  
             </ul>
