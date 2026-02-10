@@ -1,49 +1,40 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef} from "react";
+import '../css/list.css'
 
 export default function List({
     items,
-    variant = "light", // light | dark
+    mode = "active",
+    color = "light,"
 }) {
-    const listRef = useRef(null);
-    const [canScroll, setCanScroll] = useState(false);
 
-    useLayoutEffect(() => {
-        const el = listRef.current;
-        if (el) {
-            setCanScroll(el.scrollHeight > el.clientHeight);
-        }
-    }, [items]);
+    const listRef = useRef(null);
 
     return (
-        <div className="list-wrapper">
+        <>
             <ul
                 ref={listRef}
-                className={`list list--${variant}`}
+                className={`list list--${color}`}
             >
                 {items.map(item => (
                     <li
                         key={item.id}
-                        className={`list-element list-element--${variant}`}
+                        className={`list-element list-element--${mode}`}
                     >
                         <div className="list-element-name">
                             <img src={item.avatar} alt="" />
-                            <p className="list-element-text">
+                            <p className={`small-text text--${color}`}>
                                 {item.name}
                             </p>
                         </div>
 
                         {item.status && (
-                            <p className="list-element-status">
+                            <p className={`input-text text--${color}`}>
                                 {item.status}
                             </p>
                         )}
                     </li>
                 ))}
             </ul>
-
-            {canScroll && (
-                <div className={`list-gradient list-gradient--${variant}`} />
-            )}
-        </div>
+        </>
     );
 }

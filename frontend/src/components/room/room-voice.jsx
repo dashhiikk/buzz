@@ -40,12 +40,15 @@ export default function RoomVoiceChat() {
         { id: 2, name: "Ник друга", avatar: friend},
         { id: 3, name: "Ник друга", avatar: friend },
         { id: 4, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-
+        { id: 5, name: "Ник друга", avatar: friend },
+        { id: 6, name: "Ник друга", avatar: friend },
+        { id: 7, name: "Ник друга", avatar: friend },
+        { id: 8, name: "Ник друга", avatar: friend },
+        { id: 9, name: "Ник друга", avatar: friend },
+        { id: 10, name: "Ник друга", avatar: friend },
+        { id: 11, name: "Ник друга", avatar: friend },
+        { id: 12, name: "Ник друга", avatar: friend },
+        { id: 13 , name: "Ник друга", avatar: friend },
     ];
 
     return (
@@ -81,7 +84,7 @@ export default function RoomVoiceChat() {
             </div>
             <div className="voice-chat">
                 <p className="voice-chat-header">Голосовой чат</p>
-                <List items={members} />
+                <List items={members} mode="passive" color="dark"/>
                 <button className="invite-voice-chat-btn"> 
                     <p>Присоединиться</p>
                 </button>
