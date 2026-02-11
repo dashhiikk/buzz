@@ -1,9 +1,7 @@
 import { useState } from "react";
 
 import Header from "../components/header"
-import Auth from "../components/entry/auth"
-import Recovery from "../components/entry/recovery";
-import Registration from "../components/entry/registration"
+import EntryForm from "../components/entry/entry-form";
 
 import '../css/entry.css'
 
@@ -14,9 +12,11 @@ export default function Entry() {
     return (
         <main>
             <Header hideIconsAndLogo={true}/>
-            {active === "auth" && <Auth active={active} setActive={setActive} />}
-            {active === "recovery" && <Recovery active={active} setActive={setActive} />}
-            {active === "registration" && <Registration active={active} setActive={setActive} />}
+            <EntryForm
+                type={active}
+                active={active}
+                setActive={setActive}
+            />
         </main>
     );
 }

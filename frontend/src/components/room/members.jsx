@@ -10,6 +10,8 @@ import close from "../../assets/close-icon.png"
 export default function RoomMembers({ isOpen, onClose }) {
     if (!isOpen) return null;
 
+    
+
     return (
         <main className="modal">
             <div className="modal-content">

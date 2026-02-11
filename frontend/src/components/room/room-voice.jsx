@@ -35,7 +35,7 @@ export default function RoomVoiceChat() {
     const [micOn, setMicOn] = useState(true);
     const [headphonesOn, setHeadphonesOn] = useState(true);
 
-    const members = [
+    const voiceMembers = [
         { id: 1, name: "Ник друга", avatar: friend},
         { id: 2, name: "Ник друга", avatar: friend},
         { id: 3, name: "Ник друга", avatar: friend },
@@ -84,7 +84,7 @@ export default function RoomVoiceChat() {
             </div>
             <div className="voice-chat">
                 <p className="voice-chat-header">Голосовой чат</p>
-                <List items={members} mode="passive" color="dark"/>
+                <List items={voiceMembers} mode="passive" color="dark"/>
                 <button className="invite-voice-chat-btn"> 
                     <p>Присоединиться</p>
                 </button>
