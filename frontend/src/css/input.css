@@ -11,10 +11,31 @@
     box-sizing: border-box;
 }
 
+.input input {
+  all: unset;
+  font-family: 'Comfortaa', sans-serif; 
+}
+
 .input input::placeholder {
     color: #283740;
 }
 
 .input input::placeholder:hover {
     color: #4F6273;
+}
+
+.input input:-webkit-autofill,
+.input input:-webkit-autofill:hover,
+.input input:-webkit-autofill:focus,
+.input input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+    -webkit-text-fill-color: #283740 !important;
+    font-family: 'Comfortaa', sans-serif !important;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+.input input:-moz-autofill {
+    box-shadow: 0 0 0 1000px transparent inset !important;
+    -moz-text-fill-color: #283740 !important;
+    font-family: 'Comfortaa', sans-serif !important;
 }
