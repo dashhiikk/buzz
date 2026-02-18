@@ -8,6 +8,7 @@
 
     overflow-y: auto;
     scrollbar-width: thin; /* тонкая полоса */
+    width: 90%;
 }
 
 .list--light {

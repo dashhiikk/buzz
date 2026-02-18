@@ -1,8 +1,8 @@
 .settings-case {
   position: absolute;
   display: flex;
-  top: 0; /* верх wrapper */
-  right: 0; /* правый край окна совпадает с левым краем wrapper */
+  top: 0;
+  right: 0;
   z-index: 10;
 
   opacity: 0;
@@ -235,35 +235,6 @@
   pointer-events: none;
 }
 
-.adv-settings-block {
-    width: 100%;
-    max-width: 810px;
-    height: calc(100vh - 150px);
-    background-color: #283740;
-    border-radius: 20px;
-    
-    display: flex;               /* превращаем в флекс-контейнер */
-    justify-content: flex-start;     /* центрируем по горизонтали */
-    align-items: center;
-    flex-direction: column;
-}
-
-.adv-settings-header {
-    width: 100%;
-    height: 60px;
-    border-bottom: 2px solid #BFB1A4;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.adv-settings-header p {
-    color: #FFFBF4;
-    font-weight: 700;
-    margin: 0;
-    line-height: 60px;
-    font-size: clamp(15px, 1.3vw + 0.3vh, 24px);
-}
-
 .adv-settings-input-block {
   display: flex;
   flex-direction: row;
@@ -290,28 +261,11 @@
   width: 100%;
 }
 
-.adv-settings-input-header {
-  color: #FFFBF4;
-  font-size: clamp(15px, 1.0vw + 0.3vh, 20px);
-  font-weight: 500;
-  margin: 0;
-}
-
 .adv-settings-input-field {
   padding-left: 10px;
-  background-color: #4F6273;
-  border-radius: 20px;
   height: fit-content;
   display: flex;
   align-items: center;
-  min-height: 35px;
-}
-
-.adv-settings-input-text {
-  margin: 0;
-  color: #FFFBF4;
-  font-weight: 300;
-  font-size: clamp(10px, 0.9vw + 0.4vh, 16px);
 }
 
 .adv-settings-input-btn {

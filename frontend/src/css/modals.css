@@ -23,9 +23,10 @@
 .modal-content {
     position: relative;
     width: fit-content;
-    min-width: 250px;
+    min-width: 300px;
     max-width: 500px;
     height: fit-content;
+    max-height: 50%;
     background-color: #4F6273;
     border-radius: 20px;
 

@@ -12,7 +12,8 @@ export default function StartMenu({
     items,
     onAddClick,
     active, 
-    setActive 
+    setActive,
+    onItemClick,
 }) {
 
     return (
@@ -22,7 +23,12 @@ export default function StartMenu({
                 <p className="medium-text text--light">{title}</p>
                 <img src={plus} onClick = {onAddClick} className="left-block-header-btn"></img>
             </div>
-            <List items={items} mode="active" color="light"/>
+            <List 
+                items={items}
+                mode="active"
+                color="light"
+                onItemClick={onItemClick}
+            />
             <StartSwitch active={active} setActive={setActive} />
         </main>
     );

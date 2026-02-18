@@ -7,6 +7,7 @@ import copy from "../../assets/copy-icon.png"
 import minidots from "../../assets/dots-icon-mini.png"
 
 import '../../css/chat.css'
+import '../../css/right-block.css'
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -92,9 +93,9 @@ export default function RoomChat() {
     };
 
     return (
-        <main className="chat-block">
-            <div className="chat-header">
-                <p>Чат</p>
+        <main className="right-block">
+            <div className="right-block-header">
+                <p className="large-text text--light">Чат</p>
             </div>
             <div className="pinned-message">
                 <img src={pin}/>

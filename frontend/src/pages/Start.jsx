@@ -79,6 +79,11 @@ export default function Start() {
                             onAddClick={() => setIsCreateRoomOpen(true)}
                             active={active}
                             setActive={setActive}
+                            onItemClick={(room) => {
+                                navigate("/room", {
+                                    state: { roomId: room.id, room }
+                                });
+                            }}
                         />
                         {!isPortrait && (
                             <StartChat text="Зайдите в комнату, чтобы начать общение"/>
@@ -93,6 +98,11 @@ export default function Start() {
                             onAddClick={() => setIsAddFriendOpen(true)}
                             active={active}
                             setActive={setActive}
+                            onItemClick={(friend) => {
+                                navigate("/friend", {
+                                    state: { friendId: friend.id, friend }
+                                });
+                            }}
                         />
                         {!isPortrait && (
                             <StartChat text="Выберите друга, чтобы начать общение"/>

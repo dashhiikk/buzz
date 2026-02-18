@@ -8,6 +8,7 @@ import micOFF from "../../assets/mic-off.png"
 import headOFF from "../../assets/head-off.png"
 
 import FriendMenu from "./friend-menu"
+import List from "../list"
 
 import {Link} from "react-router-dom";
 import { useState } from "react";
@@ -26,6 +27,10 @@ export default function FriendVoiceChat() {
         setMenuVisible(prev => !prev);
     };
 
+    const voiceMembers = [
+        { id: 1, name: "Ник друга", avatar: friend},
+    ];
+
     return (
         <main className="left-block">
             <div className="left-block-header">
@@ -34,7 +39,7 @@ export default function FriendVoiceChat() {
                 </Link>
                 <div className="left-block-header-name">
                     <img src={friend}></img>
-                    <p className="medium-text text--light">Название комнаты</p>
+                    <p className="medium-text text--light">Ник друга</p>
                 </div>
                 <div className="dots-wrapper">
                     <img src={dots} className="left-block-header-btn" onClick={toggleMenu}></img>
@@ -46,12 +51,7 @@ export default function FriendVoiceChat() {
             </div>
             <div className="friend-voice-chat">
                 <p className="voice-chat-header">Голосовой чат</p>
-                <ul className="voice-chat-members">
-                    <li className="voice-chat-member">
-                        <img src={friend}></img>
-                        <p>Ник друга</p>
-                    </li>
-                </ul>
+                <List items={voiceMembers} mode="passive" color="dark"/>
                 <button className="invite-voice-chat-btn"> 
                     <p>Присоединиться</p>
                 </button>

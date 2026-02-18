@@ -1,13 +1,14 @@
 import "../../css/settings.css"
+import "../../css/right-block.css"
 
 import VolumeSlider from "./volume";
 import open from "../../assets/down-arrow.png"
 
 export default function AdvSettingsVolume() {
     return (
-        <main className="adv-settings-block">
-            <div className="adv-settings-header">
-                <p>Звук</p>
+        <main className="right-block">
+            <div className="right-block-header">
+                <p className="large-text text--light">Звук</p>
             </div>
             <div className="adv-settings-input-block">
                 <div className="settings-device">

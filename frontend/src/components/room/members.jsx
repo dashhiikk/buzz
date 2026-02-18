@@ -4,13 +4,27 @@ import '../../css/modals.css'
 import friend from "../../assets/friend-icon.jpg"
 import close from "../../assets/close-icon.png"
 
-
+import List from '../list'
 
 
 export default function RoomMembers({ isOpen, onClose }) {
     if (!isOpen) return null;
 
-    
+    const roomMembers = [
+        { id: 1, name: "Ник друга", avatar: friend},
+        { id: 2, name: "Ник друга", avatar: friend},
+        { id: 3, name: "Ник друга", avatar: friend },
+        { id: 4, name: "Ник друга", avatar: friend },
+        { id: 5, name: "Ник друга", avatar: friend },
+        { id: 6, name: "Ник друга", avatar: friend },
+        { id: 7, name: "Ник друга", avatar: friend },
+        { id: 8, name: "Ник друга", avatar: friend },
+        { id: 9, name: "Ник друга", avatar: friend },
+        { id: 10, name: "Ник друга", avatar: friend },
+        { id: 11, name: "Ник друга", avatar: friend },
+        { id: 12, name: "Ник друга", avatar: friend },
+        { id: 13 , name: "Ник друга", avatar: friend },
+    ];
 
     return (
         <main className="modal">
@@ -19,46 +33,7 @@ export default function RoomMembers({ isOpen, onClose }) {
                 <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                <ul className="list">
-                    <li className="list-element">
-                        <div className="list-element-name">
-                            <img src={friend}></img>
-                            <p>Ник друга</p>
-                        </div>
-                        <p className="list-element-status">Администратор</p>
-                    </li> 
-                    <li className="list-element">
-                        <div className="list-element-name">
-                            <img src={friend}></img>
-                            <p>Ник друга</p>
-                        </div>
-                        <p className="list-element-status">Я</p>
-                    </li> 
-                    <li className="list-element">
-                        <div className="list-element-name">
-                            <img src={friend}></img>
-                            <p>Ник друга</p>
-                        </div>
-                    </li>  
-                    <li className="list-element">
-                        <div className="list-element-name">
-                            <img src={friend}></img>
-                            <p>Ник друга</p>
-                        </div>
-                    </li>
-                    <li className="list-element">
-                        <div className="list-element-name">
-                            <img src={friend}></img>
-                            <p>Ник друга</p>
-                        </div>
-                    </li>  
-                    <li className="list-element">
-                        <div className="list-element-name">
-                            <img src={friend}></img>
-                            <p>Ник друга</p>
-                        </div>
-                    </li> 
-                </ul>
+                <List items={roomMembers} mode="passive" color="light"/>
             </div>
         </main>
     )

@@ -1,0 +1,26 @@
+.right-block {
+    width: 100%;
+    max-width: 810px;
+    height: calc(100vh - 150px);
+    background-color: #283740;
+    border-radius: 20px;
+    
+    display: flex;               /* превращаем в флекс-контейнер */
+    justify-content: flex-start;     /* центрируем по горизонтали */
+    align-items: center;
+    flex-direction: column;
+}
+
+@media (max-width: 900px) {
+    .right-block {
+        height: calc(100vh - 120px);
+    }
+}
+
+.right-block-header {
+  width: 100%;
+  height: 60px;
+  border-bottom: 2px solid #BFB1A4;
+  text-align: center;
+  line-height: 60px;
+}

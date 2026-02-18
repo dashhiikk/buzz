@@ -50,7 +50,7 @@ export default function RoomVoiceChat() {
         { id: 12, name: "Ник друга", avatar: friend },
         { id: 13 , name: "Ник друга", avatar: friend },
     ];
-
+ 
     return (
         <main className="left-block">
             <div className="left-block-header">

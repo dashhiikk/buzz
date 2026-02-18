@@ -9,8 +9,16 @@ import wave from "../../assets/wave-icon.png"
 import question from "../../assets/question-icon.png"
 
 import {Link} from "react-router-dom"
+import List from "../list"
 
 export default function AdvSettingsMenu({setActive}) {
+
+     const settings = [
+        { id: 1, key: "profile", name: "Профиль", avatar: profile },
+        { id: 2, key: "volume", name: "Звук", avatar: wave },
+        { id: 3, key: "help", name: "Что-то ещё", avatar: question },
+    ];
+
     return (
         <main className="left-block">
             <div className="settings-headder">
@@ -20,26 +28,12 @@ export default function AdvSettingsMenu({setActive}) {
                 <p>Наcтройки</p>
                 <p></p>
             </div>
-            <ul className="list">
-                <li className="list-element" onClick={() => setActive("profile")}>
-                    <div className='list-element-name'>
-                        <img src={profile}></img>
-                        <p>Профиль</p>
-                    </div>
-                </li>  
-                <li className="list-element" onClick={() => setActive("volume")}>
-                    <div className='list-element-name'>
-                        <img src={wave}></img>
-                        <p>Звук</p>
-                    </div>
-                </li> 
-                <li className="list-element">
-                    <div className='list-element-name'>
-                        <img src={question}></img>
-                        <p>Что-то еще</p>
-                    </div>
-                </li> 
-            </ul>
+            <List 
+                items={settings}
+                mode="active"
+                color="light"
+                onItemClick={(item) => setActive(item.key)}
+            />
         </main>
     );
 }

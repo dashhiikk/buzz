@@ -4,7 +4,8 @@ import '../css/list.css'
 export default function List({
     items,
     mode = "active",
-    color = "light,"
+    color = "light",
+    onItemClick,
 }) {
 
     const listRef = useRef(null);
@@ -19,6 +20,11 @@ export default function List({
                     <li
                         key={item.id}
                         className={`list-element list-element--${mode}`}
+                        onClick={() => {
+                            if (mode === "active") {
+                                onItemClick?.(item);
+                            }
+                        }}
                     >
                         <div className="list-element-name">
                             <img src={item.avatar} alt="" />

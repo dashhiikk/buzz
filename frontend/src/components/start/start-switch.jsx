@@ -1,7 +1,6 @@
 import '../../css/switch.css'
 
 export default function StartSwitch({ active, setActive }) {
-  console.log("Active:", active);
   return (
     <div className="switch">
       <div
