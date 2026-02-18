@@ -8,8 +8,8 @@ export default function EntryForm({ type, active, setActive }) {
     auth: {
       title: "Авторизация",
       inputs: [
-        { id: "login", placeholder: "Введите ник" },
-        { id: "password", placeholder: "Введите пароль", type: "password" },
+        { id: "login", placeholder: "Введите ник", autoComplete: "username" },
+        { id: "password", placeholder: "Введите пароль", type: "password", autoComplete: "current-password" },
       ],
       buttonText: "Войти",
       linkTo: "/start",
@@ -18,10 +18,10 @@ export default function EntryForm({ type, active, setActive }) {
     registration: {
       title: "Регистрация",
       inputs: [
-        { id: "login", placeholder: "Введите ник" },
-        { id: "email", placeholder: "Введите почту", type: "email" },
-        { id: "password", placeholder: "Введите пароль", type: "password" },
-        { id: "passwordRepeat", placeholder: "Повторите пароль", type: "password" },
+        { id: "login", placeholder: "Введите ник", autoComplete: "off" },
+        { id: "email", placeholder: "Введите почту", type: "email", autoComplete: "off" },
+        { id: "password", placeholder: "Введите пароль", type: "password", autoComplete: "new-password" },
+        { id: "passwordRepeat", placeholder: "Повторите пароль", type: "password", autoComplete: "new-password" },
       ],
       buttonText: "Зарегистрироваться",
       linkTo: "/start",
@@ -30,8 +30,8 @@ export default function EntryForm({ type, active, setActive }) {
     recovery: {
       title: "Восстановление пароля",
       inputs: [
-        { id: "login", placeholder: "Введите ник" },
-        { id: "email", placeholder: "Введите почту", type: "email" },
+        { id: "login", placeholder: "Введите ник", autoComplete: "off" },
+        { id: "email", placeholder: "Введите почту", type: "email", autoComplete: "off" },
       ],
       buttonText: "Получить ссылку",
       linkTo: "/recovery",
@@ -40,8 +40,8 @@ export default function EntryForm({ type, active, setActive }) {
     newpassword: {
       title: "Восстановление пароля",
       inputs: [
-        { id: "newPassword", placeholder: "Введите новый пароль", type: "password" },
-        { id: "repeatPassword", placeholder: "Повторите пароль", type: "password" },
+        { id: "newPassword", placeholder: "Введите новый пароль", type: "password", autoComplete: "new-password" },
+        { id: "repeatPassword", placeholder: "Повторите пароль", type: "password", autoComplete: "new-password" },
       ],
       buttonText: "Сохранить",
       linkTo: "/start",
@@ -62,6 +62,8 @@ export default function EntryForm({ type, active, setActive }) {
             key={`${type}-${input.id}`}
             placeholder={input.placeholder}
             type={input.type || "text"}
+            autoComplete={input.autoComplete}
+            name={input.id}
           />
         ))}
 
