@@ -5,7 +5,9 @@ import "testing"
 func TestHashPassword(t *testing.T) {
 	password := "secretpassword"
 
-	hash, err := HashPassword(password)
+	hasher := NewBcryptHasher()
+
+	hash, err := hasher.Hash(password)
 	if err != nil {
 		t.Fatalf("HashPassword returned err: %v", err)
 	}
@@ -13,13 +15,13 @@ func TestHashPassword(t *testing.T) {
 		t.Fatal("HashPassword returned void hash")
 	}
 
-	err = CheckPasswordHash(password, hash)
+	err = hasher.Check(password, hash)
 	if err != nil {
 		t.Fatalf("CheckPasswordHash не прошла для правильного пароля: %v", err)
 	}
 
 	wrongPassword := "wrongpassword"
-	err = CheckPasswordHash(wrongPassword, hash)
+	err = hasher.Check(wrongPassword, hash)
 	if err == nil {
 		t.Fatal("CheckPasswordHash прошла для неправильного пароля")
 	}

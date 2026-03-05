@@ -1,9 +1,16 @@
 package jwt
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+)
+
+var (
+	ErrTokenExpired     = errors.New("token expired")
+	ErrTokenInvalid     = errors.New("token invalid")
+	ErrSignatureInvalid = errors.New("signature invalid")
 )
 
 type Service interface {
@@ -12,7 +19,7 @@ type Service interface {
 }
 
 type Claims struct {
-	UserID string `json:"user_id"`
+	UserId string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -32,7 +39,7 @@ func (s *JWTService) Generate(userId string) (string, error) {
 	expireTime := time.Now().Add(time.Duration(s.accessExpire) * time.Second)
 
 	claims := &Claims{
-		UserID: userId,
+		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -55,7 +62,13 @@ func (s *JWTService) Validate(tokenStr string) (*Claims, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrTokenExpired
+		}
+		if errors.Is(err, jwt.ErrSignatureInvalid) {
+			return nil, ErrSignatureInvalid
+		}
+		return nil, ErrTokenInvalid
 	}
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {

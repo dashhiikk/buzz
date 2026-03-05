@@ -2,7 +2,18 @@ package hash
 
 import "golang.org/x/crypto/bcrypt"
 
-func HashPassword(password string) (string, error) {
+type PasswordHasher interface {
+	Hash(password string) (string, error)
+	Check(password, hash string) error
+}
+
+type BcryptHasher struct{}
+
+func NewBcryptHasher() *BcryptHasher {
+	return &BcryptHasher{}
+}
+
+func (h *BcryptHasher) Hash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -11,6 +22,6 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), nil
 }
 
-func CheckPasswordHash(password, hash string) error {
+func (h *BcryptHasher) Check(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }

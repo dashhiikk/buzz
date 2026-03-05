@@ -22,7 +22,7 @@ func TestJWTService(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Validate error: %v", err)
 	}
-	if claims.UserID != userID {
-		t.Errorf("expected UserId %s, got %s", userID, claims.UserID)
+	if claims.UserId != userID {
+		t.Errorf("expected UserId %s, got %s", userID, claims.UserId)
 	}
 }
