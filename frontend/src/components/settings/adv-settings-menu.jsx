@@ -25,7 +25,7 @@ export default function AdvSettingsMenu({setActive}) {
                 <Link to="/start">
                     <img src={backward} className="left-block-header-btn"/>
                 </Link>
-                <p>Наcтройки</p>
+                <p className="medium-text text--light">Наcтройки</p>
                 <p></p>
             </div>
             <List 

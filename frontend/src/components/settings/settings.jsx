@@ -21,34 +21,34 @@ export default function Settings() {
         <main className={`settings-case ${visible ? "open" : ""}`}>
             <div className="settings-block">
                 <div className="settings-headder">
-                    <p>Настройки</p>
+                    <p className="medium-text text--light">Настройки</p>
                 </div>
                 <div className="settings-device-block">
                     <div className="settings-device">
-                        <p>Устройство<br/>вывода</p>
+                        <p className="small-text text--light">Устройство<br/>вывода</p>
                         <div className="change-device">
-                            <p>Выбранное устройство</p>
+                            <p className="input-text text--light">Выбранное устройство</p>
                             <img src={open}/>
                         </div>
                     </div>
                     <div className="settings-device">
-                        <p>Устройство<br/>ввода</p>
+                        <p className="small-text text--light">Устройство<br/>ввода</p>
                         <div className="change-device">
-                            <p>Выбранное устройство</p>
+                            <p className="input-text text--light">Выбранное устройство</p>
                             <img src={open}/>
                         </div>
                     </div>
                 </div>
                 <div className="settings-volume">
-                    <p>Громкость микрофона</p>
+                    <p className="small-text text--light">Громкость микрофона</p>
                     <VolumeSlider/>
-                    <p>Громкость звука</p>
+                    <p className="small-text text--light">Громкость звука</p>
                     <VolumeSlider/>
-                    <p>Шумоподавление</p>
+                    <p className="small-text text--light">Шумоподавление</p>
                     <VolumeSlider/>
                 </div>
                 <Link to="/settings" className="adv-settings-btn">
-                    <p>Расширенные<br/>настройки</p>
+                    <p className="small-text text--light">Расширенные<br/>настройки</p>
                 </Link>
             </div>
         </main>

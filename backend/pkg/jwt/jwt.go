@@ -1,0 +1,66 @@
+package jwt
+
+import (
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type Service interface {
+	Generate(userId string) (string, error)
+	Validate(tokenStr string) (*Claims, error)
+}
+
+type Claims struct {
+	UserID string `json:"user_id"`
+	jwt.RegisteredClaims
+}
+
+type JWTService struct {
+	secretKey    []byte
+	accessExpire int64
+}
+
+func NewJWTService(secretKey string, accessExpire int64) *JWTService {
+	return &JWTService{
+		secretKey:    []byte(secretKey),
+		accessExpire: accessExpire,
+	}
+}
+
+func (s *JWTService) Generate(userId string) (string, error) {
+	expireTime := time.Now().Add(time.Duration(s.accessExpire) * time.Second)
+
+	claims := &Claims{
+		UserID: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    "buzz",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(s.secretKey)
+}
+
+func (s *JWTService) Validate(tokenStr string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+		return s.secretKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, jwt.ErrTokenInvalidClaims
+}

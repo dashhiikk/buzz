@@ -12,7 +12,6 @@ export default function AdvSettingsField({
   return (
     <div className="adv-settings-input">
       <p className="medium-text text--light">{label}</p>
-
       <div className="adv-settings-input-field">
         <Input
           name={name}
@@ -20,9 +19,8 @@ export default function AdvSettingsField({
           placeholder={placeholder}
           autoComplete={autoComplete}
         />
-
         {rightSlot && (
-          <div className="adv-settings-input-btn">
+          <div className="adv-settings-righ-slot">
             {rightSlot}
           </div>
         )}

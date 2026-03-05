@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import "../../css/settings.css";
+import "../../css/volume.css";
 
 export default function VolumeSlider() {
   const [volume, setVolume] = useState(50);

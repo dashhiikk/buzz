@@ -10,7 +10,7 @@ export default function AdvSettingsVolume() {
             <div className="right-block-header">
                 <p className="large-text text--light">Звук</p>
             </div>
-            <div className="adv-settings-input-block">
+            <div className="settings-device-block">
                 <div className="settings-device">
                     <p>Устройство<br/>вывода</p>
                     <div className="change-device">
@@ -26,16 +26,14 @@ export default function AdvSettingsVolume() {
                     </div>
                 </div>
             </div>
-            <div className="adv-settings-input-block">
-                <div className="adv-settings-input">
-                    <div className="settings-volume adv-settings-volume">
-                        <p>Громкость микрофона</p>
-                        <VolumeSlider/>
-                        <p>Громкость звука</p>
-                        <VolumeSlider/>
-                        <p>Шумоподавление</p>
-                        <VolumeSlider/>
-                    </div>
+            <div className="adv-settings-input">
+                <div className="settings-volume adv-settings-volume">
+                    <p>Громкость микрофона</p>
+                    <VolumeSlider/>
+                    <p>Громкость звука</p>
+                    <VolumeSlider/>
+                    <p>Шумоподавление</p>
+                    <VolumeSlider/>
                 </div>
             </div>
         </main>

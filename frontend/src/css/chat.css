@@ -2,9 +2,11 @@
 /* Стартовый пустой чат */
 
 .start-chat-content {
+    height: 100%;
     width: 100%;
     max-width: 700px;
     text-align: center;
+    align-items: center;
     display: flex;
     gap: 15px;
     flex-direction: column;
