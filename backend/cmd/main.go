@@ -12,8 +12,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"Buzz/internal/app/auth"
 	"Buzz/internal/infra/config"
 	"Buzz/internal/infra/database"
+	"Buzz/internal/infra/email"
+	"Buzz/internal/infra/repositories"
+	authHandler "Buzz/internal/interfaces/http/auth"
+	"Buzz/pkg/hash"
+	"Buzz/pkg/jwt"
 )
 
 func main() {
@@ -28,16 +34,24 @@ func main() {
 	}
 	defer db.Close()
 
+	userRepo := repositories.NewUserRepository(db)
+	hasher := hash.NewBcryptHasher()
+	jwtService := jwt.NewJWTService(cfg.JWT.SecretKey, cfg.JWT.AccessExpire)
+	emailSender := email.NewMockSender()
+
+	authUseCase := auth.NewAuthUseCase(userRepo, hasher, jwtService, emailSender)
+
+	authHTTPHandler := authHandler.NewHandler(authUseCase)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		var currentTime time.Time
-		err := db.Get(&currentTime, "SELECT NOW()")
-		if err != nil {
-			http.Error(w, "Database error", http.StatusInternalServerError)
-			return
-		}
-		w.Write([]byte("Buzz, db time: " + currentTime.String()))
+	r.Use(middleware.Recoverer)
+
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/register", authHTTPHandler.Register)
+		r.Post("/login", authHTTPHandler.Login)
+		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
+		r.Post("reset-password", authHTTPHandler.ResetPassword)
 	})
 
 	server := &http.Server{

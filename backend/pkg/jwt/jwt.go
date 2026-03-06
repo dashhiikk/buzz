@@ -25,10 +25,10 @@ type Claims struct {
 
 type JWTService struct {
 	secretKey    []byte
-	accessExpire int64
+	accessExpire time.Duration
 }
 
-func NewJWTService(secretKey string, accessExpire int64) *JWTService {
+func NewJWTService(secretKey string, accessExpire time.Duration) *JWTService {
 	return &JWTService{
 		secretKey:    []byte(secretKey),
 		accessExpire: accessExpire,
@@ -36,7 +36,7 @@ func NewJWTService(secretKey string, accessExpire int64) *JWTService {
 }
 
 func (s *JWTService) Generate(userId string) (string, error) {
-	expireTime := time.Now().Add(time.Duration(s.accessExpire) * time.Second)
+	expireTime := time.Now().Add(s.accessExpire)
 
 	claims := &Claims{
 		UserId: userId,

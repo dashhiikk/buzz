@@ -2,11 +2,12 @@ package jwt
 
 import (
 	"testing"
+	"time"
 )
 
 func TestJWTService(t *testing.T) {
 	secret := "secret-key"
-	expire := int64(3600)
+	expire := time.Duration(int64(3600)) * time.Second
 	svc := NewJWTService(secret, expire)
 
 	userID := "12345"
