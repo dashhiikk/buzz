@@ -58,7 +58,7 @@ func Load() (*Config, error) {
 	viper.SetDefault("SERVER_READ_TIMEOUT", "10s")
 	viper.SetDefault("SERVER_WRITE_TIMEOUT", "10s")
 
-	viper.SetDefault("DB_HOST", "localhoct")
+	viper.SetDefault("DB_HOST", "localhost")
 	viper.SetDefault("DB_PORT", "5432")
 	viper.SetDefault("DB_USER", "postgres")
 	viper.SetDefault("DB_PASSWORD", "moonmass-0,073")

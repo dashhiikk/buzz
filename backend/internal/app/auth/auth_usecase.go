@@ -61,7 +61,7 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 
 	existingUser, err := uc.userRepo.GetUserByEmail(ctx, email)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("chek email: %w", err)
+		return err
 	}
 	if existingUser != nil {
 		return ErrUserExists
@@ -95,7 +95,7 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 	}
 
 	if err := uc.userRepo.CreateUser(ctx, user, passwordHash); err != nil {
-		return fmt.Errorf("create user: %w", err)
+		return err
 	}
 
 	if err := uc.emailSender.SendConfirmation(email, user.Id); err != nil {
@@ -121,7 +121,7 @@ func (uc *AuthUseCase) Login(ctx context.Context, username, code, password strin
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", ErrUserNotFound
 		}
-		return "", fmt.Errorf("get user: %w", err)
+		return "", err
 	}
 
 	if err := uc.hasher.Check(password, user.PasswordHash); err != nil {
@@ -146,7 +146,7 @@ func (uc *AuthUseCase) RequestPasswordReset(ctx context.Context, email string) e
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil
 		}
-		return fmt.Errorf("get user: %w", err)
+		return err
 	}
 
 	token, err := uc.jwtService.Generate(user.Id)
@@ -184,7 +184,7 @@ func (uc *AuthUseCase) ResetPassword(ctx context.Context, token, newPassword str
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrUserNotFound
 		}
-		return fmt.Errorf("update password: %w", err)
+		return err
 	}
 
 	return nil

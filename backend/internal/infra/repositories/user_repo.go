@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 
@@ -28,10 +29,29 @@ func (r *userRepository) CreateUser(ctx context.Context, user *entity.User, pass
 	row := r.db.QueryRowContext(ctx, query, user.Username, user.Code, user.Email, passwordHash, user.Avatar)
 	err := row.Scan(&user.Id, &user.CreatedAt)
 	if err != nil {
-		return err
+		return fmt.Errorf("create user: %w", err)
 	}
 
 	return nil
+}
+
+func (r *userRepository) GetUserById(ctx context.Context, id string) (*entity.User, error) {
+	var user entity.User
+
+	query := `
+		SELECT id, username, code, email, password_hash, avatar, created_at
+		FROM users
+		WHERE id = $1
+	`
+	err := r.db.GetContext(ctx, &user, query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		}
+		return nil, fmt.Errorf("get user by id: %w", err)
+	}
+
+	return &user, nil
 }
 
 func (r *userRepository) GetUserByUsernameAndCode(ctx context.Context, username, code string) (*entity.User, error) {
@@ -48,7 +68,7 @@ func (r *userRepository) GetUserByUsernameAndCode(ctx context.Context, username,
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, err
+		return nil, fmt.Errorf("get user by username and code: %w", err)
 	}
 
 	return &user, nil
@@ -68,7 +88,7 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*ent
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
-		return nil, err
+		return nil, fmt.Errorf("get user by email: %w", err)
 	}
 
 	return &user, nil
@@ -79,12 +99,12 @@ func (r *userRepository) UpdatePassword(ctx context.Context, userID, newPassword
 
 	result, err := r.db.ExecContext(ctx, query, newPasswordHash, userID)
 	if err != nil {
-		return err
+		return fmt.Errorf("update password: %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return fmt.Errorf("update password: %w", err)
 	}
 	if rowsAffected == 0 {
 		return sql.ErrNoRows

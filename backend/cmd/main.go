@@ -12,14 +12,19 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"Buzz/internal/app/auth"
 	"Buzz/internal/infra/config"
 	"Buzz/internal/infra/database"
 	"Buzz/internal/infra/email"
 	"Buzz/internal/infra/repositories"
-	authHandler "Buzz/internal/interfaces/http/auth"
+	appMiddleware "Buzz/internal/middleware"
 	"Buzz/pkg/hash"
 	"Buzz/pkg/jwt"
+
+	"Buzz/internal/app/auth"
+	"Buzz/internal/app/friend"
+
+	authHandler "Buzz/internal/interfaces/http/auth"
+	friendHandler "Buzz/internal/interfaces/http/friend"
 )
 
 func main() {
@@ -34,14 +39,18 @@ func main() {
 	}
 	defer db.Close()
 
-	userRepo := repositories.NewUserRepository(db)
 	hasher := hash.NewBcryptHasher()
 	jwtService := jwt.NewJWTService(cfg.JWT.SecretKey, cfg.JWT.AccessExpire)
 	emailSender := email.NewMockSender()
 
+	userRepo := repositories.NewUserRepository(db)
+	requestRepo := repositories.NewRequestRepository(db)
+
 	authUseCase := auth.NewAuthUseCase(userRepo, hasher, jwtService, emailSender)
+	friendUseCase := friend.NewFriendUseCase(requestRepo, userRepo)
 
 	authHTTPHandler := authHandler.NewHandler(authUseCase)
+	friendHTTPHandler := friendHandler.NewHandler(friendUseCase)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -51,9 +60,23 @@ func main() {
 		r.Post("/register", authHTTPHandler.Register)
 		r.Post("/login", authHTTPHandler.Login)
 		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
-		r.Post("reset-password", authHTTPHandler.ResetPassword)
+		r.Post("/reset-password", authHTTPHandler.ResetPassword)
 	})
 
+	r.Group(func(r chi.Router) {
+		r.Use(appMiddleware.AuthMiddleware(jwtService))
+
+		r.Route("/friends", func(r chi.Router) {
+			r.Get("/", friendHTTPHandler.GetFriends)
+			r.Post("/send-request", friendHTTPHandler.SendFriendRequest)
+		})
+
+		r.Route("/requests", func(r chi.Router) {
+			r.Get("/friends", friendHTTPHandler.GetIncomingRequests)
+			r.Post("/{id}/accept", friendHTTPHandler.AcceptFriendRequest)
+			r.Post("/{id}/reject", friendHTTPHandler.RejectFriendRequest)
+		})
+	})
 	server := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
 		Handler:      r,
