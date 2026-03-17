@@ -151,5 +151,176 @@ func (h *Handler) SendRoomInvite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.roomUseCase.SendRoomInvite(r.Context(), inviterId, roomId, req.Username, req.Code)
+	if err != nil {
+		switch {
+		case errors.Is(err, room.ErrRoomNotFound),
+			errors.Is(err, room.ErrUserNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, room.ErrNotInRoom),
+			errors.Is(err, room.ErrCannotInviteSelf):
+			h.writeError(w, http.StatusForbidden, err)
+		case errors.Is(err, room.ErrAlreadyParticipant),
+			errors.Is(err, room.ErrInviteAlreadyExists):
+			h.writeError(w, http.StatusConflict, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("internal server error"))
+		}
+		return
+	}
 
+	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *Handler) JoinRoomByInviteLink(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unathorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "id")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	err := h.roomUseCase.JoinRoomByInviteLink(r.Context(), roomId, userId)
+	if err != nil {
+		switch {
+		case errors.Is(err, room.ErrRoomNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, room.ErrAlreadyParticipant):
+			h.writeError(w, http.StatusConflict, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to join room by link"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) RemoveParticipant(w http.ResponseWriter, r *http.Request) {
+	adminId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "id")
+	userToRemove := chi.URLParam(r, "userId")
+	if roomId == "" || userToRemove == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missind id"))
+		return
+	}
+
+	err := h.roomUseCase.RemoveParticipant(r.Context(), roomId, adminId, userToRemove)
+	if err != nil {
+		switch {
+		case errors.Is(err, room.ErrRoomNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, room.ErrNotAdmin):
+			h.writeError(w, http.StatusForbidden, err)
+		case errors.Is(err, room.ErrCannotRemoveSelf):
+			h.writeError(w, http.StatusBadRequest, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to remove participant"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) AppointAdmin(w http.ResponseWriter, r *http.Request) {
+	currentAdminId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "id")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	var req AppointAdminRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid request body"))
+		return
+	}
+
+	err := h.roomUseCase.AppointAdmin(r.Context(), roomId, currentAdminId, req.NewAdminID)
+	if err != nil {
+		switch {
+		case errors.Is(err, room.ErrRoomNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, room.ErrNotAdmin):
+			h.writeError(w, http.StatusForbidden, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to appoint admin"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
+	adminId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "id")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	err := h.roomUseCase.DeleteRoom(r.Context(), roomId, adminId)
+	if err != nil {
+		switch {
+		case errors.Is(err, room.ErrRoomNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, room.ErrNotAdmin):
+			h.writeError(w, http.StatusForbidden, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to delete room"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) LeaveRoom(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "id")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	err := h.roomUseCase.LeaveRoom(r.Context(), userId, roomId)
+	if err != nil {
+		switch {
+		case errors.Is(err, room.ErrNotInRoom):
+			h.writeError(w, http.StatusForbidden, err)
+		case errors.Is(err, room.ErrRoomNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to leave room"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

@@ -7,7 +7,7 @@ import (
 
 type RoomRepository interface {
 	CreateRoom(ctx context.Context, room *entity.Room) error
-	GetById(ctx context.Context, id string) (*entity.Room, error)
+	GetRoomById(ctx context.Context, id string) (*entity.Room, error)
 	GetByUser(ctx context.Context, userId string) ([]entity.Room, error)
 	AddParticipant(ctx context.Context, roomId, userId string) error
 	RemoveParticipant(ctx context.Context, roomId, userId string) error

@@ -7,7 +7,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
+	"log"
 )
 
 var (
@@ -48,7 +48,7 @@ func (uc *RoomUseCase) CreateRoom(ctx context.Context, name string, icon *string
 	if err := uc.roomRepo.CreateRoom(ctx, room); err != nil {
 		return err
 	}
-
+	log.Printf("Adding participant: roomID=%s, userID=%s", room.Id, adminId)
 	if err := uc.roomRepo.AddParticipant(ctx, room.Id, adminId); err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func (uc *RoomUseCase) GetUserRooms(ctx context.Context, userId string) ([]entit
 }
 
 func (uc *RoomUseCase) GetRoom(ctx context.Context, roomId string) (*entity.Room, error) {
-	room, err := uc.roomRepo.GetById(ctx, roomId)
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,69 +82,8 @@ func (uc *RoomUseCase) GetParticipants(ctx context.Context, roomId string) ([]en
 	return participants, nil
 }
 
-func (uc *RoomUseCase) RemoveParticipants(ctx context.Context, roomId, adminId, userIdToRemove string) error {
-	room, err := uc.roomRepo.GetById(ctx, roomId)
-	if err != nil {
-		return err
-	}
-	if room == nil {
-		return ErrRoomNotFound
-	}
-	if room.AdminId == userIdToRemove {
-		return ErrCannotRemoveSelf
-	}
-	if room.AdminId != adminId {
-		return ErrNotAdmin
-	}
-
-	if err := uc.roomRepo.RemoveParticipant(ctx, roomId, userIdToRemove); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (uc *RoomUseCase) AppointAdmin(ctx context.Context, roomId, currentAdminId, newAdminId string) error {
-	room, err := uc.roomRepo.GetById(ctx, roomId)
-	if err != nil {
-		return err
-	}
-	if room == nil {
-		return ErrRoomNotFound
-	}
-	if room.AdminId != currentAdminId {
-		return ErrNotAdmin
-	}
-
-	if err := uc.roomRepo.UpdateAdmin(ctx, roomId, newAdminId); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (uc *RoomUseCase) DeleteRoom(ctx context.Context, roomId, adminId string) error {
-	room, err := uc.roomRepo.GetById(ctx, roomId)
-	if err != nil {
-		return err
-	}
-	if room == nil {
-		return ErrRoomNotFound
-	}
-
-	if room.AdminId != adminId {
-		return ErrNotAdmin
-	}
-
-	if err := uc.roomRepo.DeleteRoom(ctx, roomId); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (uc *RoomUseCase) SendRoomInvite(ctx context.Context, inviterId, roomId, targetUsername, targetCode string) error {
-	room, err := uc.roomRepo.GetById(ctx, roomId)
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
 	if err != nil {
 		return err
 	}
@@ -206,38 +145,6 @@ func (uc *RoomUseCase) SendRoomInvite(ctx context.Context, inviterId, roomId, ta
 	return nil
 }
 
-type IncomingRequestInfo struct {
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	Icon      *string   `json:"icon,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-func (uc *RoomUseCase) GetIncomingRequests(ctx context.Context, userId string) ([]IncomingRequestInfo, error) {
-	requests, err := uc.requestRepo.GetIncoming(ctx, userId, "room", "pending")
-	if err != nil {
-		return nil, err
-	}
-
-	var result []IncomingRequestInfo
-	for _, req := range requests {
-		if req.RoomId == nil {
-			continue
-		}
-		room, err := uc.roomRepo.GetById(ctx, *req.RoomId)
-		if err != nil || room == nil {
-			continue
-		}
-		result = append(result, IncomingRequestInfo{
-			Id:        req.Id,
-			Name:      room.Name,
-			Icon:      room.Icon,
-			CreatedAt: req.CreatedAt,
-		})
-	}
-	return result, nil
-}
-
 func (uc *RoomUseCase) AcceptRoomInvite(ctx context.Context, userId, requestId string) error {
 	req, err := uc.requestRepo.GetRequestById(ctx, requestId)
 	if err != nil {
@@ -247,17 +154,7 @@ func (uc *RoomUseCase) AcceptRoomInvite(ctx context.Context, userId, requestId s
 		return err
 	}
 
-	if req.Purpose != "room" {
-		return ErrInvalidRequestType
-	}
-	if req.ReceiverId != userId {
-		return ErrNotAuthorized
-	}
-	if req.RoomId == nil {
-		return ErrInvalidRequestType
-	}
-
-	room, err := uc.roomRepo.GetById(ctx, *req.RoomId)
+	room, err := uc.roomRepo.GetRoomById(ctx, *req.RoomId)
 	if err != nil {
 		return err
 	}
@@ -287,19 +184,7 @@ func (uc *RoomUseCase) AcceptRoomInvite(ctx context.Context, userId, requestId s
 }
 
 func (uc *RoomUseCase) RejectRoomInvite(ctx context.Context, userId, requestId string) error {
-	req, err := uc.requestRepo.GetRequestById(ctx, requestId)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrRequestNotFound
-		}
-		return err
-	}
-
-	if req.Purpose != "room" || req.ReceiverId != userId {
-		return ErrNotAuthorized
-	}
-
-	if err := uc.requestRepo.Delete(ctx, requestId); err != nil {
+	if err := uc.requestRepo.DeleteRequest(ctx, requestId); err != nil {
 		return err
 	}
 
@@ -307,7 +192,7 @@ func (uc *RoomUseCase) RejectRoomInvite(ctx context.Context, userId, requestId s
 }
 
 func (uc *RoomUseCase) JoinRoomByInviteLink(ctx context.Context, roomId, userId string) error {
-	_, err := uc.roomRepo.GetById(ctx, roomId)
+	_, err := uc.roomRepo.GetRoomById(ctx, roomId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrRoomNotFound
@@ -326,6 +211,118 @@ func (uc *RoomUseCase) JoinRoomByInviteLink(ctx context.Context, roomId, userId 
 	}
 
 	if err := uc.roomRepo.AddParticipant(ctx, roomId, userId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (uc *RoomUseCase) RemoveParticipant(ctx context.Context, roomId, adminId, userIdToRemove string) error {
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
+	if err != nil {
+		return err
+	}
+	if room == nil {
+		return ErrRoomNotFound
+	}
+	if room.AdminId == userIdToRemove {
+		return ErrCannotRemoveSelf
+	}
+	if room.AdminId != adminId {
+		return ErrNotAdmin
+	}
+
+	if err := uc.roomRepo.RemoveParticipant(ctx, roomId, userIdToRemove); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (uc *RoomUseCase) AppointAdmin(ctx context.Context, roomId, currentAdminId, newAdminId string) error {
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
+	if err != nil {
+		return err
+	}
+	if room == nil {
+		return ErrRoomNotFound
+	}
+	if room.AdminId != currentAdminId {
+		return ErrNotAdmin
+	}
+
+	if err := uc.roomRepo.UpdateAdmin(ctx, roomId, newAdminId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (uc *RoomUseCase) DeleteRoom(ctx context.Context, roomId, adminId string) error {
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
+	if err != nil {
+		return err
+	}
+	if room == nil {
+		return ErrRoomNotFound
+	}
+
+	if room.AdminId != adminId {
+		return ErrNotAdmin
+	}
+
+	if err := uc.roomRepo.DeleteRoom(ctx, roomId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (uc *RoomUseCase) LeaveRoom(ctx context.Context, userId, roomId string) error {
+	participants, err := uc.roomRepo.GetParticipants(ctx, roomId)
+	if err != nil {
+		return err
+	}
+
+	isParticipant := false
+	for _, p := range participants {
+		if userId == p.Id {
+			isParticipant = true
+			break
+		}
+	}
+	if !isParticipant {
+		return ErrNotInRoom
+	}
+
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
+	if err != nil {
+		return err
+	}
+	if room == nil {
+		return ErrRoomNotFound
+	}
+
+	if room.AdminId == userId && len(participants) == 1 {
+		if err := uc.roomRepo.DeleteRoom(ctx, roomId); err != nil {
+			return err
+		}
+	}
+
+	if room.AdminId == userId && len(participants) > 1 {
+		var newAdminId string
+		for _, p := range participants {
+			if p.Id != userId {
+				newAdminId = p.Id
+				break
+			}
+		}
+		if err := uc.roomRepo.UpdateAdmin(ctx, roomId, newAdminId); err != nil {
+			return err
+		}
+	}
+
+	if err := uc.roomRepo.RemoveParticipant(ctx, roomId, userId); err != nil {
 		return err
 	}
 

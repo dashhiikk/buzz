@@ -22,9 +22,13 @@ import (
 
 	"Buzz/internal/app/auth"
 	"Buzz/internal/app/friend"
+	"Buzz/internal/app/request"
+	"Buzz/internal/app/room"
 
 	authHandler "Buzz/internal/interfaces/http/auth"
 	friendHandler "Buzz/internal/interfaces/http/friend"
+	requestHandler "Buzz/internal/interfaces/http/request"
+	roomHandler "Buzz/internal/interfaces/http/room"
 )
 
 func main() {
@@ -45,12 +49,17 @@ func main() {
 
 	userRepo := repositories.NewUserRepository(db)
 	requestRepo := repositories.NewRequestRepository(db)
+	roomRepo := repositories.NewRoomRepository(db)
 
 	authUseCase := auth.NewAuthUseCase(userRepo, hasher, jwtService, emailSender)
 	friendUseCase := friend.NewFriendUseCase(requestRepo, userRepo)
+	roomUseCase := room.NewRoomUseCase(roomRepo, userRepo, requestRepo)
+	requestUseCase := request.NewRequestUseCase(requestRepo, userRepo, roomRepo, friendUseCase, roomUseCase)
 
 	authHTTPHandler := authHandler.NewHandler(authUseCase)
 	friendHTTPHandler := friendHandler.NewHandler(friendUseCase)
+	roomHTTPHandler := roomHandler.NewHandler(roomUseCase)
+	requestHTTPHandler := requestHandler.NewHandler(requestUseCase)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -69,12 +78,26 @@ func main() {
 		r.Route("/friends", func(r chi.Router) {
 			r.Get("/", friendHTTPHandler.GetFriends)
 			r.Post("/send-request", friendHTTPHandler.SendFriendRequest)
+			r.Delete("/{friendId}", friendHTTPHandler.RemoveFriend)
 		})
 
 		r.Route("/requests", func(r chi.Router) {
-			r.Get("/friends", friendHTTPHandler.GetIncomingRequests)
-			r.Post("/{id}/accept", friendHTTPHandler.AcceptFriendRequest)
-			r.Post("/{id}/reject", friendHTTPHandler.RejectFriendRequest)
+			r.Get("/", requestHTTPHandler.GetIncomingRequests)
+			r.Post("/{id}/accept", requestHTTPHandler.AcceptRequest)
+			r.Post("/{id}/reject", requestHTTPHandler.RejectRequest)
+		})
+
+		r.Route("/rooms", func(r chi.Router) {
+			r.Get("/", roomHTTPHandler.GetUserRooms)
+			r.Post("/create", roomHTTPHandler.CreateRoom)
+			r.Get("/{id}", roomHTTPHandler.GetRoom)
+			r.Get("/{id}/participants", roomHTTPHandler.GetParticipants)
+			r.Post("/{id}/send-invite", roomHTTPHandler.SendRoomInvite)
+			r.Post("/{id}/join", roomHTTPHandler.JoinRoomByInviteLink)
+			r.Delete("/{id}/participants/{userId}", roomHTTPHandler.RemoveParticipant)
+			r.Post("/{id}/admin", roomHTTPHandler.AppointAdmin)
+			r.Delete("/{id}", roomHTTPHandler.DeleteRoom)
+			r.Post("/{id}/leave", roomHTTPHandler.LeaveRoom)
 		})
 	})
 	server := &http.Server{

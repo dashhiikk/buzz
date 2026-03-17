@@ -12,14 +12,6 @@ type SendRoomInviteRequest struct {
 	Code     string `json:"code"`
 }
 
-type IncomingRoomInvite struct {
-	Id        string    `json:"id"`
-	RoomId    string    `json:"roomId"`
-	RoomName  string    `json:"roomName"`
-	RoomIcon  *string   `json:"roomIcon,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
 type RoomResponse struct {
 	Id        string    `json:"id"`
 	Name      string    `json:"name"`

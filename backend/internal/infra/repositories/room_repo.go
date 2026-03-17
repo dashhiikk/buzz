@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -21,7 +22,7 @@ func NewRoomRepository(db *sqlx.DB) *RoomRepository {
 func (r *RoomRepository) CreateRoom(ctx context.Context, room *entity.Room) error {
 	query := `
 		INSERT INTO rooms (id, name, icon, admin_id, created_at)
-		VALUES gen_random_uuid(), $1, $2, $3, NOW()
+		VALUES (gen_random_uuid(), $1, $2, $3, NOW())
 		RETURNING id, created_at
 	`
 	row := r.db.QueryRowContext(ctx, query, room.Name, room.Icon, room.AdminId)
@@ -32,7 +33,7 @@ func (r *RoomRepository) CreateRoom(ctx context.Context, room *entity.Room) erro
 	return nil
 }
 
-func (r *RoomRepository) GetById(ctx context.Context, id string) (*entity.Room, error) {
+func (r *RoomRepository) GetRoomById(ctx context.Context, id string) (*entity.Room, error) {
 	var room entity.Room
 	query := `
 		SELECT id, name, icon, admin_id, created_at
@@ -76,13 +77,14 @@ func (r *RoomRepository) AddParticipant(ctx context.Context, roomId, userId stri
 	`
 	_, err := r.db.ExecContext(ctx, query, roomId, userId)
 	if err != nil {
+		log.Printf("AddParticipant error: %v", err)
 		return fmt.Errorf("add participant: %w", err)
 	}
 
 	return nil
 }
 
-func (r *RequestRepository) RemoveParticipant(ctx context.Context, roomId, userId string) error {
+func (r *RoomRepository) RemoveParticipant(ctx context.Context, roomId, userId string) error {
 	query := `DELETE FROM room_participants WHERE room_id = $1 AND user_id = $2`
 	_, err := r.db.ExecContext(ctx, query, roomId, userId)
 	if err != nil {
@@ -97,8 +99,8 @@ func (r *RoomRepository) GetParticipants(ctx context.Context, roomId string) ([]
 
 	query := `
 		SELECT u.id, u.username, u.code, u.avatar
-		FROM users
-		JOIN room_perticipants rp ON u.id = rp.user_id
+		FROM users u
+		JOIN room_participants rp ON u.id = rp.user_id
 		WHERE rp.room_id = $1
 		ORDER BY u.username
 	`

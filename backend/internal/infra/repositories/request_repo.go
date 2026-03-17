@@ -53,17 +53,17 @@ func (r *RequestRepository) GetRequestById(ctx context.Context, id string) (*ent
 	return &req, nil
 }
 
-func (r *RequestRepository) GetIncoming(ctx context.Context, userId, purpose, status string) ([]entity.Request, error) {
+func (r *RequestRepository) GetIncoming(ctx context.Context, userId, status string) ([]entity.Request, error) {
 	var requests []entity.Request
 
 	query := `
 		SELECT id, sender_id, receiver_id, purpose, status, room_id, created_at
 		FROM requests
-		WHERE receiver_id = $1 AND purpose = $2 AND status = $3
+		WHERE receiver_id = $1 AND status = $2
 		ORDER BY created_at DESC
 	`
 
-	err := r.db.SelectContext(ctx, &requests, query, userId, purpose, status)
+	err := r.db.SelectContext(ctx, &requests, query, userId, status)
 	if err != nil {
 		return nil, fmt.Errorf("get incoming request: %w", err)
 	}
@@ -90,7 +90,7 @@ func (r *RequestRepository) UpdateStatus(ctx context.Context, id, status string)
 	return nil
 }
 
-func (r *RequestRepository) Delete(ctx context.Context, id string) error {
+func (r *RequestRepository) DeleteRequest(ctx context.Context, id string) error {
 	query := `DELETE FROM requests WHERE id = $1`
 
 	_, err := r.db.ExecContext(ctx, query, id)
@@ -165,4 +165,27 @@ func (r *RequestRepository) GetAcceptedFriends(ctx context.Context, userId strin
 	}
 
 	return friends, nil
+}
+
+func (r *RequestRepository) DeleteFriendship(ctx context.Context, userId1, userId2 string) error {
+	query := `
+		DELETE FROM requests
+		WHERE (
+			(sender_id = $1 AND receiver_id = $2) OR
+			(sender_id = $2 AND receiver_id = $1)
+		)
+		AND purpose = 'friend'
+		AND status = 'accepted'
+	`
+	result, err := r.db.ExecContext(ctx, query, userId1, userId2)
+	if err != nil {
+		return fmt.Errorf("delete friendship: %w", err)
+	}
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }

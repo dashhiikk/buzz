@@ -5,7 +5,6 @@ import (
 	"Buzz/internal/middleware"
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,6 +28,31 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
+}
+
+func (h *Handler) GetFriends(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	friends, err := h.friendUseCase.GetFriends(r.Context(), userId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("internal server error"))
+		return
+	}
+
+	var result []FriendResponse
+	for _, f := range friends {
+		result = append(result, FriendResponse{
+			Id:       f.Id,
+			Username: f.Username,
+			Code:     f.Code,
+			Avatar:   f.Avatar,
+		})
+	}
+	h.writeJSON(w, http.StatusOK, result)
 }
 
 func (h *Handler) SendFriendRequest(w http.ResponseWriter, r *http.Request) {
@@ -62,104 +86,31 @@ func (h *Handler) SendFriendRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *Handler) GetIncomingRequests(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) RemoveFriend(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
 		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
 
-	requests, err := h.friendUseCase.GetIncomingRequests(r.Context(), userId)
-	if err != nil {
-		h.writeError(w, http.StatusInternalServerError, errors.New("internal srver error"))
+	friendId := chi.URLParam(r, "friendId")
+	if friendId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing friend id"))
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, requests)
-}
-
-func (h *Handler) AcceptFriendRequest(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
-	if !ok {
-		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
-		return
-	}
-
-	requestId := chi.URLParam(r, "id")
-	if requestId == "" {
-		h.writeError(w, http.StatusBadRequest, errors.New("missing request id"))
-		return
-	}
-
-	err := h.friendUseCase.AcceptFriendRequest(r.Context(), userId, requestId)
+	err := h.friendUseCase.RemoveFriend(r.Context(), userId, friendId)
 	if err != nil {
 		switch {
-		case errors.Is(err, friend.ErrRequestNotFound):
+		case errors.Is(err, friend.ErrUserNotFound):
 			h.writeError(w, http.StatusNotFound, err)
-		case errors.Is(err, friend.ErrNotAuthorized):
-			h.writeError(w, http.StatusForbidden, err)
+		case errors.Is(err, friend.ErrNotFriends):
+			h.writeError(w, http.StatusBadRequest, err)
 		default:
-			h.writeError(w, http.StatusInternalServerError, errors.New("internal server error"))
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to remove friend"))
 		}
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-func (h *Handler) RejectFriendRequest(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
-	if !ok {
-		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
-		return
-	}
-
-	requestId := chi.URLParam(r, "id")
-	if requestId == "" {
-		h.writeError(w, http.StatusBadRequest, errors.New("missing request id"))
-		return
-	}
-
-	err := h.friendUseCase.RejectFriendRequest(r.Context(), userId, requestId)
-	if err != nil {
-		switch {
-		case errors.Is(err, friend.ErrRequestNotFound):
-			h.writeError(w, http.StatusNotFound, err)
-		case errors.Is(err, friend.ErrNotAuthorized):
-			h.writeError(w, http.StatusForbidden, err)
-		default:
-			h.writeError(w, http.StatusInternalServerError, errors.New("internal server error"))
-		}
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func (h *Handler) GetFriends(w http.ResponseWriter, r *http.Request) {
-	log.Println("GetFriends handler called")
-	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
-	log.Printf("UserID from context: %s, ok: %v", userId, ok)
-	if !ok {
-		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
-		return
-	}
-	log.Printf("Calling friendUseCase.GetFriends for user: %s", userId)
-	friends, err := h.friendUseCase.GetFriends(r.Context(), userId)
-	if err != nil {
-		log.Printf("GetFriends error: %v", err)
-		h.writeError(w, http.StatusInternalServerError, errors.New("internal server error"))
-		return
-	}
-	log.Printf("GetFriends returned %d friends", len(friends))
-	var result []Friend
-	for _, f := range friends {
-		result = append(result, Friend{
-			Id:       f.Id,
-			Username: f.Username,
-			Code:     f.Code,
-			Avatar:   f.Avatar,
-		})
-	}
-	h.writeJSON(w, http.StatusOK, result)
 }
