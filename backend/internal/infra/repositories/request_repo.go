@@ -71,6 +71,24 @@ func (r *RequestRepository) GetIncoming(ctx context.Context, userId, status stri
 	return requests, nil
 }
 
+func (r *RequestRepository) GetOutgoing(ctx context.Context, userId string) ([]entity.Request, error) {
+	var requests []entity.Request
+
+	query := `
+		SELECT id, sender_id, receiver_id, purpose, status, room_id, created_at
+		FROM requests
+		WHERE sender_id = $1
+		ORDER BY created_at DESC
+	`
+
+	err := r.db.SelectContext(ctx, requests, query, userId)
+	if err != nil {
+		return nil, fmt.Errorf("get outgoing request: %w", err)
+	}
+
+	return requests, nil
+}
+
 func (r *RequestRepository) UpdateStatus(ctx context.Context, id, status string) error {
 	query := `UPDATE requests SET status = $1 WHERE id = $2`
 

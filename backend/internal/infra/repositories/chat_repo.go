@@ -9,15 +9,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type MessageRepository struct {
+type ChatRepository struct {
 	db *sqlx.DB
 }
 
-func NewMessageRepository(db *sqlx.DB) *MessageRepository {
-	return &MessageRepository{db: db}
+func NewChatRepository(db *sqlx.DB) *ChatRepository {
+	return &ChatRepository{db: db}
 }
 
-func (r MessageRepository) Create(ctx context.Context, msg *entity.Message) error {
+func (r *ChatRepository) CreateMessage(ctx context.Context, msg *entity.Message) error {
 	filesJSON, err := json.Marshal(msg.Files)
 	if err != nil {
 		return fmt.Errorf("marshal files: %w", err)
@@ -30,20 +30,20 @@ func (r MessageRepository) Create(ctx context.Context, msg *entity.Message) erro
 	`
 	row := r.db.QueryRowContext(ctx, query, msg.RoomId, msg.SenderId, msg.Text, filesJSON)
 	if err := row.Scan(&msg.Id, &msg.CreatedAt); err != nil {
-		return fmt.Errorf("create massage: %w", err)
+		return fmt.Errorf("create message: %w", err)
 	}
 
 	return nil
 }
 
-func (r *MessageRepository) GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.Message, error) {
+func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.Message, error) {
 	var messages []entity.Message
 
 	query := `
-		SELEST id, room_id, sender_id, text, files, created_at
+		SELECT id, room_id, sender_id, text, files, created_at
 		FROM messages
 		WHERE room_id = $1
-		ORDER BY created_at DSEC
+		ORDER BY created_at DESC
 		LIMIT $2 OFFSET $3
 	`
 	rows, err := r.db.QueryxContext(ctx, query, roomId, limit, offset)

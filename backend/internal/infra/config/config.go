@@ -13,6 +13,7 @@ type Config struct {
 	JWT    JWTConfig
 	Jitsi  JitsiConfig
 	Email  EmailConfig
+	Upload UploadConfig
 }
 
 type ServerConfig struct {
@@ -37,9 +38,9 @@ type JWTConfig struct {
 }
 
 type JitsiConfig struct {
-	ServerUrl string
-	JWTSecret string
-	AppID     string
+	ServerUrl string `mapstructure:"server_url"`
+	JWTSecret string `mapstructure:"jwt_secret"`
+	AppID     string `mapstructure:"app_id"`
 }
 
 type EmailConfig struct {
@@ -48,6 +49,12 @@ type EmailConfig struct {
 	Username string
 	Password string
 	From     string
+}
+
+type UploadConfig struct {
+	Path        string   `mapstructure:"path"`
+	MaxSize     int64    `mapstructure:"max_size"`
+	AllowedExts []string `mapstructure:"allowed_exts"`
 }
 
 func Load() (*Config, error) {
@@ -63,21 +70,25 @@ func Load() (*Config, error) {
 	viper.SetDefault("DB_USER", "postgres")
 	viper.SetDefault("DB_PASSWORD", "moonmass-0,073")
 	viper.SetDefault("DB_NAME", "buzz")
-	viper.SetDefault("DB_SSLOMODE", "disable")
+	viper.SetDefault("DB_SSLMODE", "disable")
 
 	viper.SetDefault("JWT_SECRET_KEY", "default-secret-change-me")
 	viper.SetDefault("JWT_ACCESS_EXPIRE", "15m")
 	viper.SetDefault("JWT_REFRESH_EXPIRE", "24h")
 
 	viper.SetDefault("JITSI_SERVER_URL", "https://meet.jit.si")
-	viper.SetDefault("JITSI_JWT_SECRET", "")
-	viper.SetDefault("JITSI_APP_ID", "")
+	viper.SetDefault("JITSI_JWT_SECRET", "my-jitsi-secret")
+	viper.SetDefault("JITSI_APP_ID", "buzzId")
 
-	viper.SetDefault("EMAIL_SMPT_HOST", "smpt.gmail.com")
-	viper.SetDefault("EMAIL_SMPT_PORT", 587)
+	viper.SetDefault("EMAIL_SMTP_HOST", "smpt.gmail.com")
+	viper.SetDefault("EMAIL_SMTP_PORT", 587)
 	viper.SetDefault("EMAIL_USERNAME", "")
 	viper.SetDefault("EMAIL_PASSWORD", "")
 	viper.SetDefault("EMAIL_FROM", "")
+
+	viper.SetDefault("UPLOAD_PATH", "./uploads")
+	viper.SetDefault("UPLOAD_MAX_SIZE", 10<<20)
+	viper.SetDefault("UPLOAD_ALLOWED_EXTS", []string{".jpg", ".jpeg", ".png", ".gif", ".pdf", ".txt"})
 
 	readTimeout, err := time.ParseDuration(viper.GetString("SERVER_READ_TIMEOUT"))
 	if err != nil {
@@ -126,6 +137,11 @@ func Load() (*Config, error) {
 			Username: viper.GetString("EMAIL_USERNAME"),
 			Password: viper.GetString("EMAIL_PASSWORD"),
 			From:     viper.GetString("EMAIL_FROM"),
+		},
+		Upload: UploadConfig{
+			Path:        viper.GetString("UPLOAD_PATH"),
+			MaxSize:     viper.GetInt64("UPLOAD_MAX_SIZE"),
+			AllowedExts: viper.GetStringSlice("UPLOAD_ALLOWED_EXTS"),
 		},
 	}
 

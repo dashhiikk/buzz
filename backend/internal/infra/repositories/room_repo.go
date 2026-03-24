@@ -21,11 +21,11 @@ func NewRoomRepository(db *sqlx.DB) *RoomRepository {
 
 func (r *RoomRepository) CreateRoom(ctx context.Context, room *entity.Room) error {
 	query := `
-		INSERT INTO rooms (id, name, icon, admin_id, created_at)
-		VALUES (gen_random_uuid(), $1, $2, $3, NOW())
+		INSERT INTO rooms (id, name, icon, admin_id, created_at, is_private)
+		VALUES (gen_random_uuid(), $1, $2, $3, NOW(), $4)
 		RETURNING id, created_at
 	`
-	row := r.db.QueryRowContext(ctx, query, room.Name, room.Icon, room.AdminId)
+	row := r.db.QueryRowContext(ctx, query, room.Name, room.Icon, room.AdminId, room.IsPrivate)
 	err := row.Scan(&room.Id, &room.CreatedAt)
 	if err != nil {
 		return fmt.Errorf("create room: %w", err)

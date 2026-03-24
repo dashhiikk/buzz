@@ -46,6 +46,22 @@ func (h *Handler) GetIncomingRequests(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, resp)
 }
 
+func (h *Handler) GetOutgoingRequests(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	resp, err := h.requestUseCase.GetOutgoingRequests(r.Context(), userId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get outgoing requests"))
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, resp)
+}
+
 func (h *Handler) AcceptRequest(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -56,6 +72,7 @@ func (h *Handler) AcceptRequest(w http.ResponseWriter, r *http.Request) {
 	requestId := chi.URLParam(r, "id")
 	if requestId == "" {
 		h.writeError(w, http.StatusBadRequest, errors.New("missing request id"))
+		return
 	}
 
 	err := h.requestUseCase.AcceptRequest(r.Context(), userId, requestId)
@@ -86,6 +103,7 @@ func (h *Handler) RejectRequest(w http.ResponseWriter, r *http.Request) {
 	requestId := chi.URLParam(r, "id")
 	if requestId == "" {
 		h.writeError(w, http.StatusBadRequest, errors.New("missing request id"))
+		return
 	}
 
 	err := h.requestUseCase.AcceptRequest(r.Context(), userId, requestId)
@@ -97,6 +115,37 @@ func (h *Handler) RejectRequest(w http.ResponseWriter, r *http.Request) {
 			h.writeError(w, http.StatusForbidden, err)
 		default:
 			h.writeError(w, http.StatusInternalServerError, errors.New("failed to reject request"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) CancelRequest(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	requestId := chi.URLParam(r, "id")
+	if requestId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing request id"))
+		return
+	}
+
+	err := h.requestUseCase.CancelRequest(r.Context(), userId, requestId)
+	if err != nil {
+		switch {
+		case errors.Is(err, request.ErrRequestNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, request.ErrNotAuthorized):
+			h.writeError(w, http.StatusForbidden, err)
+		case errors.Is(err, request.ErrRequestNotPending):
+			h.writeError(w, http.StatusConflict, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to cancel request"))
 		}
 		return
 	}

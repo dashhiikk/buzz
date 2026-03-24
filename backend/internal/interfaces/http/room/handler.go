@@ -64,16 +64,7 @@ func (h *Handler) GetUserRooms(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var resp []RoomResponse
-	for _, rm := range rooms {
-		resp = append(resp, RoomResponse{
-			Id:   rm.Id,
-			Name: rm.Name,
-			Icon: rm.Icon,
-		})
-	}
-
-	h.writeJSON(w, http.StatusOK, resp)
+	h.writeJSON(w, http.StatusOK, rooms)
 }
 
 func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {

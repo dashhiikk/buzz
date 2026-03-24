@@ -50,24 +50,24 @@ func NewRequestUseCase(
 	}
 }
 
-type IncomingRequest struct {
+type Request struct {
 	Id        string    `json:"id"`
 	Type      string    `json:"type"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"createdAt"`
 
-	SenderId     string  `json:"senderId,omitempty"`
-	SenderName   string  `json:"senderName,omitempty"`
-	SenderCode   string  `json:"senderCode,omitempty"`
-	SenderAvatar *string `json:"senderAvatar,omitempty"`
+	UserId     string  `json:"senderId,omitempty"`
+	UserName   string  `json:"senderName,omitempty"`
+	UserCode   string  `json:"senderCode,omitempty"`
+	UserAvatar *string `json:"senderAvatar,omitempty"`
 
 	RoomId   string  `json:"roomId,omitempty"`
 	RoomName string  `json:"roomName,omitempty"`
 	RoomIcon *string `json:"roomIcon,omitempty"`
 }
 
-func (uc *RequestUseCase) GetIncomingRequests(ctx context.Context, userId string) ([]IncomingRequest, error) {
-	var result []IncomingRequest
+func (uc *RequestUseCase) GetIncomingRequests(ctx context.Context, userId string) ([]Request, error) {
+	var result []Request
 
 	requests, err := uc.requestRepo.GetIncoming(ctx, userId, "pending")
 	if err != nil {
@@ -75,35 +75,93 @@ func (uc *RequestUseCase) GetIncomingRequests(ctx context.Context, userId string
 	}
 
 	for _, req := range requests {
+		sender, err := uc.userProvider.GetUserById(ctx, req.SenderId)
+		if err != nil || sender == nil {
+			continue
+		}
 		switch req.Purpose {
 		case "friend":
-			sender, err := uc.userProvider.GetUserById(ctx, req.SenderId)
-			if err != nil || sender == nil {
-				continue
-			}
-			result = append(result, IncomingRequest{
-				Id:           req.Id,
-				Type:         "friend",
-				Status:       req.Status,
-				CreatedAt:    req.CreatedAt,
-				SenderId:     sender.Id,
-				SenderName:   sender.Username,
-				SenderCode:   sender.Code,
-				SenderAvatar: sender.Avatar,
+			result = append(result, Request{
+				Id:         req.Id,
+				Type:       "friend",
+				Status:     req.Status,
+				CreatedAt:  req.CreatedAt,
+				UserId:     sender.Id,
+				UserName:   sender.Username,
+				UserCode:   sender.Code,
+				UserAvatar: sender.Avatar,
 			})
 		case "room":
 			room, err := uc.roomProvider.GetRoomById(ctx, *req.RoomId)
 			if err != nil || room == nil {
 				continue
 			}
-			result = append(result, IncomingRequest{
+			result = append(result, Request{
 				Id:        req.Id,
 				Type:      "room",
 				Status:    req.Status,
 				CreatedAt: req.CreatedAt,
+				UserId:    sender.Id,
+				UserName:  sender.Username,
+				UserCode:  sender.Code,
 				RoomId:    room.Id,
 				RoomName:  room.Name,
 				RoomIcon:  room.Icon,
+			})
+		}
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].CreatedAt.After(result[j].CreatedAt)
+	})
+
+	return result, nil
+}
+
+func (uc *RequestUseCase) GetOutgoingRequests(ctx context.Context, userId string) ([]Request, error) {
+	var result []Request
+
+	requests, err := uc.requestRepo.GetOutgoing(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, req := range requests {
+		receiver, err := uc.userProvider.GetUserById(ctx, req.ReceiverId)
+		if err != nil {
+			continue
+		}
+		switch req.Purpose {
+		case "friend":
+			result = append(result, Request{
+				Id:        req.Id,
+				Type:      "friend",
+				Status:    req.Status,
+				CreatedAt: req.CreatedAt,
+
+				UserId:     receiver.Id,
+				UserName:   receiver.Username,
+				UserCode:   receiver.Code,
+				UserAvatar: receiver.Avatar,
+			})
+		case "room":
+			room, err := uc.roomProvider.GetRoomById(ctx, *req.RoomId)
+			if err != nil || room == nil {
+				continue
+			}
+			result = append(result, Request{
+				Id:        req.Id,
+				Type:      "room",
+				Status:    req.Status,
+				CreatedAt: req.CreatedAt,
+
+				UserId:   receiver.Id,
+				UserName: receiver.Username,
+				UserCode: receiver.Code,
+
+				RoomId:   room.Id,
+				RoomName: room.Name,
+				RoomIcon: room.Icon,
 			})
 		}
 	}
@@ -163,4 +221,28 @@ func (uc *RequestUseCase) RejectRequest(ctx context.Context, userId, requestId s
 	default:
 		return ErrInvalidRequestType
 	}
+}
+
+func (uc *RequestUseCase) CancelRequest(ctx context.Context, userId, requestId string) error {
+	req, err := uc.requestRepo.GetRequestById(ctx, requestId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrRequestNotFound
+		}
+		return err
+	}
+
+	if req.SenderId != userId {
+		return ErrNotAuthorized
+	}
+
+	if req.Status != "pending" {
+		return ErrRequestNotPending
+	}
+
+	if err := uc.requestRepo.DeleteRequest(ctx, requestId); err != nil {
+		return err
+	}
+
+	return nil
 }

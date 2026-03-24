@@ -4,10 +4,13 @@ import (
 	"Buzz/internal/domain/request"
 	"Buzz/internal/domain/room"
 	"Buzz/internal/entity"
+	ws "Buzz/internal/infra/websocket"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"log"
+	"time"
 )
 
 var (
@@ -22,27 +25,31 @@ var (
 	ErrCannotInviteSelf    = errors.New("cannot invite yourself")
 	ErrCannotRemoveSelf    = errors.New("cannot remove yourself")
 	ErrNotAdmin            = errors.New("user is not the admin of this room")
+	ErrPrivateRoom         = errors.New("this action not aviable in private room")
 )
 
 type RoomUseCase struct {
-	roomRepo    room.RoomRepository
-	userRepo    room.UserRepository
-	requestRepo request.RequestRepository
+	roomRepo        room.RoomRepository
+	userRepo        room.UserRepository
+	requestRepo     request.RequestRepository
+	notificationHub *ws.NotificationHub
 }
 
-func NewRoomUseCase(roomRepo room.RoomRepository, userRepo room.UserRepository, requestRepo request.RequestRepository) *RoomUseCase {
+func NewRoomUseCase(roomRepo room.RoomRepository, userRepo room.UserRepository, requestRepo request.RequestRepository, notificationHub *ws.NotificationHub) *RoomUseCase {
 	return &RoomUseCase{
-		roomRepo:    roomRepo,
-		userRepo:    userRepo,
-		requestRepo: requestRepo,
+		roomRepo:        roomRepo,
+		userRepo:        userRepo,
+		requestRepo:     requestRepo,
+		notificationHub: notificationHub,
 	}
 }
 
 func (uc *RoomUseCase) CreateRoom(ctx context.Context, name string, icon *string, adminId string) error {
 	room := &entity.Room{
-		Name:    name,
-		Icon:    icon,
-		AdminId: adminId,
+		Name:      name,
+		Icon:      icon,
+		AdminId:   adminId,
+		IsPrivate: false,
 	}
 
 	if err := uc.roomRepo.CreateRoom(ctx, room); err != nil {
@@ -55,12 +62,77 @@ func (uc *RoomUseCase) CreateRoom(ctx context.Context, name string, icon *string
 	return nil
 }
 
-func (uc *RoomUseCase) GetUserRooms(ctx context.Context, userId string) ([]entity.Room, error) {
+func (uc *RoomUseCase) CreatePrivateRoom(ctx context.Context, userId1, userId2 string) error {
+	room := &entity.Room{
+		Name:      "private-room",
+		Icon:      nil,
+		AdminId:   userId1,
+		IsPrivate: true,
+	}
+
+	if err := uc.roomRepo.CreateRoom(ctx, room); err != nil {
+		return err
+	}
+
+	if err := uc.roomRepo.AddParticipant(ctx, room.Id, userId1); err != nil {
+		return err
+	}
+	if err := uc.roomRepo.AddParticipant(ctx, room.Id, userId2); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type UserRoom struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Icon      *string   `json:"icon,omitempty"`
+	AdminID   string    `json:"adminId"`
+	CreatedAt time.Time `json:"createdAt"`
+	IsPrivate bool      `json:"isPrivate"`
+}
+
+func (uc *RoomUseCase) GetUserRooms(ctx context.Context, userId string) ([]UserRoom, error) {
 	rooms, err := uc.roomRepo.GetByUser(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-	return rooms, nil
+
+	result := make([]UserRoom, 0, len(rooms))
+	for _, room := range rooms {
+		ur := UserRoom{
+			ID:        room.Id,
+			Name:      room.Name,
+			Icon:      room.Icon,
+			AdminID:   room.AdminId,
+			CreatedAt: room.CreatedAt,
+			IsPrivate: room.IsPrivate,
+		}
+
+		if room.IsPrivate {
+			participants, err := uc.roomRepo.GetParticipants(ctx, room.Id)
+			if err != nil {
+				result = append(result, ur)
+				continue
+			}
+
+			var other *entity.User
+			for _, p := range participants {
+				if p.Id != userId {
+					other = &p
+					break
+				}
+			}
+			if other != nil {
+				ur.Name = other.Username
+				ur.Icon = other.Avatar
+			}
+		}
+		result = append(result, ur)
+	}
+
+	return result, nil
 }
 
 func (uc *RoomUseCase) GetRoom(ctx context.Context, roomId string) (*entity.Room, error) {
@@ -89,6 +161,10 @@ func (uc *RoomUseCase) SendRoomInvite(ctx context.Context, inviterId, roomId, ta
 	}
 	if room == nil {
 		return ErrRoomNotFound
+	}
+
+	if room.IsPrivate {
+		return ErrPrivateRoom
 	}
 
 	targetUser, err := uc.userRepo.GetUserByUsernameAndCode(ctx, targetUsername, targetCode)
@@ -142,6 +218,22 @@ func (uc *RoomUseCase) SendRoomInvite(ctx context.Context, inviterId, roomId, ta
 		return err
 	}
 
+	if uc.notificationHub != nil {
+		notif := map[string]interface{}{
+			"type": "room_invite",
+			"data": map[string]interface{}{
+				"requestId": req.Id,
+				"from": map[string]string{
+					"id":       room.Id,
+					"username": room.Name,
+				},
+				"createdAt": req.CreatedAt,
+			},
+		}
+		payload, _ := json.Marshal(notif)
+		uc.notificationHub.SendToUser(targetUser.Id, payload)
+	}
+
 	return nil
 }
 
@@ -180,6 +272,27 @@ func (uc *RoomUseCase) AcceptRoomInvite(ctx context.Context, userId, requestId s
 		return err
 	}
 
+	if uc.notificationHub != nil {
+		receiver, err := uc.userRepo.GetUserById(ctx, req.ReceiverId)
+		if err == nil {
+			notif := map[string]interface{}{
+				"type": "room_invite_accepted",
+				"data": map[string]interface{}{
+					"requestId": requestId,
+					"from": map[string]string{
+						"id":       receiver.Id,
+						"username": receiver.Username,
+						"code":     receiver.Code,
+					},
+				},
+			}
+			payload, _ := json.Marshal(notif)
+			uc.notificationHub.SendToUser(req.SenderId, payload)
+		} else {
+			log.Printf("failed to get sender info for notification: %v", err)
+		}
+	}
+
 	return nil
 }
 
@@ -188,16 +301,46 @@ func (uc *RoomUseCase) RejectRoomInvite(ctx context.Context, userId, requestId s
 		return err
 	}
 
+	if uc.notificationHub != nil {
+		req, err := uc.requestRepo.GetRequestById(ctx, requestId)
+		if err != nil {
+			log.Printf("failed to get request: %v", err)
+			return nil
+		}
+		receiver, err := uc.userRepo.GetUserById(ctx, req.ReceiverId)
+		if err == nil {
+			notif := map[string]interface{}{
+				"type": "room_invite_rejected",
+				"data": map[string]interface{}{
+					"requestId": requestId,
+					"from": map[string]string{
+						"id":       receiver.Id,
+						"username": receiver.Username,
+						"code":     receiver.Code,
+					},
+				},
+			}
+			payload, _ := json.Marshal(notif)
+			uc.notificationHub.SendToUser(req.SenderId, payload)
+		} else {
+			log.Printf("failed to get sender info for notification: %v", err)
+		}
+	}
+
 	return nil
 }
 
 func (uc *RoomUseCase) JoinRoomByInviteLink(ctx context.Context, roomId, userId string) error {
-	_, err := uc.roomRepo.GetRoomById(ctx, roomId)
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrRoomNotFound
 		}
 		return err
+	}
+
+	if room.IsPrivate {
+		return ErrPrivateRoom
 	}
 
 	participants, err := uc.roomRepo.GetParticipants(ctx, roomId)
@@ -225,6 +368,11 @@ func (uc *RoomUseCase) RemoveParticipant(ctx context.Context, roomId, adminId, u
 	if room == nil {
 		return ErrRoomNotFound
 	}
+
+	if room.IsPrivate {
+		return ErrPrivateRoom
+	}
+
 	if room.AdminId == userIdToRemove {
 		return ErrCannotRemoveSelf
 	}
@@ -267,6 +415,10 @@ func (uc *RoomUseCase) DeleteRoom(ctx context.Context, roomId, adminId string) e
 		return ErrRoomNotFound
 	}
 
+	if room.IsPrivate {
+		return ErrPrivateRoom
+	}
+
 	if room.AdminId != adminId {
 		return ErrNotAdmin
 	}
@@ -275,6 +427,37 @@ func (uc *RoomUseCase) DeleteRoom(ctx context.Context, roomId, adminId string) e
 		return err
 	}
 
+	return nil
+}
+
+func (uc *RoomUseCase) DeletePrivateRoom(ctx context.Context, userId1, userId2 string) error {
+	rooms, err := uc.roomRepo.GetByUser(ctx, userId1)
+	if err != nil {
+		return err
+	}
+	for _, room := range rooms {
+		if !room.IsPrivate {
+			continue
+		}
+		participants, err := uc.roomRepo.GetParticipants(ctx, room.Id)
+		if err != nil {
+			continue
+		}
+
+		hasUser2 := false
+		for _, p := range participants {
+			if p.Id == userId2 {
+				hasUser2 = true
+				break
+			}
+		}
+		if hasUser2 {
+			if err := uc.roomRepo.DeleteRoom(ctx, room.Id); err != nil {
+				return err
+			}
+			break
+		}
+	}
 	return nil
 }
 
@@ -301,6 +484,10 @@ func (uc *RoomUseCase) LeaveRoom(ctx context.Context, userId, roomId string) err
 	}
 	if room == nil {
 		return ErrRoomNotFound
+	}
+
+	if room.IsPrivate {
+		return ErrPrivateRoom
 	}
 
 	if room.AdminId == userId && len(participants) == 1 {

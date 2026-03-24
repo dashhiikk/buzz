@@ -8,4 +8,5 @@ type Room struct {
 	Icon      *string   `db:"icon" json:"icon,omitempty"`
 	AdminId   string    `db:"admin_id" json:"adminIdd"`
 	CreatedAt time.Time `db:"created_at" json:"createdAt"`
+	IsPrivate bool      `db:"is_private" json:"isPrivate"`
 }
