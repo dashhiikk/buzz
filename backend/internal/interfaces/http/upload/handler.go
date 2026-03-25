@@ -28,6 +28,19 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	json.NewEncoder(w).Encode(data)
 }
 
+// UploadFile godoc
+// @Summary      Загрузить файл на сервер
+// @Description  Принимает multipart/form-data с полем "file" и сохраняет файл на сервере. Возвращает URL, по которому файл будет доступен. Файлы сохраняются с уникальным именем, исходное имя не используется.
+// @Tags         upload
+// @Security     BearerAuth
+// @Accept       mpfd
+// @Produce      json
+// @Param        file formData file true "Файл для загрузки"
+// @Success      200 {object} UploadFileResponse "Успешная загрузка, возвращён URL"
+// @Failure      400 {object} ErrorResponse "Файл слишком большой, неверный тип или отсутствует файл"
+// @Failure      401 {object} ErrorResponse "Неавторизован"
+// @Failure      500 {object} ErrorResponse "Внутренняя ошибка сервера (например, не удалось сохранить файл)"
+// @Router       /upload [post]
 func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	_, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {

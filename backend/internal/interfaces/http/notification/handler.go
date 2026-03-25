@@ -15,6 +15,14 @@ func NewHandler(hub *ws.NotificationHub) *Handler {
 	return &Handler{hub: hub}
 }
 
+// ServeWebSocket godoc
+// @Summary      Подключение к WebSocket для уведомлений
+// @Description  Устанавливает WebSocket-соединение для отправвки уведомлений в реальном времени. Соединение должно содержать заголовок Authorization с Bearer-токеном.
+// @Tags         notifications
+// @Security     BearerAuth
+// @Success      101 "WebSocket-соединение установлено"
+// @Failure      401 "Неавторизован"
+// @Router       /ws/notifications [get]
 func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {

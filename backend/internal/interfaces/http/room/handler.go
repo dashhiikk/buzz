@@ -30,6 +30,19 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	json.NewEncoder(w).Encode(data)
 }
 
+// CreateRoom godoc
+// @Summary      Создать новую комнату
+// @Description  Создаёт комнату с указанным названием (и опциональной иконкой). Текущий пользователь становится администратором и первым участником.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateRoomRequest true "Данные комнаты"
+// @Success      201 "Комната создана"
+// @Failure      400 {object} map[string]string "Некорректные данные"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/create [post]
 func (h *Handler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -51,6 +64,16 @@ func (h *Handler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// GetUserRooms godoc
+// @Summary      Получить список комнат пользователя
+// @Description  Возвращает все комнаты, в которых участвует текущий пользователь. Для приватных комнат название и иконка заменяются на данные собеседника.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200 {array} RoomResponse "Список комнат"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms [get]
 func (h *Handler) GetUserRooms(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -67,6 +90,19 @@ func (h *Handler) GetUserRooms(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, rooms)
 }
 
+// GetRoom godoc
+// @Summary      Получить информацию о комнате
+// @Description  Возвращает детали комнаты по ID (доступно любому пользователю, даже не участнику, но возвращает базовую информацию).
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 {object} RoomResponse "Информация о комнате"
+// @Failure      400 {object} map[string]string "Неверный ID"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      404 {object} map[string]string "Комната не найдена"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id} [get]
 func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 	roomId := chi.URLParam(r, "id")
 	if roomId == "" {
@@ -96,6 +132,18 @@ func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, resp)
 }
 
+// GetParticipants godoc
+// @Summary      Получить список участников комнаты
+// @Description  Возвращает всех участников указанной комнаты.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 {array} ParticipantResponse "Список участников"
+// @Failure      400 {object} map[string]string "Неверный ID"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/participants [get]
 func (h *Handler) GetParticipants(w http.ResponseWriter, r *http.Request) {
 	roomId := chi.URLParam(r, "id")
 	if roomId == "" {
@@ -122,6 +170,23 @@ func (h *Handler) GetParticipants(w http.ResponseWriter, r *http.Request) {
 	h.writeJSON(w, http.StatusOK, resp)
 }
 
+// SendRoomInvite godoc
+// @Summary      Отправить приглашение в комнату
+// @Description  Отправляет запрос на вступление в комнату другому пользователю. Приглашающий должен быть участником комнаты.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Param        request body SendRoomInviteRequest true "Данные приглашаемого"
+// @Success      201 "Приглашение отправлено"
+// @Failure      400 {object} map[string]string "Некорректные данные или попытка пригласить себя"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
+// @Failure      404 {object} map[string]string "Комната или пользователь не найдены"
+// @Failure      409 {object} map[string]string "Пользователь уже участник или приглашение уже существует"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/send-invite [post]
 func (h *Handler) SendRoomInvite(w http.ResponseWriter, r *http.Request) {
 	inviterId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -162,6 +227,20 @@ func (h *Handler) SendRoomInvite(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// JoinRoomByInviteLink godoc
+// @Summary      Вступить в комнату по ссылке-приглашению
+// @Description  Позволяет пользователю немедленно присоединиться к комнате (без ожидания подтверждения). Комната должна существовать.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 "Успешное вступление"
+// @Failure      400 {object} map[string]string "Неверный ID"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      404 {object} map[string]string "Комната не найдена"
+// @Failure      409 {object} map[string]string "Пользователь уже участник"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/join [post]
 func (h *Handler) JoinRoomByInviteLink(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -191,6 +270,21 @@ func (h *Handler) JoinRoomByInviteLink(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// RemoveParticipant godoc
+// @Summary      Удалить участника из комнаты
+// @Description  Удаляет указанного пользователя из комнаты. Доступно только администратору комнаты.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Param        userId path string true "ID пользователя для удаления"
+// @Success      200 "Участник удалён"
+// @Failure      400 {object} map[string]string "Неверные параметры или попытка удалить себя"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не администратор"
+// @Failure      404 {object} map[string]string "Комната не найдена"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/participants/{userId} [delete]
 func (h *Handler) RemoveParticipant(w http.ResponseWriter, r *http.Request) {
 	adminId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -223,6 +317,22 @@ func (h *Handler) RemoveParticipant(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// AppointAdmin godoc
+// @Summary      Назначить нового администратора комнаты
+// @Description  Передаёт права администратора другому участнику комнаты. Доступно только текущему администратору.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Param        request body AppointAdminRequest true "ID нового администратора"
+// @Success      200 "Администратор назначен"
+// @Failure      400 {object} map[string]string "Неверные данные"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не администратор"
+// @Failure      404 {object} map[string]string "Комната не найдена"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/admin [post]
 func (h *Handler) AppointAdmin(w http.ResponseWriter, r *http.Request) {
 	currentAdminId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -258,6 +368,20 @@ func (h *Handler) AppointAdmin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// DeleteRoom godoc
+// @Summary      Удалить комнату
+// @Description  Полностью удаляет комнату. Доступно только администратору комнаты.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 "Комната удалена"
+// @Failure      400 {object} map[string]string "Неверный ID"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не администратор"
+// @Failure      404 {object} map[string]string "Комната не найдена"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id} [delete]
 func (h *Handler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
 	adminId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -287,6 +411,20 @@ func (h *Handler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// LeaveRoom godoc
+// @Summary      Покинуть комнату
+// @Description  Выход текущего пользователя из комнаты. Если комната приватная, она будет удалена, а дружба разорвана. Если администратор покидает публичную комнату, права передаются другому участнику.
+// @Tags         rooms
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 "Выход выполнен"
+// @Failure      400 {object} map[string]string "Неверный ID"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не является участником"
+// @Failure      404 {object} map[string]string "Комната не найдена"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/leave [post]
 func (h *Handler) LeaveRoom(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {

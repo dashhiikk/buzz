@@ -41,6 +41,17 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	json.NewEncoder(w).Encode(data)
 }
 
+// ServeWebSocket godoc
+// @Summary      Подключение к WebSocket для текстового чата
+// @Description  Устанавливает WebSocket-соединение для обмена сообщениями в реальном времени. Соединение должно содержать query-параметр roomId и заголовок Authorization с Bearer-токеном.
+// @Tags         chat
+// @Security     BearerAuth
+// @Param        roomId query string true "ID комнаты"
+// @Success      101 "WebSocket-соединение установлено"
+// @Failure      400 "Неверный id комнаты"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Не является участником комнаты"
+// @Router       /ws/chat [get]
 func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -94,6 +105,7 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	go client.ReadPump()
 }
 
+// handleMessage оправляет сообщение в текстовый чат комнаты, сохраняет его в БД и рассылает всем участникам комнаты.
 func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []byte) {
 	type MessageRequest struct {
 		Type    string `json:"type"`
@@ -136,7 +148,21 @@ func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []by
 	}
 }
 
-func (h *Handler) GeyHistory(w http.ResponseWriter, r *http.Request) {
+// GetHistory godoc
+// @Summary      Получить историю сообщений в комнате
+// @Description  Возвращает сообщения из указанной комнаты с поддержкой пагинации (limit, offset). Сообщения сортируются по убыванию даты (новые сверху). По умолчанию limit=50, offset=0.
+// @Tags         chat
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "Id комнаты"
+// @Param        limit query int false "Количество сообщений (max 100)" default(50)
+// @Param        offset query int false "Смещение" default(0)
+// @Success      200 {array} entity.Message "Список сообщений"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/text-chat [get]
+func (h *Handler) GetHistory(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
 		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))

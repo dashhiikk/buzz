@@ -3,6 +3,8 @@ package main
 import (
 	_ "Buzz/docs"
 
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	"context"
 	"log"
 	"net/http"
@@ -116,6 +118,9 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
+	))
 	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir(cfg.Upload.Path))))
 
 	r.Route("/auth", func(r chi.Router) {
@@ -155,7 +160,7 @@ func main() {
 			r.Post("/{id}/admin", roomHTTPHandler.AppointAdmin)
 			r.Delete("/{id}", roomHTTPHandler.DeleteRoom)
 			r.Post("/{id}/leave", roomHTTPHandler.LeaveRoom)
-			r.Get("/{id}/text-chat", chatHTTPHandler.GeyHistory)
+			r.Get("/{id}/text-chat", chatHTTPHandler.GetHistory)
 			r.Get("/{id}/board", boardHTTPHandler.GetState)
 			r.Get("/{id}/voice-chat", jitsiHTTPHandler.GetToken)
 		})

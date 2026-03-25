@@ -38,7 +38,6 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Failure      400  {object}  ErrorResponse "Некорректный формат данных"
 // @Failure      409  {object}  ErrorResponse "Неверные учётные данные"
 // @Router       /auth/register [post]
-
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 
@@ -76,7 +75,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 // @Failure      400  {object}  ErrorResponse	"Некорректный формат данных"
 // @Failure      401  {object}  ErrorResponse	"Неверные учётные данные"
 // @Router       /auth/login [post]
-
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 
@@ -114,7 +112,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 // @Success      202  {object}  map[string]string  "Ссылка-подверждение отправлена"
 // @Failure      400  {object}  ErrorResponse "Некорректный email"
 // @Router       /auth/password-reset [post]
-
 func (h *Handler) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 	var req PasswordResetRequest
 
@@ -140,11 +137,10 @@ func (h *Handler) RequestPasswordReset(w http.ResponseWriter, r *http.Request) {
 // @Accept       json
 // @Produce      json
 // @Param        request body UpdatePasswordRequest true "Токен и новый пароль"
-// @Success      200  {object}  "Пароль успешно изменён"
+// @Success      200  {object}  map[string]string  "Пароль успешно изменён"
 // @Failure      400  {object}  ErrorResponse "Некорректный пароль"
 // @Failure      401  {object}  ErrorResponse "Недействительный или просроченный токен"
 // @Router       /auth/update-password [post]
-
 func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	var req UpdatePasswordRequest
 

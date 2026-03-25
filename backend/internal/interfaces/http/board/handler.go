@@ -10,6 +10,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -46,10 +47,10 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Tags         board
 // @Security     BearerAuth
 // @Param        roomId query string true "ID комнаты"
-// @Success      101 "Switching Protocols"
-// @Failure      400 "Missing roomId"
-// @Failure      401 "Unauthorized"
-// @Failure      403 "Not a member of this room"
+// @Success      101 "WebSocket-соединение установлено"
+// @Failure      400 "Неверный id комнаты"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не является участником комнаты"
 // @Router       /ws/board [get]
 func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -118,12 +119,8 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	go client.WritePump()
 }
 
+// handleMessage сохраняет изменения в виртуальной доске и рассылает обновление всем участникам комнаты.
 func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []byte) {
-	type BoardUpdate struct {
-		Type    string          `json:"type"`
-		Payload json.RawMessage `json:"payload"`
-	}
-
 	var update BoardUpdate
 	if err := json.Unmarshal(msg, &update); err != nil {
 		log.Printf("invalid board message: %v", err)
@@ -158,10 +155,10 @@ func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []by
 // @Security     BearerAuth
 // @Produce      json
 // @Param        id path string true "ID комнаты"
-// @Success      200 {object} BoardStateResponse "Текущее состояние доски"
-// @Failure      401 {object} ErrorResponse "Неавторизован"
-// @Failure      403 {object} ErrorResponse "Пользователь не является участником комнаты"
-// @Failure      500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Success      200 {object} map[string]interface{} "Текущее состояние доски"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/board [get]
 func (h *Handler) GetState(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -199,5 +196,8 @@ func (h *Handler) GetState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, json.RawMessage(state))
+	h.writeJSON(w, http.StatusOK, BoardStateResponse{
+		Content:   json.RawMessage(state),
+		UpdatedAt: time.Now(),
+	})
 }

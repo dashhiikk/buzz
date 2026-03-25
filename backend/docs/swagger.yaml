@@ -1,0 +1,1273 @@
+basePath: /
+definitions:
+  auth.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  auth.LoginRequest:
+    properties:
+      code:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  auth.PasswordResetRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  auth.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  auth.TokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  auth.UpdatePasswordRequest:
+    properties:
+      email:
+        type: string
+      newPassword:
+        type: string
+    type: object
+  entity.Message:
+    properties:
+      createdAt:
+        type: string
+      files:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      roomId:
+        type: string
+      senderId:
+        type: string
+      text:
+        type: string
+    type: object
+  friend.FriendResponse:
+    properties:
+      avatar:
+        type: string
+      code:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+  friend.SendFriendRequest:
+    properties:
+      code:
+        type: string
+      username:
+        type: string
+    type: object
+  jitsi.GetTokenResponse:
+    properties:
+      serverUrl:
+        description: URL Jitsi-сервера
+        example: https://meet.jit.si
+        type: string
+      token:
+        description: JWT для доступа к Jitsi
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  request.Request:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      roomIcon:
+        type: string
+      roomId:
+        type: string
+      roomName:
+        type: string
+      senderAvatar:
+        type: string
+      senderCode:
+        type: string
+      senderId:
+        type: string
+      senderName:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+    type: object
+  room.AppointAdminRequest:
+    properties:
+      newAdminId:
+        type: string
+    type: object
+  room.CreateRoomRequest:
+    properties:
+      icon:
+        type: string
+      name:
+        type: string
+    type: object
+  room.ParticipantResponse:
+    properties:
+      avatar:
+        type: string
+      code:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+  room.RoomResponse:
+    properties:
+      adminId:
+        type: string
+      createdAt:
+        type: string
+      icon:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  room.SendRoomInviteRequest:
+    properties:
+      code:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: alisfrk2004@gmail.com
+    name: Дарья
+  description: Серверная часть веб-приложения для коммуникации.
+  termsOfService: http://swagger.io/terms/
+  title: Buzz API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизирует пользователя в приложении и выдает JWT-token
+      parameters:
+      - description: Данные для авторизации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь авторизирован
+          schema:
+            $ref: '#/definitions/auth.TokenResponse'
+        "400":
+          description: Некорректный формат данных
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Неверные учётные данные
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /auth/password-reset:
+    post:
+      consumes:
+      - application/json
+      description: Отправляет ссылку-подтверждение для восстановления пароля
+      parameters:
+      - description: Email пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.PasswordResetRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Ссылка-подверждение отправлена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Некорректный email
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Запрос на восстановление пароля
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт нового пользователя и отправляет письмо с подтверждением
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь создан
+        "400":
+          description: Некорректный формат данных
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "409":
+          description: Неверные учётные данные
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Регистрация нового пользователя
+      tags:
+      - auth
+  /auth/update-password:
+    post:
+      consumes:
+      - application/json
+      description: Меняет пароль пользователя на новый
+      parameters:
+      - description: Токен и новый пароль
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.UpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пароль успешно изменён
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Некорректный пароль
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+        "401":
+          description: Недействительный или просроченный токен
+          schema:
+            $ref: '#/definitions/auth.ErrorResponse'
+      summary: Установка нового пароля
+      tags:
+      - auth
+  /friends:
+    get:
+      description: Возвращает массив друзей текущего пользователя. Друзьями считаются
+        пользователи, с которыми есть принятый запрос (status='accepted').
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список друзей (может быть пустым)
+          schema:
+            items:
+              $ref: '#/definitions/friend.FriendResponse'
+            type: array
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить список друзей
+      tags:
+      - friends
+  /friends/{friendId}:
+    delete:
+      description: Удаляет связь дружбы между текущим пользователем и указанным пользователем.
+        При этом также удаляется приватная комната.
+      parameters:
+      - description: ID пользователя, которого нужно удалить из друзей
+        in: path
+        name: friendId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Друг удалён
+        "400":
+          description: Пользователи не являются друзьями
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Пользователь не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить друга
+      tags:
+      - friends
+  /friends/send-request:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новый запрос на добавление в друзья для указанного пользователя
+        (по никнейму и коду).
+      parameters:
+      - description: Данные получателя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/friend.SendFriendRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Запрос создан (тело ответа пусто)
+        "400":
+          description: Некорректные данные (username/code) или попытка отправить запрос
+            самому себе
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Пользователь не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Запрос уже существует
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Отправить запрос в друзья
+  /requests:
+    get:
+      description: Возвращает список ожидающих запросов (в друзья и приглашения в
+        комнаты) для текущего пользователя. Ответ содержит поля, зависящие от типа
+        запроса.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список входящих запросов (может быть пустым)
+          schema:
+            items:
+              $ref: '#/definitions/request.Request'
+            type: array
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить все входящие запросы
+      tags:
+      - requests
+  /requests/{id}/accept:
+    post:
+      description: Принимает запрос (в друзья или приглашение в комнату) по его ID.
+        После принятия пользователь становится другом или участником комнаты.
+      parameters:
+      - description: ID запроса
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Запрос принят
+        "400":
+          description: Неверный ID запроса или запрос не в статусе pending
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Запрос не принадлежит текущему пользователю
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Запрос не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Запрос уже был обработан (не pending)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Принять запрос
+      tags:
+      - requests
+  /requests/{id}/reject:
+    post:
+      description: Отклоняет запрос (в друзья или приглашение в комнату) по его ID.
+        Запрос удаляется.
+      parameters:
+      - description: ID запроса
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Запрос отклонён
+        "400":
+          description: Неверный ID запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Запрос не принадлежит текущему пользователю
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Запрос не найден
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Отклонить запрос
+      tags:
+      - requests
+  /requests/outgoing:
+    get:
+      description: Возвращает список отправленных запросов (в друзья и приглашения
+        в комнаты) для текущего пользователя. Ответ содержит поля, зависящие от типа
+        запроса.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список исходящих запросов (может быть пустым)
+          schema:
+            items:
+              $ref: '#/definitions/request.Request'
+            type: array
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить все исходящие запросы
+      tags:
+      - requests
+  /rooms:
+    get:
+      description: Возвращает все комнаты, в которых участвует текущий пользователь.
+        Для приватных комнат название и иконка заменяются на данные собеседника.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список комнат
+          schema:
+            items:
+              $ref: '#/definitions/room.RoomResponse'
+            type: array
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить список комнат пользователя
+      tags:
+      - rooms
+  /rooms/{id}:
+    delete:
+      description: Полностью удаляет комнату. Доступно только администратору комнаты.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Комната удалена
+        "400":
+          description: Неверный ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не администратор
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить комнату
+      tags:
+      - rooms
+    get:
+      description: Возвращает детали комнаты по ID (доступно любому пользователю,
+        даже не участнику, но возвращает базовую информацию).
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о комнате
+          schema:
+            $ref: '#/definitions/room.RoomResponse'
+        "400":
+          description: Неверный ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить информацию о комнате
+      tags:
+      - rooms
+  /rooms/{id}/admin:
+    post:
+      consumes:
+      - application/json
+      description: Передаёт права администратора другому участнику комнаты. Доступно
+        только текущему администратору.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ID нового администратора
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/room.AppointAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Администратор назначен
+        "400":
+          description: Неверные данные
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не администратор
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Назначить нового администратора комнаты
+      tags:
+      - rooms
+  /rooms/{id}/board:
+    get:
+      description: Возвращает сохранённое состояние доски для указанной комнаты. Если
+        доска ещё не инициализирована, возвращает пустой объект {}.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Текущее состояние доски
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не является участником комнаты
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить текущее состояние виртуальной доски
+      tags:
+      - board
+  /rooms/{id}/jitsi-token:
+    get:
+      description: Генерирует и возвращает JWT-токен, который позволяет подключиться
+        к видеоконференции в указанной комнате. Пользователь должен быть участником
+        комнаты. Токен действует ограниченное время.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Токен и URL сервера
+          schema:
+            $ref: '#/definitions/jitsi.GetTokenResponse'
+        "400":
+          description: Отсутствует ID комнаты
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не является участником комнаты
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера (например, не удалось сгенерировать
+            токен)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить JWT-токен для подключения к Jitsi
+      tags:
+      - jitsi
+  /rooms/{id}/join:
+    post:
+      description: Позволяет пользователю немедленно присоединиться к комнате (без
+        ожидания подтверждения). Комната должна существовать.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное вступление
+        "400":
+          description: Неверный ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Пользователь уже участник
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Вступить в комнату по ссылке-приглашению
+      tags:
+      - rooms
+  /rooms/{id}/leave:
+    post:
+      description: Выход текущего пользователя из комнаты. Если комната приватная,
+        она будет удалена, а дружба разорвана. Если администратор покидает публичную
+        комнату, права передаются другому участнику.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Выход выполнен
+        "400":
+          description: Неверный ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не является участником
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Покинуть комнату
+      tags:
+      - rooms
+  /rooms/{id}/participants:
+    get:
+      description: Возвращает всех участников указанной комнаты.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список участников
+          schema:
+            items:
+              $ref: '#/definitions/room.ParticipantResponse'
+            type: array
+        "400":
+          description: Неверный ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить список участников комнаты
+      tags:
+      - rooms
+  /rooms/{id}/participants/{userId}:
+    delete:
+      description: Удаляет указанного пользователя из комнаты. Доступно только администратору
+        комнаты.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ID пользователя для удаления
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Участник удалён
+        "400":
+          description: Неверные параметры или попытка удалить себя
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не администратор
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Удалить участника из комнаты
+      tags:
+      - rooms
+  /rooms/{id}/send-invite:
+    post:
+      consumes:
+      - application/json
+      description: Отправляет запрос на вступление в комнату другому пользователю.
+        Приглашающий должен быть участником комнаты.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Данные приглашаемого
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/room.SendRoomInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Приглашение отправлено
+        "400":
+          description: Некорректные данные или попытка пригласить себя
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не является участником комнаты
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Комната или пользователь не найдены
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Пользователь уже участник или приглашение уже существует
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Отправить приглашение в комнату
+      tags:
+      - rooms
+  /rooms/{id}/text-chat:
+    get:
+      description: Возвращает сообщения из указанной комнаты с поддержкой пагинации
+        (limit, offset). Сообщения сортируются по убыванию даты (новые сверху). По
+        умолчанию limit=50, offset=0.
+      parameters:
+      - description: Id комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: 50
+        description: Количество сообщений (max 100)
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список сообщений
+          schema:
+            items:
+              $ref: '#/definitions/entity.Message'
+            type: array
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Пользователь не является участником комнаты
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Получить историю сообщений в комнате
+      tags:
+      - chat
+  /rooms/create:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт комнату с указанным названием (и опциональной иконкой).
+        Текущий пользователь становится администратором и первым участником.
+      parameters:
+      - description: Данные комнаты
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/room.CreateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Комната создана
+        "400":
+          description: Некорректные данные
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Неавторизован
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Создать новую комнату
+      tags:
+      - rooms
+  /ws/board:
+    get:
+      description: Устанавливает WebSocket-соединение для обмена обновлениями доски
+        в реальном времени. Соединение должно содержать query-параметр roomId и заголовок
+        Authorization с Bearer-токеном.
+      parameters:
+      - description: ID комнаты
+        in: query
+        name: roomId
+        required: true
+        type: string
+      responses:
+        "101":
+          description: WebSocket-соединение установлено
+        "400":
+          description: Неверный id комнаты
+        "401":
+          description: Неавторизован
+        "403":
+          description: Пользователь не является участником комнаты
+      security:
+      - BearerAuth: []
+      summary: Подключение к WebSocket для доски
+      tags:
+      - board
+  /ws/chat:
+    get:
+      description: Устанавливает WebSocket-соединение для обмена сообщениями в реальном
+        времени. Соединение должно содержать query-параметр roomId и заголовок Authorization
+        с Bearer-токеном.
+      parameters:
+      - description: ID комнаты
+        in: query
+        name: roomId
+        required: true
+        type: string
+      responses:
+        "101":
+          description: WebSocket-соединение установлено
+        "400":
+          description: Неверный id комнаты
+        "401":
+          description: Неавторизован
+        "403":
+          description: Не является участником комнаты
+      security:
+      - BearerAuth: []
+      summary: Подключение к WebSocket для текстового чата
+      tags:
+      - chat
+  /ws/notifications:
+    get:
+      description: Устанавливает WebSocket-соединение для отправвки уведомлений в
+        реальном времени. Соединение должно содержать заголовок Authorization с Bearer-токеном.
+      responses:
+        "101":
+          description: WebSocket-соединение установлено
+        "401":
+          description: Неавторизован
+      security:
+      - BearerAuth: []
+      summary: Подключение к WebSocket для уведомлений
+      tags:
+      - notifications
+securityDefinitions:
+  BearerAuth:
+    description: Введите токен в формате "Bearer <token>"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

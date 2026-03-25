@@ -37,6 +37,19 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	json.NewEncoder(w).Encode(data)
 }
 
+// GetToken godoc
+// @Summary      Получить JWT-токен для подключения к Jitsi
+// @Description  Генерирует и возвращает JWT-токен, который позволяет подключиться к видеоконференции в указанной комнате. Пользователь должен быть участником комнаты. Токен действует ограниченное время.
+// @Tags         jitsi
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 {object} GetTokenResponse "Токен и URL сервера"
+// @Failure      400 {object} map[string]string "Отсутствует ID комнаты"
+// @Failure      401 {object} map[string]string "Неавторизован"
+// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
+// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера (например, не удалось сгенерировать токен)"
+// @Router       /rooms/{id}/jitsi-token [get]
 func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -73,8 +86,8 @@ func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, map[string]string{
-		"token":     token,
-		"serverUrl": h.serverURL,
+	h.writeJSON(w, http.StatusOK, GetTokenResponse{
+		Token:     token,
+		ServerUrl: h.serverURL,
 	})
 }
