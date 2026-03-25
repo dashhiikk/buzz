@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "Buzz/docs"
+
 	"context"
 	"log"
 	"net/http"
@@ -39,6 +41,22 @@ import (
 	requestHandler "Buzz/internal/interfaces/http/request"
 	roomHandler "Buzz/internal/interfaces/http/room"
 )
+
+// @title           Buzz API
+// @version         1.0
+// @description     Серверная часть веб-приложения для коммуникации.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   Дарья
+// @contact.email  alisfrk2004@gmail.com
+
+// @host      localhost:8080
+// @BasePath  /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Введите токен в формате "Bearer <token>"
 
 func main() {
 	cfg, err := config.Load()
@@ -88,6 +106,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"}, //адрес запуска фронта
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -97,11 +116,13 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir(cfg.Upload.Path))))
+
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", authHTTPHandler.Register)
 		r.Post("/login", authHTTPHandler.Login)
 		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
-		r.Post("/reset-password", authHTTPHandler.ResetPassword)
+		r.Post("/update-password", authHTTPHandler.UpdatePassword)
 	})
 
 	r.Group(func(r chi.Router) {

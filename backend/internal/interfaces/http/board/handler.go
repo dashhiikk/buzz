@@ -40,6 +40,17 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	json.NewEncoder(w).Encode(data)
 }
 
+// ServeWebSocket godoc
+// @Summary      Подключение к WebSocket для доски
+// @Description  Устанавливает WebSocket-соединение для обмена обновлениями доски в реальном времени. Соединение должно содержать query-параметр roomId и заголовок Authorization с Bearer-токеном.
+// @Tags         board
+// @Security     BearerAuth
+// @Param        roomId query string true "ID комнаты"
+// @Success      101 "Switching Protocols"
+// @Failure      400 "Missing roomId"
+// @Failure      401 "Unauthorized"
+// @Failure      403 "Not a member of this room"
+// @Router       /ws/board [get]
 func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
@@ -140,6 +151,18 @@ func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []by
 	}
 }
 
+// GetState godoc
+// @Summary      Получить текущее состояние виртуальной доски
+// @Description  Возвращает сохранённое состояние доски для указанной комнаты. Если доска ещё не инициализирована, возвращает пустой объект {}.
+// @Tags         board
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id path string true "ID комнаты"
+// @Success      200 {object} BoardStateResponse "Текущее состояние доски"
+// @Failure      401 {object} ErrorResponse "Неавторизован"
+// @Failure      403 {object} ErrorResponse "Пользователь не является участником комнаты"
+// @Failure      500 {object} ErrorResponse "Внутренняя ошибка сервера"
+// @Router       /rooms/{id}/board [get]
 func (h *Handler) GetState(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {

@@ -14,7 +14,7 @@ require (
 
 require github.com/go-chi/cors v1.2.2
 
-require github.com/google/uuid v1.6.0 // indirect
+require github.com/google/uuid v1.6.0
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect

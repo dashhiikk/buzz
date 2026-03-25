@@ -161,7 +161,7 @@ func (uc *AuthUseCase) RequestPasswordReset(ctx context.Context, email string) e
 	return nil
 }
 
-func (uc *AuthUseCase) ResetPassword(ctx context.Context, token, newPassword string) error {
+func (uc *AuthUseCase) UpdatePassword(ctx context.Context, token, newPassword string) error {
 	if err := validator.Var(newPassword, "required,password"); err != nil {
 		return ErrWeakPassword
 	}
