@@ -14,4 +14,6 @@ type RoomRepository interface {
 	GetParticipants(ctx context.Context, roomId string) ([]entity.User, error)
 	UpdateAdmin(ctx context.Context, roomId, newAdminId string) error
 	DeleteRoom(ctx context.Context, id string) error
+	SetInviteToken(ctx context.Context, roomID, token string) error
+	GetRoomIdByInviteToken(ctx context.Context, token string) (string, error)
 }

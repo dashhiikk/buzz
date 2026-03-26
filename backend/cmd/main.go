@@ -98,7 +98,7 @@ func main() {
 
 	authHTTPHandler := authHandler.NewHandler(authUseCase)
 	friendHTTPHandler := friendHandler.NewHandler(friendUseCase)
-	roomHTTPHandler := roomHandler.NewHandler(roomUseCase)
+	roomHTTPHandler := roomHandler.NewHandler(roomUseCase, cfg.AppURL)
 	requestHTTPHandler := requestHandler.NewHandler(requestUseCase)
 	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub)
 	boardHTTPHandler := boardHandler.NewHandler(boardUseCase, roomUseCase, hub)
@@ -125,6 +125,7 @@ func main() {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", authHTTPHandler.Register)
+		r.Post("/verify", authHTTPHandler.VerifyEmail)
 		r.Post("/login", authHTTPHandler.Login)
 		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
 		r.Post("/update-password", authHTTPHandler.UpdatePassword)
@@ -155,9 +156,10 @@ func main() {
 			r.Get("/{id}", roomHTTPHandler.GetRoom)
 			r.Get("/{id}/participants", roomHTTPHandler.GetParticipants)
 			r.Post("/{id}/send-invite", roomHTTPHandler.SendRoomInvite)
-			r.Post("/{id}/join", roomHTTPHandler.JoinRoomByInviteLink)
+			r.Post("/join/{token}", roomHTTPHandler.JoinRoomByToken)
 			r.Delete("/{id}/participants/{userId}", roomHTTPHandler.RemoveParticipant)
 			r.Post("/{id}/admin", roomHTTPHandler.AppointAdmin)
+			r.Get("/{id}/invite-link", roomHTTPHandler.GetInviteLink)
 			r.Delete("/{id}", roomHTTPHandler.DeleteRoom)
 			r.Post("/{id}/leave", roomHTTPHandler.LeaveRoom)
 			r.Get("/{id}/text-chat", chatHTTPHandler.GetHistory)

@@ -166,3 +166,27 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+// VerifyEmail godoc
+// @Summary      Подтверждение email
+// @Description  Активирует учётную запись после перехода по ссылке из письма.
+// @Tags         auth
+// @Param        token query string true "JWT-токен подтверждения"
+// @Success      200 {object} map[string]string "Email verified"
+// @Failure      400 {object} ErrorResponse "Неверный токен"
+// @Router       /auth/verify [get]
+func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing token"))
+		return
+	}
+
+	err := h.authUseCase.VerifyEmail(r.Context(), token)
+	if err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid or expire token"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

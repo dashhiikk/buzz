@@ -136,3 +136,23 @@ func (r *RoomRepository) DeleteRoom(ctx context.Context, id string) error {
 
 	return nil
 }
+
+func (r *RoomRepository) SetInviteToken(ctx context.Context, roomId, token string) error {
+	query := `UPDATE rooms SET invite_token = $1 WHERE id = $2`
+	_, err := r.db.ExecContext(ctx, query, token, roomId)
+	return err
+}
+
+func (r *RoomRepository) GetRoomIdByInviteToken(ctx context.Context, token string) (string, error) {
+	var roomId string
+	query := `SELECT id FROM rooms WHERE invite_token = $1`
+	err := r.db.GetContext(ctx, &roomId, query, token)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", sql.ErrNoRows
+		}
+		return "", err
+	}
+
+	return roomId, nil
+}

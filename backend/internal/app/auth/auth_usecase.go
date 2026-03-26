@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"time"
 
 	"Buzz/internal/domain/auth"
 	"Buzz/internal/entity"
@@ -98,8 +100,26 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 		return err
 	}
 
-	if err := uc.emailSender.SendConfirmation(email, user.Id); err != nil {
-		return fmt.Errorf("send confirmation email: %w", err)
+	token, err := uc.jwtService.GenerateWithExpiry(user.Id, 24*time.Hour)
+	if err != nil {
+		log.Printf("failed to generate verification token: %v", err)
+	} else {
+		if err := uc.emailSender.SendVerification(user.Email, token); err != nil {
+			log.Printf("failed to send verification email: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (uc *AuthUseCase) VerifyEmail(ctx context.Context, token string) error {
+	claims, err := uc.jwtService.Validate(token)
+	if err != nil {
+		return ErrTokenInvalid
+	}
+
+	if err := uc.userRepo.UpdateVerifiedStatus(ctx, claims.UserId, true); err != nil {
+		return err
 	}
 
 	return nil
@@ -149,7 +169,7 @@ func (uc *AuthUseCase) RequestPasswordReset(ctx context.Context, email string) e
 		return err
 	}
 
-	token, err := uc.jwtService.Generate(user.Id)
+	token, err := uc.jwtService.GenerateWithExpiry(user.Id, 15*time.Minute)
 	if err != nil {
 		return fmt.Errorf("generate reset token: %w", err)
 	}

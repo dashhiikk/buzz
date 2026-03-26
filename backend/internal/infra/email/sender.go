@@ -8,6 +8,7 @@ import (
 type Sender interface {
 	SendConfirmation(to, userID string) error
 	SendPasswordReset(to, token string) error
+	SendVerification(to, token string) error
 }
 
 type MockSender struct {
@@ -31,5 +32,11 @@ func (m *MockSender) SendPasswordReset(to, token string) error {
 	log.Printf("[MOCK] Sending reset email to %s with token %s", to, token)
 	m.SentEmails = append(m.SentEmails, fmt.Sprintf("reset:%s:%s", to, token))
 
+	return nil
+}
+
+func (m *MockSender) SendVerification(to, token string) error {
+	log.Printf("[MOCK] Sending verification email to %s with token %s", to, token)
+	m.SentEmails = append(m.SentEmails, fmt.Sprintf("verification:%s:%s", to, token))
 	return nil
 }

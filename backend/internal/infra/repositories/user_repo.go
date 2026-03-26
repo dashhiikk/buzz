@@ -112,3 +112,9 @@ func (r *userRepository) UpdatePassword(ctx context.Context, userID, newPassword
 
 	return nil
 }
+
+func (r *userRepository) UpdateVerifiedStatus(ctx context.Context, userId string, verified bool) error {
+	query := `UPDATE users SET is_verified = $1 WHERE id= $2`
+	_, err := r.db.ExecContext(ctx, query, verified, userId)
+	return err
+}

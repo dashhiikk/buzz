@@ -10,4 +10,5 @@ type AuthRepository interface {
 	GetUserByUsernameAndCode(ctx context.Context, username, code string) (*entity.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
 	UpdatePassword(ctx context.Context, userID, newPasswordHash string) error
+	UpdateVerifiedStatus(ctx context.Context, userId string, verified bool) error
 }

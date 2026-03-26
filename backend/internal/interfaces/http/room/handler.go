@@ -5,6 +5,7 @@ import (
 	"Buzz/internal/middleware"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -12,10 +13,11 @@ import (
 
 type Handler struct {
 	roomUseCase *room.RoomUseCase
+	appURL      string
 }
 
-func NewHandler(roomUseCase *room.RoomUseCase) *Handler {
-	return &Handler{roomUseCase: roomUseCase}
+func NewHandler(roomUseCase *room.RoomUseCase, appURL string) *Handler {
+	return &Handler{roomUseCase: roomUseCase, appURL: appURL}
 }
 
 func (h *Handler) writeError(w http.ResponseWriter, status int, err error) {
@@ -227,49 +229,6 @@ func (h *Handler) SendRoomInvite(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-// JoinRoomByInviteLink godoc
-// @Summary      Вступить в комнату по ссылке-приглашению
-// @Description  Позволяет пользователю немедленно присоединиться к комнате (без ожидания подтверждения). Комната должна существовать.
-// @Tags         rooms
-// @Security     BearerAuth
-// @Produce      json
-// @Param        id path string true "ID комнаты"
-// @Success      200 "Успешное вступление"
-// @Failure      400 "Неверный ID"
-// @Failure      401 "Неавторизован"
-// @Failure      404 "Комната не найдена"
-// @Failure      409 "Пользователь уже участник"
-// @Failure      500 "Внутренняя ошибка сервера"
-// @Router       /rooms/{id}/join [post]
-func (h *Handler) JoinRoomByInviteLink(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
-	if !ok {
-		h.writeError(w, http.StatusUnauthorized, errors.New("unathorized"))
-		return
-	}
-
-	roomId := chi.URLParam(r, "id")
-	if roomId == "" {
-		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
-		return
-	}
-
-	err := h.roomUseCase.JoinRoomByInviteLink(r.Context(), roomId, userId)
-	if err != nil {
-		switch {
-		case errors.Is(err, room.ErrRoomNotFound):
-			h.writeError(w, http.StatusNotFound, err)
-		case errors.Is(err, room.ErrAlreadyParticipant):
-			h.writeError(w, http.StatusConflict, err)
-		default:
-			h.writeError(w, http.StatusInternalServerError, errors.New("failed to join room by link"))
-		}
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
 // RemoveParticipant godoc
 // @Summary      Удалить участника из комнаты
 // @Description  Удаляет указанного пользователя из комнаты. Доступно только администратору комнаты.
@@ -452,4 +411,82 @@ func (h *Handler) LeaveRoom(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+// GetInviteLink godoc
+// @Summary      Получить ссылку-приглашение
+// @Description  Возвращает ссылку для вступления в комнату (только для участников комнаты)
+// @Tags         rooms
+// @Security     BearerAuth
+// @Param        id path string true "ID комнаты"
+// @Success      200 {object} map[string]string "link"
+// @Failure      403 {object} ErrorResponse "Не участник"
+// @Router       /rooms/{id}/invite-link [get]
+func (h *Handler) GetInviteLink(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "id")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	room, err := h.roomUseCase.GetRoom(r.Context(), roomId)
+	if err != nil {
+		h.writeError(w, http.StatusNotFound, errors.New("room not found"))
+		return
+	}
+
+	if room.AdminId != userId {
+		h.writeError(w, http.StatusForbidden, errors.New("not admin"))
+		return
+	}
+
+	inviteToken, err := h.roomUseCase.GetInviteToken(r.Context(), roomId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get invite token"))
+		return
+	}
+
+	link := fmt.Sprintf("%s/rooms/join/%s", h.appURL, inviteToken)
+	h.writeJSON(w, http.StatusOK, map[string]string{"link": link})
+}
+
+func (h *Handler) JoinRoomByToken(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing token"))
+		return
+	}
+
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		// Не авторизован – фронтенд должен перенаправить на страницу входа с параметром redirect
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId, err := h.roomUseCase.GetRoomIdByInviteToken(r.Context(), token)
+	if err != nil {
+		h.writeError(w, http.StatusNotFound, errors.New("invalid or expired link"))
+		return
+	}
+
+	if err := h.roomUseCase.JoinRoomByInviteLink(r.Context(), roomId, userId); err != nil {
+		switch {
+		case errors.Is(err, room.ErrAlreadyParticipant):
+			h.writeError(w, http.StatusConflict, err)
+		case errors.Is(err, room.ErrRoomNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to join room"))
+		}
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, map[string]string{"roomId": roomId})
 }

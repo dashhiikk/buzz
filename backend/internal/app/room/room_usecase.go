@@ -11,6 +11,8 @@ import (
 	"errors"
 	"log"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -55,10 +57,16 @@ func (uc *RoomUseCase) CreateRoom(ctx context.Context, name string, icon *string
 	if err := uc.roomRepo.CreateRoom(ctx, room); err != nil {
 		return err
 	}
-	log.Printf("Adding participant: roomID=%s, userID=%s", room.Id, adminId)
+
+	inviteToken := uuid.New().String()
+	if err := uc.roomRepo.SetInviteToken(ctx, room.Id, inviteToken); err != nil {
+		log.Printf("failed to set invite tokev: %v", err)
+	}
+
 	if err := uc.roomRepo.AddParticipant(ctx, room.Id, adminId); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -514,4 +522,30 @@ func (uc *RoomUseCase) LeaveRoom(ctx context.Context, userId, roomId string) err
 	}
 
 	return nil
+}
+
+func (uc *RoomUseCase) GetInviteToken(ctx context.Context, roomId string) (string, error) {
+	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
+	if err != nil {
+		return "", err
+	}
+
+	if room == nil {
+		return "", ErrRoomNotFound
+	}
+
+	if room.InviteToken != nil {
+		return *room.InviteToken, nil
+	}
+
+	token := uuid.New().String()
+	if err := uc.roomRepo.SetInviteToken(ctx, roomId, token); err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (uc *RoomUseCase) GetRoomIdByInviteToken(ctx context.Context, token string) (string, error) {
+	return uc.roomRepo.GetRoomIdByInviteToken(ctx, token)
 }

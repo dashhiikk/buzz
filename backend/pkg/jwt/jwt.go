@@ -15,6 +15,7 @@ var (
 
 type Service interface {
 	Generate(userId string) (string, error)
+	GenerateWithExpiry(userID string, expiry time.Duration) (string, error)
 	Validate(tokenStr string) (*Claims, error)
 }
 
@@ -38,6 +39,23 @@ func NewJWTService(secretKey string, accessExpire time.Duration) *JWTService {
 func (s *JWTService) Generate(userId string) (string, error) {
 	expireTime := time.Now().Add(s.accessExpire)
 
+	claims := &Claims{
+		UserId: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expireTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    "buzz",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString(s.secretKey)
+}
+
+func (s *JWTService) GenerateWithExpiry(userId string, expiry time.Duration) (string, error) {
+	expireTime := time.Now().Add(expiry)
 	claims := &Claims{
 		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{

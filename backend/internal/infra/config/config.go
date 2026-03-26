@@ -14,6 +14,7 @@ type Config struct {
 	Jitsi  JitsiConfig
 	Email  EmailConfig
 	Upload UploadConfig
+	AppURL string `mapinfrasructure:"app_url"`
 }
 
 type ServerConfig struct {
@@ -90,6 +91,8 @@ func Load() (*Config, error) {
 	viper.SetDefault("UPLOAD_MAX_SIZE", 10<<20)
 	viper.SetDefault("UPLOAD_ALLOWED_EXTS", []string{".jpg", ".jpeg", ".png", ".gif", ".pdf", ".txt"})
 
+	viper.SetDefault("APP_URL", "http://localhost:3000")
+
 	readTimeout, err := time.ParseDuration(viper.GetString("SERVER_READ_TIMEOUT"))
 	if err != nil {
 		return nil, fmt.Errorf("inavid SERVER_READ_TIMEOUT %w", err)
@@ -143,6 +146,7 @@ func Load() (*Config, error) {
 			MaxSize:     viper.GetInt64("UPLOAD_MAX_SIZE"),
 			AllowedExts: viper.GetStringSlice("UPLOAD_ALLOWED_EXTS"),
 		},
+		AppURL: viper.GetString("APP_URL"),
 	}
 
 	return cnfg, nil
