@@ -156,9 +156,9 @@ func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []by
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 {object} map[string]interface{} "Текущее состояние доски"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      401  "Неавторизован"
+// @Failure      403 "Пользователь не является участником комнаты"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/board [get]
 func (h *Handler) GetState(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)

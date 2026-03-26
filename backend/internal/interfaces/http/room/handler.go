@@ -39,9 +39,9 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Produce      json
 // @Param        request body CreateRoomRequest true "Данные комнаты"
 // @Success      201 "Комната создана"
-// @Failure      400 {object} map[string]string "Некорректные данные"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Некорректные данные"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/create [post]
 func (h *Handler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -71,8 +71,8 @@ func (h *Handler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 // @Security     BearerAuth
 // @Produce      json
 // @Success      200 {array} RoomResponse "Список комнат"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms [get]
 func (h *Handler) GetUserRooms(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -98,10 +98,10 @@ func (h *Handler) GetUserRooms(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 {object} RoomResponse "Информация о комнате"
-// @Failure      400 {object} map[string]string "Неверный ID"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      404 {object} map[string]string "Комната не найдена"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID"
+// @Failure      401 "Неавторизован"
+// @Failure      404 "Комната не найдена"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id} [get]
 func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 	roomId := chi.URLParam(r, "id")
@@ -140,9 +140,9 @@ func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 {array} ParticipantResponse "Список участников"
-// @Failure      400 {object} map[string]string "Неверный ID"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/participants [get]
 func (h *Handler) GetParticipants(w http.ResponseWriter, r *http.Request) {
 	roomId := chi.URLParam(r, "id")
@@ -180,12 +180,12 @@ func (h *Handler) GetParticipants(w http.ResponseWriter, r *http.Request) {
 // @Param        id path string true "ID комнаты"
 // @Param        request body SendRoomInviteRequest true "Данные приглашаемого"
 // @Success      201 "Приглашение отправлено"
-// @Failure      400 {object} map[string]string "Некорректные данные или попытка пригласить себя"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
-// @Failure      404 {object} map[string]string "Комната или пользователь не найдены"
-// @Failure      409 {object} map[string]string "Пользователь уже участник или приглашение уже существует"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Некорректные данные или попытка пригласить себя"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не является участником комнаты"
+// @Failure      404 "Комната или пользователь не найдены"
+// @Failure      409 "Пользователь уже участник или приглашение уже существует"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/send-invite [post]
 func (h *Handler) SendRoomInvite(w http.ResponseWriter, r *http.Request) {
 	inviterId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -235,11 +235,11 @@ func (h *Handler) SendRoomInvite(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 "Успешное вступление"
-// @Failure      400 {object} map[string]string "Неверный ID"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      404 {object} map[string]string "Комната не найдена"
-// @Failure      409 {object} map[string]string "Пользователь уже участник"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID"
+// @Failure      401 "Неавторизован"
+// @Failure      404 "Комната не найдена"
+// @Failure      409 "Пользователь уже участник"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/join [post]
 func (h *Handler) JoinRoomByInviteLink(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -279,11 +279,11 @@ func (h *Handler) JoinRoomByInviteLink(w http.ResponseWriter, r *http.Request) {
 // @Param        id path string true "ID комнаты"
 // @Param        userId path string true "ID пользователя для удаления"
 // @Success      200 "Участник удалён"
-// @Failure      400 {object} map[string]string "Неверные параметры или попытка удалить себя"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не администратор"
-// @Failure      404 {object} map[string]string "Комната не найдена"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверные параметры или попытка удалить себя"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не администратор"
+// @Failure      404 "Комната не найдена"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/participants/{userId} [delete]
 func (h *Handler) RemoveParticipant(w http.ResponseWriter, r *http.Request) {
 	adminId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -327,11 +327,11 @@ func (h *Handler) RemoveParticipant(w http.ResponseWriter, r *http.Request) {
 // @Param        id path string true "ID комнаты"
 // @Param        request body AppointAdminRequest true "ID нового администратора"
 // @Success      200 "Администратор назначен"
-// @Failure      400 {object} map[string]string "Неверные данные"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не администратор"
-// @Failure      404 {object} map[string]string "Комната не найдена"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверные данные"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не администратор"
+// @Failure      404 "Комната не найдена"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/admin [post]
 func (h *Handler) AppointAdmin(w http.ResponseWriter, r *http.Request) {
 	currentAdminId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -376,11 +376,11 @@ func (h *Handler) AppointAdmin(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 "Комната удалена"
-// @Failure      400 {object} map[string]string "Неверный ID"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не администратор"
-// @Failure      404 {object} map[string]string "Комната не найдена"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не администратор"
+// @Failure      404 "Комната не найдена"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id} [delete]
 func (h *Handler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
 	adminId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -419,11 +419,11 @@ func (h *Handler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 "Выход выполнен"
-// @Failure      400 {object} map[string]string "Неверный ID"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не является участником"
-// @Failure      404 {object} map[string]string "Комната не найдена"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не является участником"
+// @Failure      404 "Комната не найдена"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/leave [post]
 func (h *Handler) LeaveRoom(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)

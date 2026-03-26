@@ -1,10 +1,5 @@
 basePath: /
 definitions:
-  auth.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
   auth.LoginRequest:
     properties:
       code:
@@ -185,12 +180,8 @@ paths:
             $ref: '#/definitions/auth.TokenResponse'
         "400":
           description: Некорректный формат данных
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
         "401":
           description: Неверные учётные данные
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
       summary: Авторизация пользователя
       tags:
       - auth
@@ -211,14 +202,8 @@ paths:
       responses:
         "202":
           description: Ссылка-подверждение отправлена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Некорректный email
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
       summary: Запрос на восстановление пароля
       tags:
       - auth
@@ -241,12 +226,8 @@ paths:
           description: Пользователь создан
         "400":
           description: Некорректный формат данных
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
         "409":
           description: Неверные учётные данные
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
       summary: Регистрация нового пользователя
       tags:
       - auth
@@ -267,18 +248,10 @@ paths:
       responses:
         "200":
           description: Пароль успешно изменён
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "400":
           description: Некорректный пароль
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
         "401":
           description: Недействительный или просроченный токен
-          schema:
-            $ref: '#/definitions/auth.ErrorResponse'
       summary: Установка нового пароля
       tags:
       - auth
@@ -297,16 +270,8 @@ paths:
             type: array
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить список друзей
@@ -327,28 +292,12 @@ paths:
           description: Друг удалён
         "400":
           description: Пользователи не являются друзьями
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Пользователь не найден
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Удалить друга
@@ -375,34 +324,14 @@ paths:
         "400":
           description: Некорректные данные (username/code) или попытка отправить запрос
             самому себе
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Пользователь не найден
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "409":
           description: Запрос уже существует
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Отправить запрос в друзья
@@ -422,16 +351,8 @@ paths:
             type: array
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить все входящие запросы
@@ -454,40 +375,16 @@ paths:
           description: Запрос принят
         "400":
           description: Неверный ID запроса или запрос не в статусе pending
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Запрос не принадлежит текущему пользователю
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Запрос не найден
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "409":
           description: Запрос уже был обработан (не pending)
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Принять запрос
@@ -510,34 +407,14 @@ paths:
           description: Запрос отклонён
         "400":
           description: Неверный ID запроса
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Запрос не принадлежит текущему пользователю
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Запрос не найден
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Отклонить запрос
@@ -559,16 +436,8 @@ paths:
             type: array
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить все исходящие запросы
@@ -589,16 +458,8 @@ paths:
             type: array
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить список комнат пользователя
@@ -620,34 +481,14 @@ paths:
           description: Комната удалена
         "400":
           description: Неверный ID
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не администратор
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната не найдена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Удалить комнату
@@ -671,28 +512,12 @@ paths:
             $ref: '#/definitions/room.RoomResponse'
         "400":
           description: Неверный ID
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната не найдена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить информацию о комнате
@@ -723,34 +548,14 @@ paths:
           description: Администратор назначен
         "400":
           description: Неверные данные
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не администратор
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната не найдена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Назначить нового администратора комнаты
@@ -776,75 +581,15 @@ paths:
             type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не является участником комнаты
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить текущее состояние виртуальной доски
       tags:
       - board
-  /rooms/{id}/jitsi-token:
-    get:
-      description: Генерирует и возвращает JWT-токен, который позволяет подключиться
-        к видеоконференции в указанной комнате. Пользователь должен быть участником
-        комнаты. Токен действует ограниченное время.
-      parameters:
-      - description: ID комнаты
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Токен и URL сервера
-          schema:
-            $ref: '#/definitions/jitsi.GetTokenResponse'
-        "400":
-          description: Отсутствует ID комнаты
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "403":
-          description: Пользователь не является участником комнаты
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Внутренняя ошибка сервера (например, не удалось сгенерировать
-            токен)
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Получить JWT-токен для подключения к Jitsi
-      tags:
-      - jitsi
   /rooms/{id}/join:
     post:
       description: Позволяет пользователю немедленно присоединиться к комнате (без
@@ -862,34 +607,14 @@ paths:
           description: Успешное вступление
         "400":
           description: Неверный ID
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната не найдена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "409":
           description: Пользователь уже участник
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Вступить в комнату по ссылке-приглашению
@@ -913,34 +638,14 @@ paths:
           description: Выход выполнен
         "400":
           description: Неверный ID
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не является участником
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната не найдена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Покинуть комнату
@@ -966,22 +671,10 @@ paths:
             type: array
         "400":
           description: Неверный ID
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить список участников комнаты
@@ -1009,34 +702,14 @@ paths:
           description: Участник удалён
         "400":
           description: Неверные параметры или попытка удалить себя
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не администратор
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната не найдена
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Удалить участника из комнаты
@@ -1067,40 +740,16 @@ paths:
           description: Приглашение отправлено
         "400":
           description: Некорректные данные или попытка пригласить себя
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не является участником комнаты
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: Комната или пользователь не найдены
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "409":
           description: Пользователь уже участник или приглашение уже существует
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Отправить приглашение в комнату
@@ -1138,27 +787,47 @@ paths:
             type: array
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "403":
           description: Пользователь не является участником комнаты
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Получить историю сообщений в комнате
       tags:
       - chat
+  /rooms/{id}/voice-chat:
+    get:
+      description: Генерирует и возвращает JWT-токен, который позволяет подключиться
+        к видеоконференции в указанной комнате. Пользователь должен быть участником
+        комнаты. Токен действует ограниченное время.
+      parameters:
+      - description: ID комнаты
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Токен и URL сервера
+          schema:
+            $ref: '#/definitions/jitsi.GetTokenResponse'
+        "400":
+          description: Отсутствует ID комнаты
+        "401":
+          description: Неавторизован
+        "403":
+          description: Пользователь не является участником комнаты
+        "500":
+          description: Внутренняя ошибка сервера (например, не удалось сгенерировать
+            токен)
+      security:
+      - BearerAuth: []
+      summary: Получить JWT-токен для подключения к Jitsi
+      tags:
+      - jitsi
   /rooms/create:
     post:
       consumes:
@@ -1179,27 +848,48 @@ paths:
           description: Комната создана
         "400":
           description: Некорректные данные
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Неавторизован
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
           description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
       security:
       - BearerAuth: []
       summary: Создать новую комнату
       tags:
       - rooms
+  /upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Принимает multipart/form-data с полем "file" и сохраняет файл на
+        сервере. Возвращает URL, по которому файл будет доступен. Файлы сохраняются
+        с уникальным именем, исходное имя не используется.
+      parameters:
+      - description: Файл для загрузки
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешная загрузка, возвращён URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Файл слишком большой, неверный тип или отсутствует файл
+        "401":
+          description: Неавторизован
+        "500":
+          description: Внутренняя ошибка сервера
+      security:
+      - BearerAuth: []
+      summary: Загрузить файл на сервер
+      tags:
+      - upload
   /ws/board:
     get:
       description: Устанавливает WebSocket-соединение для обмена обновлениями доски

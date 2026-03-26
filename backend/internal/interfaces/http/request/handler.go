@@ -37,8 +37,8 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Security     BearerAuth
 // @Produce      json
 // @Success      200 {array} request.Request "Список входящих запросов (может быть пустым)"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /requests [get]
 func (h *Handler) GetIncomingRequests(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -63,8 +63,8 @@ func (h *Handler) GetIncomingRequests(w http.ResponseWriter, r *http.Request) {
 // @Security     BearerAuth
 // @Produce      json
 // @Success      200 {array} request.Request "Список исходящих запросов (может быть пустым)"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /requests/outgoing [get]
 func (h *Handler) GetOutgoingRequests(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -89,12 +89,12 @@ func (h *Handler) GetOutgoingRequests(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID запроса"
 // @Success      200 "Запрос принят"
-// @Failure      400 {object} map[string]string "Неверный ID запроса или запрос не в статусе pending"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Запрос не принадлежит текущему пользователю"
-// @Failure      404 {object} map[string]string "Запрос не найден"
-// @Failure      409 {object} map[string]string "Запрос уже был обработан (не pending)"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID запроса или запрос не в статусе pending"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Запрос не принадлежит текущему пользователю"
+// @Failure      404 "Запрос не найден"
+// @Failure      409 "Запрос уже был обработан (не pending)"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /requests/{id}/accept [post]
 func (h *Handler) AcceptRequest(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -135,11 +135,11 @@ func (h *Handler) AcceptRequest(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        id path string true "ID запроса"
 // @Success      200 "Запрос отклонён"
-// @Failure      400 {object} map[string]string "Неверный ID запроса"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Запрос не принадлежит текущему пользователю"
-// @Failure      404 {object} map[string]string "Запрос не найден"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Неверный ID запроса"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Запрос не принадлежит текущему пользователю"
+// @Failure      404 "Запрос не найден"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /requests/{id}/reject [post]
 func (h *Handler) RejectRequest(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)

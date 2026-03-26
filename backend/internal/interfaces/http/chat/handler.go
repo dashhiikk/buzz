@@ -158,9 +158,9 @@ func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []by
 // @Param        limit query int false "Количество сообщений (max 100)" default(50)
 // @Param        offset query int false "Смещение" default(0)
 // @Success      200 {array} entity.Message "Список сообщений"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не является участником комнаты"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /rooms/{id}/text-chat [get]
 func (h *Handler) GetHistory(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(middleware.UserIdKey).(string)

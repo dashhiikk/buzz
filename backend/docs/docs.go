@@ -51,16 +51,10 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Некорректный формат данных",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Некорректный формат данных"
                     },
                     "401": {
-                        "description": "Неверные учётные данные",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Неверные учётные данные"
                     }
                 }
             }
@@ -91,19 +85,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "202": {
-                        "description": "Ссылка-подверждение отправлена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Ссылка-подверждение отправлена"
                     },
                     "400": {
-                        "description": "Некорректный email",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Некорректный email"
                     }
                 }
             }
@@ -137,16 +122,10 @@ const docTemplate = `{
                         "description": "Пользователь создан"
                     },
                     "400": {
-                        "description": "Некорректный формат данных",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Некорректный формат данных"
                     },
                     "409": {
-                        "description": "Неверные учётные данные",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Неверные учётные данные"
                     }
                 }
             }
@@ -177,25 +156,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Пароль успешно изменён",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пароль успешно изменён"
                     },
                     "400": {
-                        "description": "Некорректный пароль",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Некорректный пароль"
                     },
                     "401": {
-                        "description": "Недействительный или просроченный токен",
-                        "schema": {
-                            "$ref": "#/definitions/auth.ErrorResponse"
-                        }
+                        "description": "Недействительный или просроченный токен"
                     }
                 }
             }
@@ -226,22 +193,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -277,49 +232,19 @@ const docTemplate = `{
                         "description": "Запрос создан (тело ответа пусто)"
                     },
                     "400": {
-                        "description": "Некорректные данные (username/code) или попытка отправить запрос самому себе",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Некорректные данные (username/code) или попытка отправить запрос самому себе"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не найден"
                     },
                     "409": {
-                        "description": "Запрос уже существует",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Запрос уже существует"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -350,40 +275,16 @@ const docTemplate = `{
                         "description": "Друг удалён"
                     },
                     "400": {
-                        "description": "Пользователи не являются друзьями",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователи не являются друзьями"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "404": {
-                        "description": "Пользователь не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не найден"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -414,22 +315,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -460,22 +349,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -509,58 +386,22 @@ const docTemplate = `{
                         "description": "Запрос принят"
                     },
                     "400": {
-                        "description": "Неверный ID запроса или запрос не в статусе pending",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID запроса или запрос не в статусе pending"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Запрос не принадлежит текущему пользователю",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Запрос не принадлежит текущему пользователю"
                     },
                     "404": {
-                        "description": "Запрос не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Запрос не найден"
                     },
                     "409": {
-                        "description": "Запрос уже был обработан (не pending)",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Запрос уже был обработан (не pending)"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -594,49 +435,19 @@ const docTemplate = `{
                         "description": "Запрос отклонён"
                     },
                     "400": {
-                        "description": "Неверный ID запроса",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID запроса"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Запрос не принадлежит текущему пользователю",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Запрос не принадлежит текущему пользователю"
                     },
                     "404": {
-                        "description": "Запрос не найден",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Запрос не найден"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -667,22 +478,10 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -721,31 +520,13 @@ const docTemplate = `{
                         "description": "Комната создана"
                     },
                     "400": {
-                        "description": "Некорректные данные",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Некорректные данные"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -782,40 +563,16 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "404": {
-                        "description": "Комната не найдена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната не найдена"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             },
@@ -847,49 +604,19 @@ const docTemplate = `{
                         "description": "Комната удалена"
                     },
                     "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не администратор",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не администратор"
                     },
                     "404": {
-                        "description": "Комната не найдена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната не найдена"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -935,49 +662,19 @@ const docTemplate = `{
                         "description": "Администратор назначен"
                     },
                     "400": {
-                        "description": "Неверные данные",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверные данные"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не администратор",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не администратор"
                     },
                     "404": {
-                        "description": "Комната не найдена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната не найдена"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1015,101 +712,13 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не является участником комнаты",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не является участником комнаты"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/rooms/{id}/jitsi-token": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Генерирует и возвращает JWT-токен, который позволяет подключиться к видеоконференции в указанной комнате. Пользователь должен быть участником комнаты. Токен действует ограниченное время.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "jitsi"
-                ],
-                "summary": "Получить JWT-токен для подключения к Jitsi",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID комнаты",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Токен и URL сервера",
-                        "schema": {
-                            "$ref": "#/definitions/jitsi.GetTokenResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Отсутствует ID комнаты",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Пользователь не является участником комнаты",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера (например, не удалось сгенерировать токен)",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1143,49 +752,19 @@ const docTemplate = `{
                         "description": "Успешное вступление"
                     },
                     "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "404": {
-                        "description": "Комната не найдена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната не найдена"
                     },
                     "409": {
-                        "description": "Пользователь уже участник",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь уже участник"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1219,49 +798,19 @@ const docTemplate = `{
                         "description": "Выход выполнен"
                     },
                     "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не является участником",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не является участником"
                     },
                     "404": {
-                        "description": "Комната не найдена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната не найдена"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1301,31 +850,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Неверный ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверный ID"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1366,49 +897,19 @@ const docTemplate = `{
                         "description": "Участник удалён"
                     },
                     "400": {
-                        "description": "Неверные параметры или попытка удалить себя",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неверные параметры или попытка удалить себя"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не администратор",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не администратор"
                     },
                     "404": {
-                        "description": "Комната не найдена",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната не найдена"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1454,58 +955,22 @@ const docTemplate = `{
                         "description": "Приглашение отправлено"
                     },
                     "400": {
-                        "description": "Некорректные данные или попытка пригласить себя",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Некорректные данные или попытка пригласить себя"
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не является участником комнаты",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь не является участником комнаты"
                     },
                     "404": {
-                        "description": "Комната или пользователь не найдены",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Комната или пользователь не найдены"
                     },
                     "409": {
-                        "description": "Пользователь уже участник или приглашение уже существует",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Пользователь уже участник или приглашение уже существует"
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1559,16 +1024,93 @@ const docTemplate = `{
                         }
                     },
                     "401": {
-                        "description": "Неавторизован",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Неавторизован"
                     },
                     "403": {
-                        "description": "Пользователь не является участником комнаты",
+                        "description": "Пользователь не является участником комнаты"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/rooms/{id}/voice-chat": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Генерирует и возвращает JWT-токен, который позволяет подключиться к видеоконференции в указанной комнате. Пользователь должен быть участником комнаты. Токен действует ограниченное время.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jitsi"
+                ],
+                "summary": "Получить JWT-токен для подключения к Jitsi",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID комнаты",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Токен и URL сервера",
+                        "schema": {
+                            "$ref": "#/definitions/jitsi.GetTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Отсутствует ID комнаты"
+                    },
+                    "401": {
+                        "description": "Неавторизован"
+                    },
+                    "403": {
+                        "description": "Пользователь не является участником комнаты"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера (например, не удалось сгенерировать токен)"
+                    }
+                }
+            }
+        },
+        "/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Принимает multipart/form-data с полем \"file\" и сохраняет файл на сервере. Возвращает URL, по которому файл будет доступен. Файлы сохраняются с уникальным именем, исходное имя не используется.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "upload"
+                ],
+                "summary": "Загрузить файл на сервер",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Файл для загрузки",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешная загрузка, возвращён URL",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1576,14 +1118,14 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Файл слишком большой, неверный тип или отсутствует файл"
+                    },
+                    "401": {
+                        "description": "Неавторизован"
+                    },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                        "description": "Внутренняя ошибка сервера"
                     }
                 }
             }
@@ -1686,14 +1228,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
         "auth.LoginRequest": {
             "type": "object",
             "properties": {

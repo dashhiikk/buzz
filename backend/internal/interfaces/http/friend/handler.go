@@ -37,8 +37,8 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Security     BearerAuth
 // @Produce      json
 // @Success      200 {array} FriendResponse "Список друзей (может быть пустым)"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /friends [get]
 func (h *Handler) GetFriends(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -73,11 +73,11 @@ func (h *Handler) GetFriends(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        request body SendFriendRequest true "Данные получателя"
 // @Success      201 "Запрос создан (тело ответа пусто)"
-// @Failure      400 {object} map[string]string "Некорректные данные (username/code) или попытка отправить запрос самому себе"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      404 {object} map[string]string "Пользователь не найден"
-// @Failure      409 {object} map[string]string "Запрос уже существует"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Некорректные данные (username/code) или попытка отправить запрос самому себе"
+// @Failure      401 "Неавторизован"
+// @Failure      404 "Пользователь не найден"
+// @Failure      409 "Запрос уже существует"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /friends/send-request [post]
 func (h *Handler) SendFriendRequest(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
@@ -117,10 +117,10 @@ func (h *Handler) SendFriendRequest(w http.ResponseWriter, r *http.Request) {
 // @Security     BearerAuth
 // @Param        friendId path string true "ID пользователя, которого нужно удалить из друзей"
 // @Success      200 "Друг удалён"
-// @Failure      400 {object} map[string]string "Пользователи не являются друзьями"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      404 {object} map[string]string "Пользователь не найден"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure      400 "Пользователи не являются друзьями"
+// @Failure      401 "Неавторизован"
+// @Failure      404 "Пользователь не найден"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /friends/{friendId} [delete]
 func (h *Handler) RemoveFriend(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)

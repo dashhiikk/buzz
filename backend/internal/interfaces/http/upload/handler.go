@@ -36,10 +36,10 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Accept       mpfd
 // @Produce      json
 // @Param        file formData file true "Файл для загрузки"
-// @Success      200 {object} UploadFileResponse "Успешная загрузка, возвращён URL"
-// @Failure      400 {object} ErrorResponse "Файл слишком большой, неверный тип или отсутствует файл"
-// @Failure      401 {object} ErrorResponse "Неавторизован"
-// @Failure      500 {object} ErrorResponse "Внутренняя ошибка сервера (например, не удалось сохранить файл)"
+// @Success      200 {object} map[string]string "Успешная загрузка, возвращён URL"
+// @Failure      400 "Файл слишком большой, неверный тип или отсутствует файл"
+// @Failure      401 "Неавторизован"
+// @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /upload [post]
 func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	_, ok := r.Context().Value(middleware.UserIdKey).(string)

@@ -45,11 +45,11 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Produce      json
 // @Param        id path string true "ID комнаты"
 // @Success      200 {object} GetTokenResponse "Токен и URL сервера"
-// @Failure      400 {object} map[string]string "Отсутствует ID комнаты"
-// @Failure      401 {object} map[string]string "Неавторизован"
-// @Failure      403 {object} map[string]string "Пользователь не является участником комнаты"
-// @Failure      500 {object} map[string]string "Внутренняя ошибка сервера (например, не удалось сгенерировать токен)"
-// @Router       /rooms/{id}/jitsi-token [get]
+// @Failure      400 "Отсутствует ID комнаты"
+// @Failure      401 "Неавторизован"
+// @Failure      403 "Пользователь не является участником комнаты"
+// @Failure      500 "Внутренняя ошибка сервера (например, не удалось сгенерировать токен)"
+// @Router       /rooms/{id}/voice-chat [get]
 func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
