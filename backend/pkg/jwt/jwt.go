@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -80,6 +81,7 @@ func (s *JWTService) Validate(tokenStr string) (*Claims, error) {
 	})
 
 	if err != nil {
+		log.Printf("JWT validation error: %v", err)
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, ErrTokenExpired
 		}

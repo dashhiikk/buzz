@@ -4,6 +4,7 @@ import (
 	"Buzz/internal/app/auth"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 )
 
@@ -148,7 +149,7 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		h.writeError(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}
-
+	log.Printf("Raw token handler: %q", req.Token)
 	err := h.authUseCase.UpdatePassword(r.Context(), req.Token, req.NewPassword)
 	if err != nil {
 		switch {

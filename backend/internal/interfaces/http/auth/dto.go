@@ -21,7 +21,7 @@ type PasswordResetRequest struct {
 
 // UpdatePasswordRequest - форма запроса на смену пароля
 type UpdatePasswordRequest struct {
-	Token       string `json:"email"`
+	Token       string `json:"token"`
 	NewPassword string `json:"newPassword"`
 }
 

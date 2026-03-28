@@ -74,7 +74,7 @@ func main() {
 
 	hasher := hash.NewBcryptHasher()
 	jwtService := jwt.NewJWTService(cfg.JWT.SecretKey, cfg.JWT.AccessExpire)
-	emailSender := email.NewMockSender()
+	emailSender := email.NewSMTPSender(cfg.Email.SMTPHost, cfg.Email.SMTPPort, cfg.Email.Username, cfg.Email.Password, cfg.Email.From)
 	jitsiJWT := jitsi.NewJitsiJWT(cfg.Jitsi.JWTSecret, cfg.Jitsi.AppID, 1*time.Hour)
 
 	userRepo := repositories.NewUserRepository(db)

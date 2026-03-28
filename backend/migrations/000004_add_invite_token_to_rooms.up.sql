@@ -1,0 +1,1 @@
+ALTER TABLE rooms ADD COLUMN invite_token TEXT UNIQUE;

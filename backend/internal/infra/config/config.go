@@ -81,11 +81,11 @@ func Load() (*Config, error) {
 	viper.SetDefault("JITSI_JWT_SECRET", "my-jitsi-secret")
 	viper.SetDefault("JITSI_APP_ID", "buzzId")
 
-	viper.SetDefault("EMAIL_SMTP_HOST", "smpt.gmail.com")
+	viper.SetDefault("EMAIL_SMTP_HOST", "smtp.mail.ru")
 	viper.SetDefault("EMAIL_SMTP_PORT", 587)
-	viper.SetDefault("EMAIL_USERNAME", "")
-	viper.SetDefault("EMAIL_PASSWORD", "")
-	viper.SetDefault("EMAIL_FROM", "")
+	viper.SetDefault("EMAIL_USERNAME", "buzz.communication@mail.ru")
+	viper.SetDefault("EMAIL_PASSWORD", "srbDDhfdkIaEAGxPcGsH")
+	viper.SetDefault("EMAIL_FROM", "buzz.communication@mail.ru")
 
 	viper.SetDefault("UPLOAD_PATH", "./uploads")
 	viper.SetDefault("UPLOAD_MAX_SIZE", 10<<20)
