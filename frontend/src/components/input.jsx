@@ -1,7 +1,14 @@
 import "../css/input.css";
 import { useEffect, useRef } from "react";
 
-export default function Input({ placeholder, type = "text", autoComplete = "off", name }) {
+export default function Input({ 
+  placeholder, 
+  type = "text", 
+  autoComplete = "off", 
+  name,
+  value,
+  onChange
+}) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -36,6 +43,8 @@ export default function Input({ placeholder, type = "text", autoComplete = "off"
         className="input-text text--dark"
         placeholder={placeholder}
         autoComplete={autoComplete}
+        value={value}
+        onChange={onChange}
       />
     </div>
   );

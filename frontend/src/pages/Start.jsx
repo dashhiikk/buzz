@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/use-auth";
+import { getRooms } from "../api/rooms";
+import { getFriends } from "../api/fiends";
 
 import Header from "../components/header"
 import StartChat from "../components/start/start-chat"
@@ -13,24 +16,12 @@ import CreateRoom from "../modals/create-room"
 
 import useIsPortrait from "../hooks/is-portrait";
 
-import room from "../assets/room-icon.jpg"
-import friend from "../assets/friend-icon.jpg"
-
 export default function Start() {
 
     const [active, setActive] = useState("room");
     const isPortrait = useIsPortrait();
 
     const location = useLocation();
-
-    const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(!!location.state?.fromRegistration); // Открываем модал, если пришли из Registration
-    const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(!!location.state?.fromRecovery);
-
-    const handleCloseModal = () => {
-        setIsRegistrationModalOpen(false);
-        setIsRecoveryModalOpen(false);
-    };
-    
     const navigate = useNavigate();
     useEffect(() => {
         if (location.state) {
@@ -38,34 +29,61 @@ export default function Start() {
         }
     }, [location, navigate]);
 
+    const {
+        showRegistrationModal,
+        showRecoveryModal,
+        closeModals,
+    } = useAuth();
+
     const [isAddFriendOpen, setIsAddFriendOpen] = useState(false);
     const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
-    const friends = [
-        { id: 1, name: "Ник друга", avatar: friend},
-        { id: 2, name: "Ник друга", avatar: friend},
-        { id: 3, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 5, name: "Ник друга", avatar: friend },
-        { id: 6, name: "Ник друга", avatar: friend },
-        { id: 7, name: "Ник друга", avatar: friend },
-        { id: 8, name: "Ник друга", avatar: friend },
-        { id: 9, name: "Ник друга", avatar: friend },
-        { id: 10, name: "Ник друга", avatar: friend },
-    ];
+    const [rooms, setRooms] = useState([]);
+    const [friends, setFriends] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const rooms = [
-        { id: 1, name: "Название комнаты", avatar: room},
-        { id: 2, name: "Название комнаты", avatar: room},
-        { id: 3, name: "Название комнаты", avatar: room},
-        { id: 4, name: "Название комнаты", avatar: room},
-        { id: 5, name: "Название комнаты", avatar: room},
-        { id: 6, name: "Название комнаты", avatar: room},
-        { id: 7, name: "Название комнаты", avatar: room},
-        { id: 8, name: "Название комнаты", avatar: room},
-        { id: 9, name: "Название комнаты", avatar: room},
-        { id: 10, name: "Название комнаты", avatar: room},
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // Загружаем комнаты и друзей параллельно
+                const [roomsRes, friendsRes] = await Promise.all([
+                getRooms(),
+                getFriends(),
+                ]);
+                setRooms(roomsRes.data);
+                setFriends(friendsRes.data);
+                setError(null);
+            } catch (err) {
+                console.error("Failed to fetch data:", err);
+                setError("Не удалось загрузить данные");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return <div>Загрузка...</div>;
+    }
+
+    // Если ошибка – показать сообщение и, возможно, кнопку повтора
+    if (error) {
+        return <div>Ошибка: {error}</div>;
+    }
+
+    const roomsForMenu = rooms.map(room => ({
+        id: room.id,
+        name: room.name,
+        avatar: room.icon || room.avatar || room, // используем room.icon, если есть, иначе дефолтный
+    }));
+    const friendsForMenu = friends.map(friend => ({
+        id: friend.id,
+        name: friend.username,
+        avatar: friend.avatar || friend, // используем friend.avatar, если есть
+    }));
 
     return (
         <main>
@@ -75,7 +93,7 @@ export default function Start() {
                     <>
                         <StartMenu
                             title = "Комнаты"
-                            items={rooms}
+                            items={roomsForMenu}
                             onAddClick={() => setIsCreateRoomOpen(true)}
                             active={active}
                             setActive={setActive}
@@ -94,7 +112,7 @@ export default function Start() {
                     <>
                         <StartMenu
                             title = "Друзья"
-                            items={friends}
+                            items={friendsForMenu}
                             onAddClick={() => setIsAddFriendOpen(true)}
                             active={active}
                             setActive={setActive}
@@ -114,8 +132,8 @@ export default function Start() {
             <AddFriend isOpen={isAddFriendOpen} onClose={() => setIsAddFriendOpen(false)} />
             <CreateRoom isOpen={isCreateRoomOpen} onClose={() => setIsCreateRoomOpen(false)} />    
 
-            <RegistationNotice isOpen={isRegistrationModalOpen} onClose={handleCloseModal} />
-            <RecoveryNotice isOpen={isRecoveryModalOpen} onClose={handleCloseModal} />
+            <RegistationNotice isOpen={showRegistrationModal} onClose={closeModals} />
+            <RecoveryNotice isOpen={showRecoveryModal} onClose={closeModals} />
         </main>
     );
 }

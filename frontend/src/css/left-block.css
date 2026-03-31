@@ -16,11 +16,11 @@
 
 @media (max-width: 1024px) {
     .left-block {
-        max-width: 810px;
+        max-width: 500px;
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .left-block {
         height: calc(100vh - 100px);
     }

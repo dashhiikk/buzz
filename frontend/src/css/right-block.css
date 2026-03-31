@@ -11,7 +11,7 @@
     flex-direction: column;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .right-block {
         height: calc(100vh - 120px);
     }

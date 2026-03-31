@@ -1,26 +1,26 @@
 .large-text {
     margin: 0;
     font-weight: 700;
-    font-size: clamp(15px, 1.3vw + 0.3vh, 24px);
+    font-size: clamp(16px, 2.0vw + 0.3vh, 22px);
 }
 
 .medium-text {
     margin: 0;
     font-weight: 600;
-    font-size: clamp(15px, 1.0vw + 0.3vh, 20px);
+    font-size: clamp(14px, 1.5vw + 0.3vh, 20px);
 }
 
 .small-text {
     margin: 0;
     font-weight: 400;
-    font-size: clamp(12px, 1.0vw + 0.3vh, 16px);  
+    font-size: clamp(12px, 1.2vw + 0.2vh, 16px);  
 }
 
 .input-text { 
     font-family: 'Comfortaa', sans-serif;
     margin: 0;
     font-weight: 300;
-    font-size: clamp(10px, 0.8vw + 0.3vh, 14px);
+    font-size: clamp(12px, 1.2vw + 0.2vh, 16px);
     text-rendering: optimizeLegibility;
 
     background: transparent;
@@ -36,4 +36,8 @@
 
 .text--dark {
     color: #283740;
+}
+
+.text--average {
+    color: #BFB1A4;
 }

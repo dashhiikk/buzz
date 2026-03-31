@@ -10,10 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tsparticles/react": "^3.0.0",
+    "axios": "^1.14.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
-    "@tsparticles/react": "^3.0.0",
     "tsparticles": "^3.9.1"
   },
   "devDependencies": {
