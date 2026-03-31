@@ -23,6 +23,7 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   gap: 60px;
   padding: 0 5%;
   box-sizing: border-box;
@@ -30,9 +31,4 @@ body {
   position: relative;
 }
 
-@media (max-width: 768px) {
-  .page {
-    flex-direction: column;
-    gap: 10px;
-  }
-}
+

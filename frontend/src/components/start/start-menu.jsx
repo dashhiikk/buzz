@@ -14,6 +14,9 @@ export default function StartMenu({
     active, 
     setActive,
     onItemClick,
+    loading = false,
+    error = null,
+    emptyMessage = "Вы пока не состоите ни в одной комнате",
 }) {
 
     return (
@@ -23,6 +26,20 @@ export default function StartMenu({
                 <p className="medium-text text--light">{title}</p>
                 <img src={plus} onClick = {onAddClick} className="left-block-header-btn"></img>
             </div>
+            {loading ? (
+                <div className="loading-message">Загрузка...</div>
+            ) : error ? (
+                <div className="error-message">Ошибка: {error}</div>
+            ) : items.length === 0 ? (
+                <div className="empty-message">{emptyMessage}</div>
+            ) : (
+                <List
+                    items={items}
+                    mode="active"
+                    color="light"
+                    onItemClick={onItemClick}
+                />
+            )}
             <List 
                 items={items}
                 mode="active"

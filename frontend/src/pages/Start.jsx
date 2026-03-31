@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 import { getRooms } from "../api/rooms";
-import { getFriends } from "../api/fiends";
 
 import Header from "../components/header"
 import StartChat from "../components/start/start-chat"
@@ -30,6 +29,7 @@ export default function Start() {
     }, [location, navigate]);
 
     const {
+        user,
         showRegistrationModal,
         showRecoveryModal,
         closeModals,
@@ -39,51 +39,26 @@ export default function Start() {
     const [isCreateRoomOpen, setIsCreateRoomOpen] = useState(false);
 
     const [rooms, setRooms] = useState([]);
-    const [friends, setFriends] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                // Загружаем комнаты и друзей параллельно
-                const [roomsRes, friendsRes] = await Promise.all([
-                getRooms(),
-                getFriends(),
-                ]);
-                setRooms(roomsRes.data);
-                setFriends(friendsRes.data);
-                setError(null);
-            } catch (err) {
-                console.error("Failed to fetch data:", err);
-                setError("Не удалось загрузить данные");
-            } finally {
-                setLoading(false);
-            }
+        if (!user) return;
+        const fetchRooms = async () => {
+        try {
+            const response = await getRooms();
+            setRooms(Array.isArray(response.data) ? response.data : []);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
         };
-        fetchData();
-    }, []);
+        fetchRooms();
+    }, [user]);
 
-    if (loading) {
-        return <div>Загрузка...</div>;
-    }
-
-    // Если ошибка – показать сообщение и, возможно, кнопку повтора
-    if (error) {
-        return <div>Ошибка: {error}</div>;
-    }
-
-    const roomsForMenu = rooms.map(room => ({
-        id: room.id,
-        name: room.name,
-        avatar: room.icon || room.avatar || room, // используем room.icon, если есть, иначе дефолтный
-    }));
-    const friendsForMenu = friends.map(friend => ({
-        id: friend.id,
-        name: friend.username,
-        avatar: friend.avatar || friend, // используем friend.avatar, если есть
-    }));
+    const groupRooms = rooms.filter(room => !room.isPrivate);
+    const privateRooms = rooms.filter(room => room.isPrivate);
 
     return (
         <main>
@@ -93,7 +68,7 @@ export default function Start() {
                     <>
                         <StartMenu
                             title = "Комнаты"
-                            items={roomsForMenu}
+                            items={groupRooms}
                             onAddClick={() => setIsCreateRoomOpen(true)}
                             active={active}
                             setActive={setActive}
@@ -102,6 +77,11 @@ export default function Start() {
                                     state: { roomId: room.id, room }
                                 });
                             }}
+                            loading={loading}
+                            error={error}
+                            emptyMessage="У вас пока нет комнат, но вы можетее создать свою, 
+                            нажав на + в правом верхнем углу, или присоединиться к существующей 
+                            комнате перейдя по ссылке от друга или приняв приглашение."
                         />
                         {!isPortrait && (
                             <StartChat text="Зайдите в комнату, чтобы начать общение"/>
@@ -112,7 +92,7 @@ export default function Start() {
                     <>
                         <StartMenu
                             title = "Друзья"
-                            items={friendsForMenu}
+                            items={privateRooms}
                             onAddClick={() => setIsAddFriendOpen(true)}
                             active={active}
                             setActive={setActive}
@@ -121,6 +101,10 @@ export default function Start() {
                                     state: { friendId: friend.id, friend }
                                 });
                             }}
+                            loading={loading}
+                            error={error}
+                            emptyMessage="У вас пока нет друзей, но вы можете отправить запрос на дружбу другому пользователю, 
+                            если знаете его ник и код, либо можете принять приглашение от друга."
                         />
                         {!isPortrait && (
                             <StartChat text="Выберите друга, чтобы начать общение"/>
