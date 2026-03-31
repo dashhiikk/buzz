@@ -110,7 +110,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, //адрес запуска фронта
+		AllowedOrigins:   []string{"http://localhost:5173"}, //адрес запуска фронта
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		ExposedHeaders:   []string{"Link"},
@@ -125,15 +125,18 @@ func main() {
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/register", authHTTPHandler.Register)
-		r.Post("/verify", authHTTPHandler.VerifyEmail)
+		r.Post("/register/cancel", authHTTPHandler.CancelRegister)
+		r.Get("/verify", authHTTPHandler.VerifyEmail)
 		r.Post("/login", authHTTPHandler.Login)
 		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
 		r.Post("/update-password", authHTTPHandler.UpdatePassword)
+		r.Post("/resend-verification", authHTTPHandler.ResendVerification)
 	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(appMiddleware.AuthMiddleware(jwtService))
 
+		r.Get("/auth/me", authHTTPHandler.GetMe)
 		r.Get("/ws/notifications", notificationWSHandler.ServeWebSocket)
 
 		r.Route("/friends", func(r chi.Router) {

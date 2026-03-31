@@ -91,7 +91,7 @@ func Load() (*Config, error) {
 	viper.SetDefault("UPLOAD_MAX_SIZE", 10<<20)
 	viper.SetDefault("UPLOAD_ALLOWED_EXTS", []string{".jpg", ".jpeg", ".png", ".gif", ".pdf", ".txt"})
 
-	viper.SetDefault("APP_URL", "http://localhost:3000")
+	viper.SetDefault("APP_URL", "http://localhost:5173")
 
 	readTimeout, err := time.ParseDuration(viper.GetString("SERVER_READ_TIMEOUT"))
 	if err != nil {

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"Buzz/internal/app/auth"
+	"Buzz/internal/middleware"
 	"encoding/json"
 	"errors"
 	"log"
@@ -65,6 +66,21 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+func (h *Handler) CancelRegister(w http.ResponseWriter, r *http.Request) {
+	var req cancelRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing email"))
+		return
+	}
+
+	if err := h.authUseCase.CancelRegister(r.Context(), req.Email); err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to cancel registration"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 // Login godoc
 // @Summary      Авторизация пользователя
 // @Description  Авторизирует пользователя в приложении и выдает JWT-token
@@ -84,7 +100,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.authUseCase.Login(r.Context(), req.Username, req.Code, req.Password)
+	token, err := h.authUseCase.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, auth.ErrInvalidUsername),
@@ -94,6 +110,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, auth.ErrUserNotFound),
 			errors.Is(err, auth.ErrInvalidPassword):
 			h.writeError(w, http.StatusUnauthorized, errors.New("invalid credentials"))
+		case errors.Is(err, auth.ErrUserNotVerify):
+			h.writeError(w, http.StatusForbidden, errors.New("Для входа в аккаунт необходимо подвердить почту"))
 		default:
 			h.writeError(w, http.StatusInternalServerError, errors.New("internal server error"))
 		}
@@ -150,7 +168,7 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("Raw token handler: %q", req.Token)
-	err := h.authUseCase.UpdatePassword(r.Context(), req.Token, req.NewPassword)
+	authToken, err := h.authUseCase.UpdatePasswordAndVerify(r.Context(), req.Token, req.NewPassword)
 	if err != nil {
 		switch {
 		case errors.Is(err, auth.ErrWeakPassword):
@@ -165,7 +183,7 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	h.writeJSON(w, http.StatusOK, TokenResponse{Token: authToken})
 }
 
 // VerifyEmail godoc
@@ -183,11 +201,56 @@ func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.authUseCase.VerifyEmail(r.Context(), token)
+	authToken, err := h.authUseCase.VerifyEmailAndLogin(r.Context(), token)
 	if err != nil {
 		h.writeError(w, http.StatusBadRequest, errors.New("invalid or expire token"))
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	h.writeJSON(w, http.StatusOK, TokenResponse{Token: authToken})
+}
+
+func (h *Handler) ResendVerification(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Email string `json:"email"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid request"))
+		return
+	}
+	if err := h.authUseCase.ResendVerificationEmail(r.Context(), req.Email); err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to resend"))
+		return
+	}
+	h.writeJSON(w, http.StatusOK, map[string]string{"message": "verification email sent"})
+}
+
+// GetMe godoc
+// @Summary      Получить информацию о текущем пользователе
+// @Tags         auth
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200 {object} map[string]interface{} "id, email, username, code, avatar"
+// @Failure      401 {object} ErrorResponse
+// @Router       /auth/me [get]
+func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	user, err := h.authUseCase.GetMeById(r.Context(), userId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get user"))
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, map[string]interface{}{
+		"id":       user.Id,
+		"email":    user.Email,
+		"username": user.Username,
+		"code":     user.Code,
+		"avatar":   user.Avatar,
+	})
 }

@@ -25,13 +25,13 @@ func NewSMTPSender(host string, port int, username, password, from string) *SMTP
 
 func (s *SMTPSender) SendVerification(to, token string) error {
 	subject := "Подверждение email на сайте buzz.su"
-	body := fmt.Sprintf("Для подтверждения email перейдите по ссылке: http://localhost:3000/auth/verify?token=%s", token)
+	body := fmt.Sprintf("Для подтверждения email перейдите по ссылке: http://localhost:5173/auth/verify?token=%s", token)
 	return s.send(to, subject, body)
 }
 
 func (s *SMTPSender) SendPasswordReset(to, token string) error {
 	subject := "Сброс пароля на сайте buzz.su"
-	body := fmt.Sprintf("Для смены пароля перейдите по ссылке: http://localhost:3000/update-password?token=%s", token)
+	body := fmt.Sprintf("Для смены пароля перейдите по ссылке: http://localhost:5173/recovery?token=%s", token)
 	return s.send(to, subject, body)
 }
 

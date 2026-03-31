@@ -78,7 +78,7 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*ent
 	var user entity.User
 
 	query := `
-		SELECT id, username, code, email, password_hash, avatar, created_at
+		SELECT id, username, code, email, password_hash, avatar, created_at, is_verified
 		FROM users
 		WHERE email = $1
 	`
@@ -117,4 +117,14 @@ func (r *userRepository) UpdateVerifiedStatus(ctx context.Context, userId string
 	query := `UPDATE users SET is_verified = $1 WHERE id= $2`
 	_, err := r.db.ExecContext(ctx, query, verified, userId)
 	return err
+}
+
+func (r *userRepository) DeleteUserByEmail(ctx context.Context, email string) error {
+	query := `DELETE FROM users WHERE email = $1`
+	_, err := r.db.ExecContext(ctx, query, email)
+	if err != nil {
+		return fmt.Errorf("remove user: %w", err)
+	}
+
+	return nil
 }

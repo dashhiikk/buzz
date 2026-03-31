@@ -27,6 +27,7 @@ var (
 	ErrInvalidCode     = errors.New("invalid code format")
 	ErrTokenInvalid    = errors.New("token is invalid")
 	ErrTokenExpired    = errors.New("token expired")
+	ErrUserNotVerify   = errors.New("user not verify")
 )
 
 type AuthUseCase struct {
@@ -112,31 +113,40 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 	return nil
 }
 
-func (uc *AuthUseCase) VerifyEmail(ctx context.Context, token string) error {
-	claims, err := uc.jwtService.Validate(token)
-	if err != nil {
-		return ErrTokenInvalid
-	}
-
-	if err := uc.userRepo.UpdateVerifiedStatus(ctx, claims.UserId, true); err != nil {
+func (uc *AuthUseCase) CancelRegister(ctx context.Context, userEmail string) error {
+	if err := uc.userRepo.DeleteUserByEmail(ctx, userEmail); err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func (uc *AuthUseCase) Login(ctx context.Context, username, code, password string) (string, error) {
-	if err := validator.Var(username, "required,username"); err != nil {
-		return "", ErrInvalidUsername
+func (uc *AuthUseCase) VerifyEmailAndLogin(ctx context.Context, token string) (string, error) {
+	claims, err := uc.jwtService.Validate(token)
+	if err != nil {
+		return "", ErrTokenInvalid
 	}
-	if err := validator.Var(code, "required,code"); err != nil {
-		return "", ErrInvalidCode
+
+	if err := uc.userRepo.UpdateVerifiedStatus(ctx, claims.UserId, true); err != nil {
+		return "", err
+	}
+
+	authToken, err := uc.jwtService.Generate(claims.UserId)
+	if err != nil {
+		return "", fmt.Errorf("generate token: %w", err)
+	}
+
+	return authToken, nil
+}
+
+func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (string, error) {
+	if err := validator.Var(email, "required,email"); err != nil {
+		return "", ErrInvalidUsername
 	}
 	if err := validator.Var(password, "required,password"); err != nil {
 		return "", ErrWeakPassword
 	}
 
-	user, err := uc.userRepo.GetUserByUsernameAndCode(ctx, username, code)
+	user, err := uc.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", ErrUserNotFound
@@ -146,6 +156,10 @@ func (uc *AuthUseCase) Login(ctx context.Context, username, code, password strin
 
 	if err := uc.hasher.Check(password, user.PasswordHash); err != nil {
 		return "", ErrInvalidPassword
+	}
+	log.Printf("isverified: %t", user.IsVerified)
+	if !user.IsVerified {
+		return "", ErrUserNotVerify
 	}
 
 	token, err := uc.jwtService.Generate(user.Id)
@@ -181,31 +195,69 @@ func (uc *AuthUseCase) RequestPasswordReset(ctx context.Context, email string) e
 	return nil
 }
 
-func (uc *AuthUseCase) UpdatePassword(ctx context.Context, token, newPassword string) error {
+func (uc *AuthUseCase) UpdatePasswordAndVerify(ctx context.Context, token, newPassword string) (string, error) {
 	if err := validator.Var(newPassword, "required,password"); err != nil {
-		return ErrWeakPassword
+		return "", ErrWeakPassword
 	}
 
 	claims, err := uc.jwtService.Validate(token)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return ErrTokenExpired
+			return "", ErrTokenExpired
 		}
-		return ErrTokenInvalid
+		return "", ErrTokenInvalid
 	}
 
 	passwordHash, err := uc.hasher.Hash(newPassword)
 	if err != nil {
-		return fmt.Errorf("hash password: %w", err)
+		return "", fmt.Errorf("hash password: %w", err)
 	}
 
 	err = uc.userRepo.UpdatePassword(ctx, claims.UserId, passwordHash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ErrUserNotFound
+			return "", ErrUserNotFound
 		}
-		return err
+		return "", err
 	}
 
+	authToken, err := uc.jwtService.Generate(claims.UserId)
+	if err != nil {
+		return "", fmt.Errorf("generate token: %w", err)
+	}
+
+	return authToken, nil
+}
+
+func (uc *AuthUseCase) ResendVerificationEmail(ctx context.Context, email string) error {
+	user, err := uc.userRepo.GetUserByEmail(ctx, email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
+		return fmt.Errorf("get user by email: %w", err)
+	}
+	if user.IsVerified {
+		return nil
+	}
+	token, err := uc.jwtService.GenerateWithExpiry(user.Id, 24*time.Hour)
+	if err != nil {
+		return fmt.Errorf("generate token: %w", err)
+	}
+	if err := uc.emailSender.SendVerification(user.Email, token); err != nil {
+		return fmt.Errorf("send email: %w", err)
+	}
 	return nil
+}
+
+func (uc *AuthUseCase) GetMeById(ctx context.Context, id string) (*entity.User, error) {
+	user, err := uc.userRepo.GetUserById(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get user by id: %w", err)
+	}
+
+	return user, nil
 }

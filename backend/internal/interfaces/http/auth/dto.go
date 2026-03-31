@@ -9,8 +9,7 @@ type RegisterRequest struct {
 
 // LoginRequest - форма запроса на авторизацию
 type LoginRequest struct {
-	Username string `json:"username"`
-	Code     string `json:"code"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -33,4 +32,8 @@ type TokenResponse struct {
 // ErrorResponse - ответ с ошибкой
 type ErrorResponse struct {
 	Error string `json:"error"`
+}
+
+type cancelRequest struct {
+	Email string `json:"email"`
 }
