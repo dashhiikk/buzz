@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -54,6 +55,7 @@ func (h *Handler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateRoomRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("Decode error: %v", err)
 		h.writeError(w, http.StatusBadRequest, errors.New("invalid request body"))
 		return
 	}

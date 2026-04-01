@@ -21,6 +21,7 @@ import (
 	"Buzz/internal/infra/database"
 	"Buzz/internal/infra/email"
 	"Buzz/internal/infra/repositories"
+	"Buzz/internal/infra/upload"
 	ws "Buzz/internal/infra/websocket"
 	appMiddleware "Buzz/internal/middleware"
 	"Buzz/pkg/hash"
@@ -42,6 +43,7 @@ import (
 	notificationHandler "Buzz/internal/interfaces/http/notification"
 	requestHandler "Buzz/internal/interfaces/http/request"
 	roomHandler "Buzz/internal/interfaces/http/room"
+	uploadHandler "Buzz/internal/interfaces/http/upload"
 )
 
 // @title           Buzz API
@@ -104,6 +106,9 @@ func main() {
 	boardHTTPHandler := boardHandler.NewHandler(boardUseCase, roomUseCase, hub)
 	jitsiHTTPHandler := jitsiHandler.NewHandler(jitsiJWT, roomUseCase, cfg.Jitsi.ServerUrl)
 	notificationWSHandler := notificationHandler.NewHandler(notificationHub)
+
+	uploader := upload.NewFileUploader(cfg.Upload.Path, cfg.Upload.MaxSize, cfg.Upload.AllowedExts)
+	uploadHTTPHandler := uploadHandler.NewHandler(uploader)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -172,6 +177,8 @@ func main() {
 
 		r.Get("/ws/chat", chatHTTPHandler.ServeWebSocket)
 		r.Get("/ws/board", boardHTTPHandler.ServeWebSocket)
+
+		r.Post("/upload", uploadHTTPHandler.UploadFile)
 	})
 	server := &http.Server{
 		Addr:         ":" + cfg.Server.Port,
