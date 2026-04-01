@@ -84,7 +84,6 @@ func (h *Handler) GetUserRooms(w http.ResponseWriter, r *http.Request) {
 		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
-
 	rooms, err := h.roomUseCase.GetUserRooms(r.Context(), userId)
 	if err != nil {
 		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get rooms"))

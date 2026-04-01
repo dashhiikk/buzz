@@ -21,6 +21,7 @@ type RoomResponse struct {
 	Icon      *string   `json:"icon,omitempty"`
 	AdminId   string    `json:"adminId"`
 	CreatedAt time.Time `json:"createdAt"`
+	IsPrivate bool      `json:"isPrivate"`
 }
 
 // ParticipantResponse — информация об участнике

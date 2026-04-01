@@ -54,7 +54,7 @@ func (r *RoomRepository) GetRoomById(ctx context.Context, id string) (*entity.Ro
 func (r *RoomRepository) GetByUser(ctx context.Context, userId string) ([]entity.Room, error) {
 	var rooms []entity.Room
 	query := `
-		SELECT r.id, r.name, r.icon, r.admin_id, r.created_at
+		SELECT r.id, r.name, r.icon, r.admin_id, r.created_at, r.is_private
 		FROM rooms r
 		JOIN room_participants rp ON r.id = rp.room_id
 		WHERE rp.user_id = $1
