@@ -42,9 +42,7 @@ export default function Start() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (!user) return;
-        const fetchRooms = async () => {
+    const fetchRooms = async () => {
         try {
             const response = await getRooms();
             setRooms(Array.isArray(response.data) ? response.data : []);
@@ -53,7 +51,10 @@ export default function Start() {
         } finally {
             setLoading(false);
         }
-        };
+    };
+
+    useEffect(() => {
+        if (!user) return;
         fetchRooms();
     }, [user]);
 
@@ -79,9 +80,9 @@ export default function Start() {
                             }}
                             loading={loading}
                             error={error}
-                            emptyMessage="У вас пока нет комнат, но вы можетее создать свою, 
-                            нажав на + в правом верхнем углу, или присоединиться к существующей 
-                            комнате перейдя по ссылке от друга или приняв приглашение."
+                            emptyMessage="У вас пока нет комнат, 
+                            но вы можете создать свою, нажав на + в правом верхнем углу, или присоединиться к существующей 
+                            комнате, перейдя по ссылке от друга или приняв приглашение."
                         />
                         {!isPortrait && (
                             <StartChat text="Зайдите в комнату, чтобы начать общение"/>
@@ -103,8 +104,9 @@ export default function Start() {
                             }}
                             loading={loading}
                             error={error}
-                            emptyMessage="У вас пока нет друзей, но вы можете отправить запрос на дружбу другому пользователю, 
-                            если знаете его ник и код, либо можете принять приглашение от друга."
+                            emptyMessage="У вас пока нет друзей, 
+                            но вы можете отправить запрос на дружбу другому пользователю, если знаете его ник и код, нажав на + в правом верхнем углу. 
+                            Либо можете принять приглашение от друга."
                         />
                         {!isPortrait && (
                             <StartChat text="Выберите друга, чтобы начать общение"/>
@@ -114,8 +116,11 @@ export default function Start() {
             </div>
 
             <AddFriend isOpen={isAddFriendOpen} onClose={() => setIsAddFriendOpen(false)} />
-            <CreateRoom isOpen={isCreateRoomOpen} onClose={() => setIsCreateRoomOpen(false)} />    
-
+            <CreateRoom 
+                isOpen={isCreateRoomOpen} 
+                onClose={() => setIsCreateRoomOpen(false)} 
+                onRoomCreated={fetchRooms}
+            />    
             <RegistationNotice isOpen={showRegistrationModal} onClose={closeModals} />
             <RecoveryNotice isOpen={showRecoveryModal} onClose={closeModals} />
         </main>

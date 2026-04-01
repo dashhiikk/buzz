@@ -27,7 +27,7 @@ export default function List({
                         }}
                     >
                         <div className="list-element-name">
-                            <img src={item.avatar} alt="" />
+                            <img src={item.icon} alt="" />
                             <p className={`small-text text--${color}`}>
                                 {item.name}
                             </p>

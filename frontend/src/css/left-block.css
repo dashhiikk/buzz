@@ -69,6 +69,11 @@
   display: inline-block;
 }
 
+.empty-message {
+    margin: 0 20px;
+    text-align: center;
+    white-space: pre-line;
+}
 
 
 

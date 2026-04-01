@@ -96,7 +96,10 @@
 
 .modal-input-avatar img {
     border-radius: 50%;
+    width: 120px;
+    height: 120px;
     margin: 0;
+    object-fit: cover;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 

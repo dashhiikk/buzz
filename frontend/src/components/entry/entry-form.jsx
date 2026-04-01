@@ -162,7 +162,7 @@ export default function EntryForm({
       <img src={buzzlogo} alt="logo" />
       <p className="large-text text--light">{current.title}</p>
 
-      {error && <p style={{ color: "red", margin: "10px 0" }}>{error}</p>}
+      {error && <p className="small-text text--average">{error}</p>}
 
       <form onSubmit={handleSubmit} className="entry-input-block">
         {current.inputs.map((input) => (

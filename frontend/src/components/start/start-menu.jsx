@@ -27,11 +27,11 @@ export default function StartMenu({
                 <img src={plus} onClick = {onAddClick} className="left-block-header-btn"></img>
             </div>
             {loading ? (
-                <div className="loading-message">Загрузка...</div>
+                <div className="loading-message"><p className="small-text text--average">Загрузка...</p></div>
             ) : error ? (
-                <div className="error-message">Ошибка: {error}</div>
+                <div className="error-message"><p className="small-text text--average">Ошибка: {error}</p></div>
             ) : items.length === 0 ? (
-                <div className="empty-message">{emptyMessage}</div>
+                <div className="empty-message"><p className="small-text text--average">{emptyMessage}</p></div>
             ) : (
                 <List
                     items={items}
@@ -40,12 +40,6 @@ export default function StartMenu({
                     onItemClick={onItemClick}
                 />
             )}
-            <List 
-                items={items}
-                mode="active"
-                color="light"
-                onItemClick={onItemClick}
-            />
             <StartSwitch active={active} setActive={setActive} />
         </main>
     );

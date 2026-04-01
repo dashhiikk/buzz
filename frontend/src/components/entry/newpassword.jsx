@@ -52,8 +52,8 @@ export default function NewPassword() {
     return (
         <main className="entry-block">
             <img src={buzzlogo} alt="logo"/>
-            <p className='large-text text--light'>Восстановление пароля</p>ъ
-            {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
+            <p className='large-text text--light'>Восстановление пароля</p>
+            {error && <p className="small-text text--average">{error}</p>}
             <form onSubmit={handleSubmit} className="entry-input-block">
                 <Input
                 placeholder="Введите новый пароль"
