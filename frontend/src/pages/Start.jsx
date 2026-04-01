@@ -115,11 +115,14 @@ export default function Start() {
                 )}
             </div>
 
-            <AddFriend isOpen={isAddFriendOpen} onClose={() => setIsAddFriendOpen(false)} />
+            <AddFriend 
+                isOpen={isAddFriendOpen} 
+                onClose={() => setIsAddFriendOpen(false)} 
+                onFriendAdded={fetchRooms}
+            />
             <CreateRoom 
                 isOpen={isCreateRoomOpen} 
                 onClose={() => setIsCreateRoomOpen(false)} 
-                onRoomCreated={fetchRooms}
             />    
             <RegistationNotice isOpen={showRegistrationModal} onClose={closeModals} />
             <RecoveryNotice isOpen={showRecoveryModal} onClose={closeModals} />

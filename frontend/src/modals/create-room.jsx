@@ -89,15 +89,15 @@ export default function CreateRoom({ isOpen, onClose, onRoomCreated}) {
                         ref={fileInputRef}
                         onChange={handleFileChange}
                     />
+                    {uploading && <p className="small-text text--average">Загрузка изображения...</p>}
                 </div>
                 <div className="modal-input-block">
+                    {error && <p className="small-text text--average">{error}</p>}
                     <Input 
                         placeholder={"Название комнаты"}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
-                    {uploading && <p className="info-message">Загрузка изображения...</p>}
-                    {error && <p className="error-message">{error}</p>}
                     <button
                         className="modal-input-btn"
                         onClick={handleSubmit}
