@@ -4,7 +4,6 @@ import Background from './components/background'; // Импортируй ком
 import ProtectedRoute from './components/protected-route'
 
 const Entry = lazy(() => import('./pages/Entry'));
-const Friend = lazy(() => import('./pages/Friend'));
 const Room = lazy(() => import('./pages/Room'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Start = lazy(() => import('./pages/Start'));
@@ -18,11 +17,6 @@ const router = createBrowserRouter([
   { path: '/start', element: (
     <ProtectedRoute>
       <Start />
-    </ProtectedRoute>
-  ) },
-  { path: '/friend', element: (
-    <ProtectedRoute>
-      <Friend />
     </ProtectedRoute>
   ) },
   { path: '/room', element: (

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 import { getRooms } from "../api/rooms";
 
-import Header from "../components/header"
+import Header from "../components/header/header"
 import StartChat from "../components/start/start-chat"
 import StartMenu from "../components/start/start-menu"
 

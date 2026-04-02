@@ -1,4 +1,4 @@
-import '../../css/menu.css'
+import '../../../css/menu.css'
 
 export default function RoomMenu({ onCancel, onOpenMembers }) {
 

@@ -1,6 +1,6 @@
 import RoomChat from "../components/room/room-chat";
 import RoomVoiceChat from "../components/room/room-voice";
-import Header from "../components/header";
+import Header from "../components/header/header";
 
 import { useEffect, useState } from "react";
 

@@ -35,30 +35,28 @@
     align-items: center;
 }
 
-.settings-wrapper,
-.user-wrapper {
+.header-wrapper {
     position: relative;
     z-index: 20;
     display: flex; 
     align-items: center;
 }
 
-.settings-wrapper img,
-.user-wrapper img {
+.header-wrapper-img {
   position: relative; /* чтобы z-index сработал */
   z-index: 30; /* выше чем у Settings */
   transition: transform 0.3s ease, box-shadow 0.2s ease;
   cursor: pointer;
   border-radius: 50%;
+  width: 50px;
+  height: 50px;
 }
 
-.settings-wrapper img:hover,
-.user-wrapper img:hover {
+.header-wrapper-img:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-.settings-wrapper img.rotated,
-.user-wrapper img.rotated {
+.header-wrapper-img.rotated {
   transform: rotate(360deg); /* повернуть на 180° */
 }
 
@@ -96,9 +94,9 @@
         height: auto;
     }
 
-    .settings-wrapper img,
-    .header-icons img:last-child {
-        width: 30px;  /* уменьшаем иконки */
-        height: 30px;
+    .header-wrapper-img {
+        width: 40px;  /* уменьшаем иконки */
+        height: 40px;
     }
 }
+

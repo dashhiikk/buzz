@@ -1,14 +1,17 @@
-import buzziconbee from "../assets/buzz-icon-bee.svg"
-import settings from "../assets/settings-icon.svg"
-import userIcon from "../assets/user-icon.svg"
-import '../css/header.css'
+import buzziconbee from "../../assets/buzz-icon-bee.svg"
+import settings from "../../assets/settings-icon.svg"
+import userIcon from "../../assets/user-icon.svg"
+import notificationIcon from "../../assets/notification-bell.png"
 
-import Settings from "./settings/settings"
+import '../../css/header.css'
+
+import Settings from "../settings/settings"
 import UserPopup from "./user-popup"
+import Requests from "../../modals/requests/requests"
 
 import { useState } from "react"
 import { useEffect, useRef } from "react";
-import {useAuth} from "../hooks/use-auth"
+import {useAuth} from "../../hooks/use-auth"
 
 export default function Header({ hideIconsAndLogo }) {
   const { user } = useAuth();
@@ -25,6 +28,12 @@ export default function Header({ hideIconsAndLogo }) {
   const handleUserClick = () => {
     setOpenUser(prev => !prev);
     setRotatedUser(prev => !prev);
+  };
+
+  const [isRequestsOpen, setIsRequestOpen] = useState(false);
+  const openRequestsModal = () => {
+      setOpenUser(false);      // закрываем меню
+      setIsRequestOpen(true);     // открываем модалку
   };
 
   const ref = useRef();
@@ -45,24 +54,28 @@ export default function Header({ hideIconsAndLogo }) {
         <img className="header-buzz-img" src={buzziconbee} ></img>
         <h1 className="buzz">buzz</h1>
         <div className="header-icons">
-          <div className="settings-wrapper">
+          <div className="header-wrapper">
             <img 
               src={settings} 
               alt="settings" 
-              className={`${rotatedSettings ? "rotated" : ""}`}
+              className={`header-wrapper-img ${rotatedSettings ? "rotated" : ""}`}
               onClick={handleClick} 
             />
             { openSettings && <Settings/> }
           </div>
-          <div className="user-wrapper" ref={ref}>
+          <div className="header-wrapper" ref={ref}>
             <img 
               src={user?.avatar || userIcon}
               alt="user"
-              className={`${rotatedUser ? "rotated" : ""}`}
+              className={`header-wrapper-img ${rotatedUser ? "rotated" : ""}`}
               onClick={handleUserClick}
             />
-            {openUser && <UserPopup />}
+            {openUser && <UserPopup onOpenRequests={openRequestsModal}/>}
           </div>
+          <Requests 
+            isOpen={isRequestsOpen}
+            onClose={() => setIsRequestOpen(false)}
+          />
         </div>
       </div>
     </main>

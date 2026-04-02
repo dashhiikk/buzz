@@ -1,18 +1,14 @@
-import friend from "../../assets/friend-icon.jpg"
-import user from "../../assets/user-photo.jpg"
 import send from "../../assets/send-icon.svg" 
 import put from "../../assets/paperclip-icon.svg"
 import pin from "../../assets/pin-icon.png"
 import copy from "../../assets/copy-icon.png"
-import minidots from "../../assets/dots-icon-mini.png"
 
 import '../../css/chat.css'
 import '../../css/right-block.css'
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import FriendMessageMenu from "../friend-message-menu"
-import UserMessageMenu from "../user-message-menu"
+import Messages from "./message/messages"
 
 export default function RoomChat() {
 
@@ -27,12 +23,7 @@ export default function RoomChat() {
         }
     }, []);
 
-    const [showFriendMenu, setShowFriendMenu] = useState(false);
-    const [showUserMenu, setShowUserMenu] = useState(false);
-
     const chatRef = useRef(null);
-
-    
 
     const [newMessage, setNewMessage] = useState("");
 
@@ -111,41 +102,7 @@ export default function RoomChat() {
                 {canScroll && <div className="pin-gradient-overlay" />}
             </div>
             <div ref={chatRef} className="message-block">
-                {messages.map((msg) => msg.sender === "friend" ? (
-                    <div key={msg.id} className="friend-message">
-                        <img src={friend}></img>
-                        <div>
-                            <div className="message-name">
-                                <p>Ник друга</p>
-                                <div className="minidots-wrapper">
-                                    <img src={minidots} onClick={() => setShowFriendMenu(prev => prev === msg.id ? null : msg.id)}/>
-                                    {showFriendMenu === msg.id && 
-                                        <FriendMessageMenu/>
-                                    }
-                                </div>
-                            </div>
-                            <p className="message-text">{msg.text}</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div key={msg.id} className="user-message">
-                        <div>
-                            <div className="message-name">
-                                <div className="minidots-wrapper">
-                                    <img src={minidots} onClick={() => setShowUserMenu(prev => prev === msg.id ? null : msg.id)}/>
-                                    {showUserMenu === msg.id && 
-                                        <UserMessageMenu/>
-                                    }
-                                </div>
-                                <p>Мой ник</p>
-                            </div>
-                            
-                            <p className="message-text">{msg.text}</p>
-                        </div> 
-                        <img src={user}></img>
-                    </div>
-                    )
-                )}
+                <Messages messages = {messages}/>
             </div>
             <div className="input-block">
                 <textarea

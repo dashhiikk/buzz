@@ -1,4 +1,4 @@
-import Header from "../components/header"
+import Header from "../components/header/header/header"
 import NewPassword from "../components/entry/newpassword"
 
 import '../css/entry.css'

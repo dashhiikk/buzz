@@ -25,6 +25,10 @@
     transition: transform 0.2s ease;
 }
 
+.switch-light {
+    background-color: #4F6273;
+}
+
 .entry-switch-btn-left :hover,
 .entry-switch-btn-center :hover,
 .entry-switch-btn-right :hover,

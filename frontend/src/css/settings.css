@@ -26,6 +26,12 @@
   border-radius: 20px 30px 30px 20px;
 }
 
+@media (max-width: 768px) {
+  .settings-block {
+    border-radius: 20px;
+  }
+}
+
 .settings-headder {
   margin: 0 20px;
   display: flex;

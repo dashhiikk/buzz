@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/use-auth';
 
-import Header from "../components/header"
+import Header from "../components/header/header"
 import EntryForm from "../components/entry/entry-form";
 
 import '../css/entry.css'

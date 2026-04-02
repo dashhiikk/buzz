@@ -1,9 +1,10 @@
-import {useAuth} from "../hooks/use-auth"
+import {useAuth} from "../../hooks/use-auth"
 import { useEffect, useState } from "react";
-import '../css/user-popup.css'
+import '../../css/user-popup.css'
 
+import requestsIcon from "../../assets/request2.png"
 
-export default function UserPopup() {
+export default function UserPopup({onOpenRequests}) {
     const { user, logout } = useAuth();
     const [visible, setVisible] = useState(false);
 
@@ -21,9 +22,19 @@ export default function UserPopup() {
                 <div className="divider"></div>
                 <p className="small-text text--average copy-link">cкопировать</p>
             </div>
-            <button className="logout-btn" onClick={logout}>
-                Выйти
-            </button>
+
+            <div className="actions">
+                <button className="request-btn" onClick={onOpenRequests} >
+                    <img 
+                        src={requestsIcon} 
+                        alt="requests"
+                    />
+                </button>
+                <button className="logout-btn" onClick={logout}>
+                    Выйти
+                </button>
+            </div>
+            
         </div>
     </div>
   );

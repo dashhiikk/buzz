@@ -11,7 +11,7 @@ import headOFF from "../../assets/head-off.png"
 import { useState } from "react";
 import {Link} from "react-router-dom";
 
-import RoomMenu from "./room-menu"
+import RoomMenu from "./menu/room-menu"
 import RoomMembers from "./members"
 import List from "../list"
 

@@ -1,4 +1,4 @@
-import Header from "../components/header";
+import Header from "../components/header/header";
 import AdvSettingsMenu from "../components/settings/adv-settings-menu";
 import AdvSettingsProfile from "../components/settings/adv-settings-profile";
 import AdvSettingsVolume from "../components/settings/adv-settings-volume";
