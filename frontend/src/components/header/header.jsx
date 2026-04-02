@@ -1,7 +1,7 @@
 import buzziconbee from "../../assets/buzz-icon-bee.svg"
 import settings from "../../assets/settings-icon.svg"
 import userIcon from "../../assets/user-icon.svg"
-import notificationIcon from "../../assets/notification-bell.png"
+import notificationIcon from "../../assets/notification.svg"
 
 import '../../css/header.css'
 
@@ -35,6 +35,25 @@ export default function Header({ hideIconsAndLogo }) {
       setOpenUser(false);      // закрываем меню
       setIsRequestOpen(true);     // открываем модалку
   };
+
+  const [hasUnread, setHasUnread] = useState(true);
+  const [animateRing, setAnimateRing] = useState(true);
+
+  useEffect(() => {
+    if (!hasUnread) return;
+    let timeoutId;
+
+    const scheduleRing = () => {
+        timeoutId = setTimeout(() => {
+            setAnimateRing(true);
+            setTimeout(() => setAnimateRing(false), 500);
+            scheduleRing(); // запускаем следующий через минуту
+        }, 30000);
+    };
+
+    scheduleRing();
+    return () => clearTimeout(timeoutId);
+}, [hasUnread]);
 
   const ref = useRef();
   useEffect(() => {
@@ -70,6 +89,11 @@ export default function Header({ hideIconsAndLogo }) {
               className={`header-wrapper-img ${rotatedUser ? "rotated" : ""}`}
               onClick={handleUserClick}
             />
+            {hasUnread && (
+              <div className={`notification ${animateRing ? 'ring' : ''}`}>
+                <img src={notificationIcon}/>
+              </div>
+            )}
             {openUser && <UserPopup onOpenRequests={openRequestsModal}/>}
           </div>
           <Requests 

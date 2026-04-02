@@ -1,5 +1,6 @@
 import { useRef} from "react";
 import '../css/list.css'
+import defaultAvatar from "../assets/buzz-icon-bee.svg"
 
 export default function List({
     items,
@@ -27,7 +28,7 @@ export default function List({
                         }}
                     >
                         <div className="list-element-name">
-                            <img src={item.icon} alt="" />
+                            <img src={item.icon || defaultAvatar} alt="" />
                             <p className={`small-text text--${color}`}>
                                 {item.name}
                             </p>
