@@ -81,7 +81,7 @@ func (r *RequestRepository) GetOutgoing(ctx context.Context, userId string) ([]e
 		ORDER BY created_at DESC
 	`
 
-	err := r.db.SelectContext(ctx, requests, query, userId)
+	err := r.db.SelectContext(ctx, &requests, query, userId)
 	if err != nil {
 		return nil, fmt.Errorf("get outgoing request: %w", err)
 	}
