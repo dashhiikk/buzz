@@ -11,6 +11,7 @@ import { useWebSocket } from "../../hooks/useWebSocket";
 
 import Messages from "./message/messages"
 
+
 export default function RoomChat({ roomId, initialMessages = [] }) {
 
     const [newMessage, setNewMessage] = useState("");
@@ -19,6 +20,8 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
     const chatRef = useRef(null);
     const textRef = useRef(null);
     const [canScroll, setCanScroll] = useState(false);
+
+    const [menuMessageId, setMenuMessageId] = useState(null);
 
     const allMessages = useMemo(() => [...historyMessages, ...wsMessages], [historyMessages, wsMessages]);
 
@@ -56,6 +59,16 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
         }
     };
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.minidots-wrapper')) {
+                setMenuMessageId(null);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     return (
         <main className="right-block">
             <div className="right-block-header">
@@ -75,8 +88,13 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
                 {canScroll && <div className="pin-gradient-overlay" />}
             </div>
             <div ref={chatRef} className="message-block">
-                <Messages messages={allMessages} />
+                <Messages 
+                    messages={allMessages}
+                    menuMessageId={menuMessageId}
+                    setMenuMessageId={setMenuMessageId}
+                />
             </div>
+
             <div className="input-block">
                 <textarea
                     placeholder="Введите сообщение..."

@@ -242,7 +242,7 @@ func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.authUseCase.GetMeById(r.Context(), userId)
 	if err != nil {
-		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get user"))
+		h.writeError(w, http.StatusNotFound, errors.New("failed to get user"))
 		return
 	}
 

@@ -259,6 +259,7 @@ func (uc *AuthUseCase) ResendVerificationEmail(ctx context.Context, email string
 func (uc *AuthUseCase) GetMeById(ctx context.Context, id string) (*entity.User, error) {
 	user, err := uc.userRepo.GetUserById(ctx, id)
 	if err != nil {
+		log.Printf("getma error: %v", err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}

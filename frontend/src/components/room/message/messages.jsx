@@ -6,13 +6,10 @@ import UserMessageMenu from "./user-message-menu"
 
 import '../../../css/chat.css'
 
-import { useState } from "react";
 import { useAuth } from "../../../hooks/use-auth";
 
-export default function Messages({ messages }) {
+export default function Messages({ messages, menuMessageId, setMenuMessageId }) {
     const { user } = useAuth();
-    const [showMenu, setShowMenu] = useState(false);
-
     if (!Array.isArray(messages)) return null;
 
     return (
@@ -28,10 +25,10 @@ export default function Messages({ messages }) {
                                 <div className="minidots-wrapper">
                                     <img
                                         src={minidots}
-                                        onClick={() => setShowMenu(prev => prev === msg.id ? null : msg.id)}
+                                        onClick={() => setMenuMessageId(prev => prev === msg.id ? null : msg.id)}
                                         alt="menu"
                                     />
-                                    {showMenu === msg.id && (isCurrentUser ? <UserMessageMenu /> : <FriendMessageMenu />)}
+                                    {menuMessageId === msg.id && (isCurrentUser ? <UserMessageMenu /> : <FriendMessageMenu />)}
                                 </div>
                                 {isCurrentUser && <p>{user.username}</p>}
                             </div>
