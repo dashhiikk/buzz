@@ -1,12 +1,12 @@
 .list {
     margin: 0;
     padding: 0;
-    margin: 0 20px;
     margin-bottom: 15px;
     flex:1;
     min-height: 0;
 
     overflow-y: auto;
+    overflow-x:hidden;
     scrollbar-width: thin; /* тонкая полоса */
     width: 90%;
 }
@@ -39,12 +39,15 @@
 }
 
 .list-element {
+    position: relative;
     height: 60px;
     text-decoration: none;
     display: flex;
     justify-content:space-between;
     align-items: center;
-    gap:15px
+    gap:15px;
+    width: 100%;
+    max-width: 360px;
 }
 
 .list-element--active {
@@ -63,9 +66,80 @@
     gap: 10px;
     align-items: center;
 }
+
 .list-element-name img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
 }
+
+.list-element-name-request {
+    padding-right: 50px;
+    box-sizing: border-box;
+}
+
+.list-status {
+    position: absolute;
+    top: 5px;
+    right: 0;
+    box-sizing: border-box;
+}
+
+.request-buttons {
+    position: absolute;
+    bottom: 5px;
+    right: 0;
+    display: flex;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.accept-btn,
+.reject-btn,
+.cancel-btn {
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border: 2px #729DA6 solid;
+}
+
+.accept-btn img,
+.reject-btn img,
+.cancel-btn img {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.accept-btn img:hover,
+.reject-btn img:hover,
+.cancel-btn img:hover {
+    transform: translateY(-2px);
+    cursor: pointer;
+}
+
+.accept-btn,
+.accept-status {
+    background-color: #C5E3E8;
+  
+}
+.reject-btn,
+.reject-status {
+    background-color: #F2E4D8;
+
+}
+.cancel-btn {
+    background-color: #283740;
+}
+
+.request-status {
+    height: 20px;
+    padding: 0 2px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 5px;
+}
+

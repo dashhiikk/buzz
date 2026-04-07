@@ -1,6 +1,6 @@
 import { useRef} from "react";
 import '../css/list.css'
-import defaultAvatar from "../assets/buzz-icon-bee.svg"
+import defaultAvatar from "../assets/room-default.jpg"
 
 export default function List({
     items,
@@ -35,9 +35,12 @@ export default function List({
                         </div>
 
                         {item.status && (
-                            <p className={`input-text text--${color}`}>
-                                {item.status}
-                            </p>
+                            <div className="list-status">
+                                <p className={`input-text text--average`}>
+                                    {item.status}
+                                </p>
+                            </div>
+                            
                         )}
                     </li>
                 ))}

@@ -2,7 +2,7 @@ import {useAuth} from "../../hooks/use-auth"
 import { useEffect, useState } from "react";
 import '../../css/user-popup.css'
 
-import requestsIcon from "../../assets/request2.png"
+import requestsIcon from "../../assets/request.svg"
 
 export default function UserPopup({onOpenRequests}) {
     const { user, logout } = useAuth();

@@ -1,11 +1,14 @@
 /* Общий стиль блока */
 
 .left-block {
-    width: 100%;
+    flex: 0 0 calc(40% - 30px);
+    min-width: 300px;
     max-width: 450px;
     height: calc(100vh - 150px);
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     box-sizing: border-box;
 
     background-color: #283740;
@@ -14,9 +17,10 @@
     position: relative;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 840px) {
     .left-block {
-        max-width: 450px;
+        flex: 0 0 70%;
+        max-width: 600px;
     }
 }
 
@@ -30,22 +34,21 @@
 /* Общий стиль заголовков */
 
 .left-block-header {
-    padding-top: 10px;
+    width: 90%;
     height: 50px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items:start;
-    margin: 0 20px;
+    align-items:center;
     box-sizing: border-box;
 }
 
 .left-block-header-name {
+    width: fit-content;
     display: flex; 
-    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: 7px;
 }
 
 .left-block-header-btn {
@@ -64,15 +67,18 @@
     width: 40px;
 }
 
-.dots-wrapper {
+.voice-wrapper {
   position: relative; /* для позиционирования меню */
   display: inline-block;
 }
 
-.empty-message {
+.empty-message,
+.loading-message,
+.error-message {
     margin: 0 20px;
     text-align: center;
     white-space: pre-line;
+
 }
 
 

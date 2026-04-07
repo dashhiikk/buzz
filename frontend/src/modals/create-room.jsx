@@ -1,7 +1,7 @@
 import React, { useState , useRef } from "react";
 import "../css/modals.css";
-import close from "../assets/close-icon.png"
-import defaultAvatar from "../assets/add-avatar.png"
+import close from "../assets/close.svg"
+import defaultAvatar from "../assets/add-avatar.svg"
 
 import Input from "../components/input";
 
@@ -75,7 +75,7 @@ export default function CreateRoom({ isOpen, onClose, onRoomCreated}) {
                 <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                 <div className="modal-input-avatar">
+                <div className="modal-input-avatar">
                     <img
                         src={iconPreview}
                         alt="room icon"

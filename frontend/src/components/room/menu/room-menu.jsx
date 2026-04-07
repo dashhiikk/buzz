@@ -1,6 +1,6 @@
 import '../../../css/menu.css'
 
-export default function RoomMenu({ onCancel, onOpenMembers }) {
+export default function RoomMenu({ onCancel, onOpenMembers, onLeave }) {
 
     return (
         <main>
@@ -8,7 +8,7 @@ export default function RoomMenu({ onCancel, onOpenMembers }) {
                 <button className="beige-menu-btn" onClick={onOpenMembers}>
                     Участники
                 </button>
-                <button className="red-menu-btn">Покинуть комнату</button>
+                <button className="red-menu-btn" onClick={onLeave}>Покинуть комнату</button>
                 <button className="gray-menu-btn" onClick={onCancel}>Отмена</button>
             </div>
         </main>

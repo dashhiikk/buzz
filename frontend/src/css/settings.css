@@ -132,67 +132,113 @@
   box-shadow: -1px 4px 6px rgba(0, 0, 0, 0.6);
 }
 
-.adv-settings-input-block {
+.adv-settings {
+  overflow-y: auto;
+  overflow-x:hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #BFB1A4 rgba(0,0,0,0);
+}
+
+.adv-settings::-webkit-scrollbar {
+  width: 8px; /* ширина полосы */
+}
+
+.adv-settings::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0);
+  border-radius: 10px;
+}
+
+.adv-settings::-webkit-scrollbar-thumb {
+  background-color: #BFB1A4; /* цвет ползунка */
+  border-radius: 10px;
+}
+
+.adv-settings-input-block,
+.adv-settings-input-username {
   width: 100%;
   box-sizing: border-box;
   padding: 0 20px;
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 2 колонки */
-  grid-template-rows: repeat(2, auto);   /* ⬅️ 2 строки */
   grid-auto-flow: column;               /* ⬅️ ВАЖНО */
-  gap: 24px 40px;
+  gap: 15px 40px;
   margin-top: 25px;
   align-items: end;
+}
+
+.adv-settings-input-block {
+  grid-template-rows: repeat(2, auto);
 }
 
 .adv-settings-input {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 5px;
   width: 100%;
+  height: 100%;
 }
 
 .adv-settings-input-field {
   display: grid;
-  grid-template-columns: 1fr auto; /* input | slot */
   align-items: center;
   gap: 10px;
   width: 100%;
 }
 
-.adv-settings-righ-slot {
-  background-color: #BFB1A4;
-  border-radius: 15px;
-  margin-left: auto;
+.adv-settings-input-field.button-slot {
+  grid-template-columns: 1fr minmax(20px, 20%);
+}
+
+.adv-settings-input-field.code-slot {
+  grid-template-columns: 1fr 70px;
+}
+
+.adv-settings-save-btn,
+.adv-settings-save-btn-mini {
+  border-radius: 10px;
+  border: none;
+  padding: 5px;
   height: 35px;
-  width: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .adv-settings-save-btn {
   background-color: #4F6273;
-  border-radius: 15px;
-  border: none;
-  padding: 5px;
   font-family: 'Comfortaa', sans-serif;
   font-size: clamp(14px, 1.0vw + 0.3vh, 18px);
   color: #FFFBF4;
-  height: 35px;
+}
+
+.adv-settings-save-btn-mini {
+  background-color: #BFB1A4;
+}
+
+.adv-settings-save-btn:disabled,
+.adv-settings-save-btn-mini:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.adv-settings-save-btn:not(:disabled):hover,
+.adv-settings-save-btn-mini:not(:disabled):hover{
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
 }
 
 .adv-settings-input-img{
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border:2px solid #BFB1A4;
-    margin: 0 auto;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  margin: 0 auto;
 }
 
-.adv-settings-input-img:hover {
+.adv-settings-input-img img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border:2px solid #BFB1A4;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.adv-settings-input-img img:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
     cursor: pointer;
 }

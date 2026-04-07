@@ -1,5 +1,5 @@
-import search from "../../assets/search-icon.png"
-import plus from "../../assets/plus-icon.png"
+import search from "../../assets/search.svg"
+import plus from "../../assets/plus.svg"
 
 import StartSwitch from "./start-switch"
 import List from "../list"

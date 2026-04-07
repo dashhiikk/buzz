@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"regexp"
+	"time"
 	"unicode"
 
 	"github.com/go-playground/validator/v10"
@@ -19,14 +21,26 @@ func registerCustomValidations() {
 		return isValidPassword(password)
 	})
 
+	validate.RegisterValidation("username", func(fl validator.FieldLevel) bool {
+		username := fl.Field().String()
+		return isValidUsername(username)
+	})
+
 	validate.RegisterValidation("code", func(fl validator.FieldLevel) bool {
 		code := fl.Field().String()
 		return isValidCode(code)
 	})
 
-	validate.RegisterValidation("username", func(fl validator.FieldLevel) bool {
-		username := fl.Field().String()
-		return isValidUsername(username)
+	validate.RegisterValidation("phone", func(fl validator.FieldLevel) bool {
+		return isValidPhone(fl.Field().String())
+	})
+
+	validate.RegisterValidation("name", func(fl validator.FieldLevel) bool {
+		return isValidName(fl.Field().String())
+	})
+
+	validate.RegisterValidation("birthdate", func(fl validator.FieldLevel) bool {
+		return isValidBirthDate(fl.Field().String())
 	})
 }
 
@@ -77,6 +91,45 @@ func isValidUsername(username string) bool {
 		}
 	}
 
+	return true
+}
+
+func isValidPhone(phone string) bool {
+	if phone == "" {
+		return true
+	}
+	matched, _ := regexp.MatchString(`^\+7 \d{3} \d{3} \d{2} \d{2}$`, phone)
+	return matched
+}
+
+func isValidName(name string) bool {
+	if name == "" {
+		return true
+	}
+	for _, ch := range name {
+		if !unicode.IsLetter(ch) && ch != ' ' {
+			return false
+		}
+	}
+	return true
+}
+
+func isValidBirthDate(birthDate string) bool {
+	if birthDate == "" {
+		return true
+	}
+	parsed, err := time.Parse("2006-01-02", birthDate)
+	if err != nil {
+		return false
+	}
+	now := time.Now()
+	if parsed.After(now) {
+		return false
+	}
+	// Проверка на возраст не более 150 лет
+	if now.Year()-parsed.Year() > 150 {
+		return false
+	}
 	return true
 }
 

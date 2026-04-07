@@ -1,0 +1,30 @@
+.notification {
+    position: absolute;
+    margin-top: 5px;
+    top: 100%; /* под иконкой */
+    left: 50%; /* центр относительно иконки */
+    transform: translateX(-50%) scale(0.9); /* смещение для центрирования */
+    z-index: 100;
+    background-color: rgb(40, 55, 64, 0.6);
+    border-radius: 10px;
+    padding: 5px 10px;
+    text-align:center;
+    width: fit-content;
+    height: fit-content;
+    max-width: 200px;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.notification.hide {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95);
+}

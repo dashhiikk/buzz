@@ -1,21 +1,33 @@
-import send from "../../assets/send-icon.svg" 
-import put from "../../assets/paperclip-icon.svg"
-import pin from "../../assets/pin-icon.png"
-import copy from "../../assets/copy-icon.png"
+import send from "../../assets/send.svg" 
+import put from "../../assets/paperclip.svg"
+import pin from "../../assets/pin.svg"
+import copy from "../../assets/copy.svg"
 
 import '../../css/chat.css'
 import '../../css/right-block.css'
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useMemo, useState } from "react";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 import Messages from "./message/messages"
 
-export default function RoomChat() {
+export default function RoomChat({ roomId, initialMessages = [] }) {
 
+    const [newMessage, setNewMessage] = useState("");
+    const [historyMessages] = useState(initialMessages);
+    const { messages: wsMessages, sendMessage } = useWebSocket(roomId);
+    const chatRef = useRef(null);
     const textRef = useRef(null);
     const [canScroll, setCanScroll] = useState(false);
-    
-    // Проверяем, превышает ли scrollHeight высоту контейнера
+
+    const allMessages = useMemo(() => [...historyMessages, ...wsMessages], [historyMessages, wsMessages]);
+
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [allMessages]);
+
     useLayoutEffect(() => {
         const el = textRef.current;
         if (el) {
@@ -23,63 +35,24 @@ export default function RoomChat() {
         }
     }, []);
 
-    const chatRef = useRef(null);
-
-    const [newMessage, setNewMessage] = useState("");
 
     const handleSend = () => {
         if (newMessage.trim() === "") return;
-        setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, sender: "user", text: newMessage },
-        ]);
+        sendMessage(newMessage);
         setNewMessage("");
     };
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
-        e.preventDefault();
-        handleSend();
+            e.preventDefault();
+            handleSend();
         }
     };
 
-    const [messages, setMessages] = useState([
-        { id: 1, sender: "friend", text: "Привет!" },
-        { id: 2, sender: "user", text: "Здарова!" },
-        { id: 3, sender: "friend", text: "Как дела?" },
-        { id: 4, sender: "friend", text: "Как дела?" },
-        { id: 5, sender: "friend", text: "Как дела?" },
-        { id: 6, sender: "user", text: "Здарова!" },
-        { id: 7, sender: "user", text: "Здарова!" },
-        { id: 8, sender: "friend", text: "Как дела?" },
-        { id: 9, sender: "user", text: "Здарова!" },
-        { id: 10, sender: "friend", text: "Как дела?" },
-        { id: 11, sender: "friend", text: "Как дела?" },
-        { id: 12, sender: "user", text: "Здарова!" },
-        { id: 13, sender: "user", text: "Здарова!" },
-        { id: 14, sender: "user", text: "Здарова!" },
-        { id: 15, sender: "friend", text: "Как дела?" },
-        { id: 16, sender: "user", text: "Здарова!" },
-        { id: 17, sender: "user", text: "Здарова!" },
-    ]);
-
-    useEffect(() => {
-        const el = chatRef.current;
-        if (el) {
-        el.scrollTop = el.scrollHeight;
-        }
-    }, [messages]);
-
     const handleCopy = () => {
         if (textRef.current) {
-        // Копируем текст в буфер
-        navigator.clipboard.writeText(textRef.current.innerText)
-            .then(() => {
-            console.log("Текст скопирован!");
-            })
-            .catch((err) => {
-            console.error("Ошибка копирования:", err);
-            });
+            navigator.clipboard.writeText(textRef.current.innerText)
+                .catch(err => console.error("Copy failed:", err));
         }
     };
 
@@ -102,7 +75,7 @@ export default function RoomChat() {
                 {canScroll && <div className="pin-gradient-overlay" />}
             </div>
             <div ref={chatRef} className="message-block">
-                <Messages messages = {messages}/>
+                <Messages messages={allMessages} />
             </div>
             <div className="input-block">
                 <textarea

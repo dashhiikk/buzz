@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/use-auth';
 
 import Header from "../components/header/header"
@@ -17,13 +17,20 @@ export default function Entry() {
     const [recoveryEmail, setRecoveryEmail] = useState("");
 
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, loading } = useAuth();
 
     useEffect(() => {
-        if (!loading && user) {
-        navigate('/start', { replace: true });
+    if (!loading && user) {
+        const searchParams = new URLSearchParams(location.search);
+        const redirect = searchParams.get("redirect");
+        if (redirect) {
+            navigate(redirect);
+        } else {
+            navigate('/start', { replace: true });
         }
-    }, [user, loading, navigate]);
+    }
+    }, [user, loading, navigate, location]);
     return (
         <main>
             <Header hideIconsAndLogo={true}/>

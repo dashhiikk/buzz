@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/modals.css"; // Подключите стили для модального окна
-import close from "../assets/close-icon.png"
+import close from "../assets/close.svg"
 
 export default function RegistationNotice({ isOpen, onClose }) {
     if (!isOpen) return null;

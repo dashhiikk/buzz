@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import { AuthContext } from './AuthContext';
+import { updateProfile } from '../api/users'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -118,6 +119,17 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = async (data) => {
+    try {
+      const response = await updateProfile(data);
+      setUser(prev => ({ ...prev, ...data }));
+      return response;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -128,6 +140,7 @@ export const AuthProvider = ({ children }) => {
       requestPasswordReset, 
       updatePassword,  
       logout,
+      updateUser,
       showRegistrationModal,
       showRecoveryModal,
       openRegistrationModal,

@@ -44,6 +44,12 @@ func getErrorMessage(e validator.FieldError) string {
 		return "Слишком короткое значение"
 	case "max":
 		return "Слишком длинное значение"
+	case "phone":
+		return "Телефон должен быть в формате +7 000 000 00 00"
+	case "name":
+		return "Имя может содержать только буквы, пробелы, дефис и апостроф"
+	case "birthdate":
+		return "Дата рождения не может быть в будущем или старше 150 лет"
 	default:
 		if e.Param() != "" {
 			return fmt.Sprintf("Ошибка валидации: %s=%s", e.Tag(), e.Param())

@@ -1,98 +1,193 @@
-import backward from "../../assets/backward-icon.png"
-import dots from "../../assets/dots-icon.png"
-import room from "../../assets/room-icon.jpg"
-import friend from "../../assets/friend-icon.jpg"
-import user from "../../assets/user-photo.jpg"
-import micON from "../../assets/microphone-on.svg"
-import headON from "../../assets/headphone-on.svg"
-import micOFF from "../../assets/mic-off.png"
-import headOFF from "../../assets/head-off.png"
+import backward from "../../assets/backward.svg"
+import link from "../../assets/link.svg"
+import dots from "../../assets/dots.svg"
+import defaultRoom from "../../assets/room-default.jpg"
+import micON from "../../assets/mic-on.svg"
+import headON from "../../assets/head-on.svg"
+import micOFF from "../../assets/mic-off.svg"
+import headOFF from "../../assets/head-off.svg"
 
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import {Link} from "react-router-dom";
+import { useAuth } from "../../hooks/use-auth"
+import { leaveRoom } from "../../api/rooms";
+import { removeFriend } from "../../api/friends";
+import { getInviteLink } from "../../api/rooms";
 
 import RoomMenu from "./menu/room-menu"
+import FriendMenu from "./menu/friend-menu"
 import RoomMembers from "./members"
 import List from "../list"
+import SendRequest from "../../modals/send-request"
+import Notification from "./invite-link"
 
 import '../../css/left-block.css'
 import '../../css/voice-chat.css'
 
-export default function RoomVoiceChat() { 
-
+export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }) { 
+    const { user } = useAuth();
+    const menuRef = useRef(null);
     const [menuVisible, setMenuVisible] = useState(false);
     const [isMembersOpen, setIsMembersOpen] = useState(false);
+    const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [micOn, setMicOn] = useState(true);
+    const [headphonesOn, setHeadphonesOn] = useState(true);
+    const [copying, setCopying] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState(null);
+    const navigate = useNavigate();
 
     const openMembersModal = () => {
         setMenuVisible(false);      // закрываем меню
         setIsMembersOpen(true);     // открываем модалку
     };
 
-    const toggleMenu = () => {
-        setMenuVisible(prev => !prev); // переключаем состояние
+    const openInviteModal = () => {
+        setIsMembersOpen(false);      // закрываем меню
+        setIsInviteOpen(true);     // открываем модалку
     };
 
-    const [micOn, setMicOn] = useState(true);
-    const [headphonesOn, setHeadphonesOn] = useState(true);
+    const toggleMenu = () => {setMenuVisible(prev => !prev); };
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setMenuVisible(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
-    const voiceMembers = [
-        { id: 1, name: "Ник друга", avatar: friend},
-        { id: 2, name: "Ник друга", avatar: friend},
-        { id: 3, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 5, name: "Ник друга", avatar: friend },
-        { id: 6, name: "Ник друга", avatar: friend },
-        { id: 7, name: "Ник друга", avatar: friend },
-        { id: 8, name: "Ник друга", avatar: friend },
-        { id: 9, name: "Ник друга", avatar: friend },
-        { id: 10, name: "Ник друга", avatar: friend },
-        { id: 11, name: "Ник друга", avatar: friend },
-        { id: 12, name: "Ник друга", avatar: friend },
-        { id: 13 , name: "Ник друга", avatar: friend },
-    ];
+    const voiceMembers = participants.map(p => ({
+        id: p.id,
+        name: p.username,
+        icon: p.avatar || defaultRoom,
+        // status: p.isSpeaking ? "говорит" : undefined
+    }));
+
+    const handleLeave = async () => {
+        try {
+            await leaveRoom(roomId);
+            navigate("/start");
+        } catch (err) {
+            console.error("Failed to leave room:", err);
+            alert("Не удалось покинуть комнату");
+        }
+    };
+
+    const handleRemoveFriend = async () => {
+        try {
+            // Предполагаем, что в приватной комнате друг – это другой участник
+            const friend = participants.find(p => p.id !== user.id);
+            if (friend) {
+                await removeFriend(friend.id);
+                navigate("/start");
+            } else {
+                console.error("Friend not found");
+            }
+        } catch (err) {
+            console.error("Failed to remove friend:", err);
+            alert("Не удалось удалить друга");
+        }
+    };
+
+    const handleCopyInviteLink = async () => {
+        try {
+            setCopying(true);
+            const response = await getInviteLink(roomId);
+            const inviteLink = response.data.link;
+            await navigator.clipboard.writeText(inviteLink);
+            setNotificationMessage("Ссылка скопирована!");
+            setTimeout(() => setNotificationMessage(null), 2000);
+        } catch (err) {
+            console.error("Failed to get invite link:", err);
+            setNotificationMessage("Не удалось скопировать ссылку");
+            setTimeout(() => setNotificationMessage(null), 2000);
+        } finally {
+            setCopying(false);
+        }
+    };
  
     return (
         <main className="left-block">
             <div className="left-block-header">
                 <Link to="/start">
-                    <img src={backward} className="left-block-header-btn"/>
+                    <img src={backward} className="left-block-header-btn" onClick={handleCopyInviteLink}/>
                 </Link>
                 <div className="left-block-header-name">
-                    <img src={room}></img>
-                    <p className="medium-text text--light">Название комнаты</p>
+                    <img src={room.icon || defaultRoom}></img>
+                    <p className="medium-text text--light">{room.name}</p>
                 </div>
-                <div className="dots-wrapper">
-                    <img
-                        src={dots}
-                        className="left-block-header-btn"
-                        alt="menu"
-                        onClick={toggleMenu}
-                    />
-
-                    {menuVisible && (
-                        <RoomMenu 
-                            onCancel={() => setMenuVisible(false)}
-                            onOpenMembers={openMembersModal} 
+                <div>
+                    <div className="voice-wrapper">
+                        <img 
+                            src={link} 
+                            className="left-block-header-btn" 
+                            onClick={handleCopyInviteLink}
                         />
-                    )}
-
-                    <RoomMembers
-                        isOpen={isMembersOpen}
-                        onClose={() => setIsMembersOpen(false)}
-                    />
+                        {notificationMessage && (
+                            <Notification 
+                                message={notificationMessage} 
+                                onClose={() => setNotificationMessage(null)} 
+                            />
+                        )}
+                    </div>
+                    <div className="voice-wrapper" ref={menuRef}>
+                        <img
+                            src={dots}
+                            className="left-block-header-btn"
+                            alt="menu"
+                            onClick={toggleMenu}
+                        />
+                        {menuVisible && (
+                            room.isPrivate ? (
+                                <FriendMenu
+                                    onCancel={() => setMenuVisible(false)}
+                                    onRemoveFriend={handleRemoveFriend}
+                                />
+                            ) : (
+                                <RoomMenu
+                                    onCancel={() => setMenuVisible(false)}
+                                    onOpenMembers={openMembersModal}
+                                    onLeave={handleLeave}
+                                />
+                            )
+                        )}
+                        <RoomMembers
+                            isOpen={isMembersOpen}
+                            onClose={() => setIsMembersOpen(false)}
+                            onOpenInvite ={openInviteModal}
+                            participants={participants}
+                            roomAdminId={room.adminId}
+                            currentUserId={user.id}
+                        />
+                        <SendRequest
+                            isOpen={isInviteOpen}
+                            onClose={() => setIsInviteOpen(false)}
+                            type="room"
+                            roomId={roomId}
+                        />
+                    </div>
                 </div>
             </div>
             <div className="voice-chat">
                 <p className="voice-chat-header">Голосовой чат</p>
                 <List items={voiceMembers} mode="passive" color="dark"/>
-                <button className="invite-voice-chat-btn"> 
-                    <p>Присоединиться</p>
-                </button>
+                {jitsiToken && (
+                    <button className="invite-voice-chat-btn" onClick={() => {
+                        // Открыть Jitsi в iframe или новом окне
+                        window.open(`https://meet.jit.si/${roomId}#config.jwt=${jitsiToken}`, "_blank");
+                    }}>
+                        <p>Присоединиться</p>
+                    </button>
+                )}
             </div>
             <div className="user-voice">
                 <div className="user-voice-chat-member">
-                    <img src={user}></img>
-                    <p>Мой ник</p>
+                    <img src={user.avatar}></img>
+                    <p>{user.username}</p>
                 </div>
                 <div className="voice-icons">
                     <img 

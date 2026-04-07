@@ -3,7 +3,7 @@ import "../../css/settings.css"
 import { useEffect, useState } from "react";
 import {Link} from "react-router-dom"
 
-import open from "../../assets/down-arrow.png"
+import open from "../../assets/down-arrow.svg"
 
 import VolumeSlider from "./volume";
 

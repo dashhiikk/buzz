@@ -1,13 +1,11 @@
 import '../../css/list.css'
 import '../../css/modals.css'
 import { useState, useEffect,  useCallback } from "react";
-import close from "../../assets/close-icon.png"
-import defaultAvatar from "../../assets/buzz-icon-bee.svg"
-import defaultRoomIcon from "../../assets/buzz-icon_mini.png"
-import List from '../../components/list'
+import close from "../../assets/close.svg"
 import RequestsSwitch from './request-switch';
+import RequestItem from './request-item';
 
-import { getIncomingRequests, getOutgoingRequests, cancelRequest } from '../../api/requests';
+import { getIncomingRequests, getOutgoingRequests, cancelRequest, acceptRequest, rejectRequest } from '../../api/requests';
 
 export default function Requests({ isOpen, onClose }) {
     const [active, setActive] = useState("incoming");
@@ -50,42 +48,29 @@ export default function Requests({ isOpen, onClose }) {
         }
     };
 
+    const handleAccept = async (id) => {
+        try {
+            await acceptRequest(id);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            alert('Не удалось принять запрос');
+        }
+    };
+
+    const handleReject = async (id) => {
+        try {
+            await rejectRequest(id);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            alert('Не удалось отклонить запрос');
+        }
+    };
+
     if (!isOpen) return null;
 
     const currentItems = active === 'incoming' ? incoming : outgoing;
-    // Преобразуем данные в нужный для List формат (если нужно)
-    const listItems = currentItems.map(item => {
-        const isRoom = item.type === 'room';
-        // Иконка
-        let icon = defaultAvatar;
-        if (isRoom) {
-            icon = item.roomIcon || defaultRoomIcon;
-        } else {
-            icon = item.userAvatar || defaultAvatar;
-        }
-        // Имя пользователя
-        const userName = `${item.senderName}#${item.senderCode}`;
-        // Текст описания
-        let description = '';
-        if (isRoom) {
-            if (active === 'incoming') {
-                description = `${userName} приглашает вас в комнату "${item.roomName}"`;
-            } else {
-                description = `Вы пригласили ${userName} в комнату "${item.roomName}"`;
-            }
-        } else {
-            if (active === 'incoming') {
-                description = `${userName} отправил(а) вам запрос в друзья`;
-            } else {
-                description = `Вы отправили запрос в друзья ${userName}`;
-            }
-        }
-        return {
-            id: item.id,
-            name: description,
-            icon,
-        };
-    });
 
     return (
         <main className="modal">
@@ -96,29 +81,23 @@ export default function Requests({ isOpen, onClose }) {
                 </button>
                 {loading && <p className="small-text text--average">Загрузка...</p>}
                 {error && <p className="small-text text--average">{error}</p>}
-                {listItems.length === 0 ? (
+                {!loading && currentItems.length === 0 ? (
                     <p className="small-text text--average">
                         {active === 'incoming' ? 'Нет входящих запросов' : 'Нет исходящих запросов'}
                     </p>
                 ) : (
-                    <>
-                        {active === 'incoming' && (
-                            <List
-                                items={listItems}
-                                mode="active"
-                                color="light"
-                            />
-                        )}
-                        {active === 'outgoing' && (
-                            <List
-                                items={listItems}
-                                mode="active"
-                                color="light"
-                                showCancelButton
+                    <ul className="list list--light">
+                        {currentItems.map(item => (
+                            <RequestItem
+                                key={item.id}
+                                request={item}
+                                isIncoming={active === 'incoming'}
+                                onAccept={handleAccept}
+                                onReject={handleReject}
                                 onCancel={handleCancel}
                             />
-                        )}
-                    </>
+                        ))}
+                    </ul>
                 )}
                 <RequestsSwitch 
                     active={active}

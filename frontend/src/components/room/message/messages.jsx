@@ -1,6 +1,5 @@
-import minidots from "../../../assets/dots-icon-mini.png"
-import friend from "../../../assets/friend-icon.jpg"
-import user from "../../../assets/user-photo.jpg"
+import minidots from "../../../assets/dots-mini.svg"
+import defaultAvatar from "../../../assets/user-icon.svg"
 
 import FriendMessageMenu from "./friend-message-menu"
 import UserMessageMenu from "./user-message-menu"
@@ -8,49 +7,40 @@ import UserMessageMenu from "./user-message-menu"
 import '../../../css/chat.css'
 
 import { useState } from "react";
+import { useAuth } from "../../../hooks/use-auth";
 
-export default function Messages(messages) {
-    const [showFriendMenu, setShowFriendMenu] = useState(false);
-    const [showUserMenu, setShowUserMenu] = useState(false);
-    
+export default function Messages({ messages }) {
+    const { user } = useAuth();
+    const [showMenu, setShowMenu] = useState(false);
+
+    if (!Array.isArray(messages)) return null;
+
     return (
         <>
-        {messages.map((msg) => msg.sender === "friend" ? (
-            <div key={msg.id} className="friend-message">
-                <img src={friend}></img>
-                <div>
-                    <div className="message-name">
-                        <p>Ник друга</p>
-                        <div className="minidots-wrapper">
-                            <img src={minidots} onClick={() => setShowFriendMenu(prev => prev === msg.id ? null : msg.id)}/>
-                            {showFriendMenu === msg.id && 
-                                <FriendMessageMenu/>
-                            }
+            {messages.map((msg) => {
+                const isCurrentUser = msg.senderId === user?.id;
+                return (
+                    <div key={msg.id} className={isCurrentUser ? "user-message" : "friend-message"}>
+                        {!isCurrentUser && <img src={msg.senderAvatar || defaultAvatar} alt="avatar" />}
+                        <div>
+                            <div className="message-name">
+                                {!isCurrentUser && <p>{msg.senderName || "Неизвестный"}</p>}
+                                <div className="minidots-wrapper">
+                                    <img
+                                        src={minidots}
+                                        onClick={() => setShowMenu(prev => prev === msg.id ? null : msg.id)}
+                                        alt="menu"
+                                    />
+                                    {showMenu === msg.id && (isCurrentUser ? <UserMessageMenu /> : <FriendMessageMenu />)}
+                                </div>
+                                {isCurrentUser && <p>{user.username}</p>}
+                            </div>
+                            <p className="message-text">{msg.text}</p>
                         </div>
+                        {isCurrentUser && <img src={user?.avatar || defaultAvatar} alt="avatar" />}
                     </div>
-                    <p className="message-text">{msg.text}</p>
-                </div>
-            </div>
-        ) : (
-            <div key={msg.id} className="user-message">
-                <div>
-                    <div className="message-name">
-                        <div className="minidots-wrapper">
-                            <img src={minidots} onClick={() => setShowUserMenu(prev => prev === msg.id ? null : msg.id)}/>
-                            {showUserMenu === msg.id && 
-                                <UserMessageMenu/>
-                            }
-                        </div>
-                        <p>Мой ник</p>
-                    </div>
-                    
-                    <p className="message-text">{msg.text}</p>
-                </div> 
-                <img src={user}></img>
-            </div>
-            )
-        )}
+                );
+            })}
         </>
-        
-    )
+    );
 }

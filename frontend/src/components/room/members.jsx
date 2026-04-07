@@ -1,39 +1,43 @@
 import '../../css/list.css'
 import '../../css/modals.css'
 
-import friend from "../../assets/friend-icon.jpg"
-import close from "../../assets/close-icon.png"
+import close from "../../assets/close.svg"
+import plus from "../../assets/plus.svg"
 
 import List from '../list'
 
 
-export default function RoomMembers({ isOpen, onClose }) {
+export default function RoomMembers({ isOpen, onClose, onOpenInvite, participants, roomAdminId, currentUserId  }) {
     if (!isOpen) return null;
 
-    const roomMembers = [
-        { id: 1, name: "Ник друга", avatar: friend},
-        { id: 2, name: "Ник друга", avatar: friend},
-        { id: 3, name: "Ник друга", avatar: friend },
-        { id: 4, name: "Ник друга", avatar: friend },
-        { id: 5, name: "Ник друга", avatar: friend },
-        { id: 6, name: "Ник друга", avatar: friend },
-        { id: 7, name: "Ник друга", avatar: friend },
-        { id: 8, name: "Ник друга", avatar: friend },
-        { id: 9, name: "Ник друга", avatar: friend },
-        { id: 10, name: "Ник друга", avatar: friend },
-        { id: 11, name: "Ник друга", avatar: friend },
-        { id: 12, name: "Ник друга", avatar: friend },
-        { id: 13 , name: "Ник друга", avatar: friend },
-    ];
+    const members = participants.map(p => {
+        let status = '';
+        if (p.id === roomAdminId && p.id === currentUserId) {
+            status = 'Администратор (Вы)';
+        } else if (p.id === roomAdminId) {
+            status = 'Администратор';
+        } else if (p.id === currentUserId) {
+            status = 'Вы';
+        }
+        return {
+            id: p.id,
+            name: `${p.username}#${p.code}`,
+            icon: p.avatar,
+            status: status,
+        };
+    });
 
     return (
         <main className="modal">
             <div className="modal-content">
+                <button className="modal-add-btn" >
+                    <img src={plus} onClick={onOpenInvite}></img>
+                </button>
                 <p className="medium-text text--light">Участники</p>
                 <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                <List items={roomMembers} mode="passive" color="light"/>
+                <List items={members} mode="passive" color="light"/>
             </div>
         </main>
     )

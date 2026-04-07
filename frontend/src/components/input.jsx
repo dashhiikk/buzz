@@ -7,7 +7,8 @@ export default function Input({
   autoComplete = "off", 
   name,
   value,
-  onChange
+  onChange,
+  prefix = null
 }) {
   const ref = useRef(null);
 
@@ -36,6 +37,7 @@ export default function Input({
 
   return (
     <div className="input">
+      {prefix && <p className="input-text text--dark input-prefix">{prefix}</p>}
       <input
         ref={ref}
         type={type}

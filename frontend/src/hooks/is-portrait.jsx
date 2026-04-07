@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 
 export default function useIsPortrait() {
     const [isPortrait, setIsPortrait] = useState(
-        window.innerWidth < window.innerHeight
+        window.innerHeight > window.innerWidth || window.innerWidth < 840
     );
 
     useEffect(() => {
         const onResize = () => {
-            setIsPortrait(window.innerWidth < window.innerHeight);
+            setIsPortrait(
+                window.innerHeight > window.innerWidth || window.innerWidth < 840
+            );
         };
 
         window.addEventListener("resize", onResize);

@@ -2,7 +2,7 @@ import "../../css/settings.css"
 import "../../css/right-block.css"
 
 import VolumeSlider from "./volume";
-import open from "../../assets/down-arrow.png"
+import open from "../../assets/down-arrow.svg"
 
 export default function AdvSettingsVolume() {
     return (
@@ -12,27 +12,27 @@ export default function AdvSettingsVolume() {
             </div>
             <div className="settings-device-block">
                 <div className="settings-device">
-                    <p>Устройство<br/>вывода</p>
+                    <p className="medium-text text--light">Устройство<br/>вывода</p>
                     <div className="change-device">
-                        <p>Выбранное устройство</p>
+                        <p className="input-text text--light">Выбранное устройство</p>
                         <img src={open}/>
                     </div>
                 </div>
                 <div className="settings-device">
-                    <p>Устройство<br/>ввода</p>
+                    <p className="medium-text text--light">Устройство<br/>ввода</p>
                     <div className="change-device">
-                        <p>Выбранное устройство</p>
+                        <p className="input-text text--light">Выбранное устройство</p>
                         <img src={open}/>
                     </div>
                 </div>
             </div>
             <div className="adv-settings-input">
                 <div className="settings-volume adv-settings-volume">
-                    <p>Громкость микрофона</p>
+                    <p className="medium-text text--light">Громкость микрофона</p>
                     <VolumeSlider/>
-                    <p>Громкость звука</p>
+                    <p className="medium-text text--light">Громкость звука</p>
                     <VolumeSlider/>
-                    <p>Шумоподавление</p>
+                    <p className="medium-text text--light">Шумоподавление</p>
                     <VolumeSlider/>
                 </div>
             </div>

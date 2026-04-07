@@ -10,6 +10,7 @@ const Start = lazy(() => import('./pages/Start'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Recovery = lazy(() => import('./pages/Recovery'));
 const Verify = lazy(() => import('./pages/Verify'));
+const JoinRoom = lazy(() => import('./pages/JoinRoom'));
 
 const router = createBrowserRouter([
   { path: '*', element: <NotFound /> },
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
   ) },
   { path: '/auth/verify', element: <Verify /> },
   { path: '/recovery', element: <Recovery /> },
+  { path: "/rooms/join/:token", element: <JoinRoom /> },
 ])
 
 export default function App() {

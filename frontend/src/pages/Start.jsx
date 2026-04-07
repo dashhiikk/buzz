@@ -10,7 +10,7 @@ import StartMenu from "../components/start/start-menu"
 import RegistationNotice from "../modals/registration-notice";
 import RecoveryNotice from "../modals/recovery-notice";
 
-import AddFriend from "../modals/add-friend"
+import SendRequest from "../modals/send-request"
 import CreateRoom from "../modals/create-room"
 
 import useIsPortrait from "../hooks/is-portrait";
@@ -97,9 +97,9 @@ export default function Start() {
                             onAddClick={() => setIsAddFriendOpen(true)}
                             active={active}
                             setActive={setActive}
-                            onItemClick={(friend) => {
-                                navigate("/friend", {
-                                    state: { friendId: friend.id, friend }
+                            onItemClick={(room) => {
+                                navigate("/room", {
+                                    state: { roomId: room.id, room }
                                 });
                             }}
                             loading={loading}
@@ -115,14 +115,16 @@ export default function Start() {
                 )}
             </div>
 
-            <AddFriend 
+            <SendRequest
                 isOpen={isAddFriendOpen} 
-                onClose={() => setIsAddFriendOpen(false)} 
+                onClose={() => setIsAddFriendOpen(false)}
+                type="friend" 
                 onFriendAdded={fetchRooms}
             />
             <CreateRoom 
                 isOpen={isCreateRoomOpen} 
                 onClose={() => setIsCreateRoomOpen(false)} 
+                onRoomCreated={fetchRooms}
             />    
             <RegistationNotice isOpen={showRegistrationModal} onClose={closeModals} />
             <RecoveryNotice isOpen={showRecoveryModal} onClose={closeModals} />

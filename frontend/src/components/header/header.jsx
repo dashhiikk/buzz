@@ -48,24 +48,33 @@ export default function Header({ hideIconsAndLogo }) {
             setAnimateRing(true);
             setTimeout(() => setAnimateRing(false), 500);
             scheduleRing(); // запускаем следующий через минуту
-        }, 30000);
+        }, 2000);
     };
 
     scheduleRing();
     return () => clearTimeout(timeoutId);
 }, [hasUnread]);
 
-  const ref = useRef();
+  const settingsRef = useRef();
   useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (ref.current && !ref.current.contains(e.target)) {
-      setOpenUser(false);
-    }
-  };
-
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+    const handleClickOutsideSettings = (e) => {
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setOpenSettings(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutsideSettings);
+    return () => document.removeEventListener("mousedown", handleClickOutsideSettings);
+  }, []);
+  const userRef = useRef();
+  useEffect(() => {
+    const handleClickOutsideUser = (e) => {
+      if (userRef.current && !userRef.current.contains(e.target)) {
+        setOpenUser(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutsideUser);
+    return () => document.removeEventListener("mousedown", handleClickOutsideUser);
+  }, []);
 
   return (
     <main className={`header ${hideIconsAndLogo ? "hidden" : ""}`}>
@@ -73,7 +82,7 @@ export default function Header({ hideIconsAndLogo }) {
         <img className="header-buzz-img" src={buzziconbee} ></img>
         <h1 className="buzz">buzz</h1>
         <div className="header-icons">
-          <div className="header-wrapper">
+          <div className="header-wrapper" ref={settingsRef}>
             <img 
               src={settings} 
               alt="settings" 
@@ -82,7 +91,7 @@ export default function Header({ hideIconsAndLogo }) {
             />
             { openSettings && <Settings/> }
           </div>
-          <div className="header-wrapper" ref={ref}>
+          <div className="header-wrapper" ref={userRef}>
             <img 
               src={user?.avatar || userIcon}
               alt="user"

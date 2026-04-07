@@ -5,24 +5,27 @@ export default function AdvSettingsField({
   label,
   name,
   type = "text",
+  value,
   placeholder,
+  onChange,
   autoComplete = "off",
   rightSlot = null, // сюда передаём кнопку / иконку
+  rightSlotType
 }) {
   return (
-    <div className="adv-settings-input">
+    <div>
       <p className="medium-text text--light">{label}</p>
-      <div className="adv-settings-input-field">
+      <div className={`adv-settings-input-field ${rightSlotType === "code" ? "code-slot" : "button-slot"}`}>
         <Input
           name={name}
           type={type}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          value={value}
+          onChange={onChange}
         />
         {rightSlot && (
-          <div className="adv-settings-righ-slot">
-            {rightSlot}
-          </div>
+            <>{rightSlot}</>
         )}
       </div>
     </div>
