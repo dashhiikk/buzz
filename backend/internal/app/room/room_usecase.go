@@ -47,6 +47,11 @@ func NewRoomUseCase(roomRepo room.RoomRepository, userRepo room.UserRepository, 
 }
 
 func (uc *RoomUseCase) CreateRoom(ctx context.Context, name string, icon *string, adminId string) error {
+	if icon == nil {
+		defaultIcon := "/uploads/default-room-icon.jpg"
+		icon = &defaultIcon
+	}
+
 	room := &entity.Room{
 		Name:      name,
 		Icon:      icon,

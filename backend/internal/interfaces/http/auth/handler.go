@@ -247,10 +247,84 @@ func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.writeJSON(w, http.StatusOK, map[string]interface{}{
-		"id":       user.Id,
-		"email":    user.Email,
-		"username": user.Username,
-		"code":     user.Code,
-		"avatar":   user.Avatar,
+		"id":        user.Id,
+		"email":     user.Email,
+		"username":  user.Username,
+		"code":      user.Code,
+		"avatar":    user.Avatar,
+		"phone":     user.Phone,
+		"firstName": user.FirstName,
+		"birthDate": user.BirthDate,
 	})
+}
+
+func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+	var req UpdateProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid request"))
+		return
+	}
+	updates := make(map[string]interface{})
+	if req.Username != nil {
+		updates["username"] = *req.Username
+	}
+	if req.Code != nil {
+		updates["code"] = *req.Code
+	}
+	if req.Email != nil {
+		updates["email"] = *req.Email
+	}
+	if req.Phone != nil {
+		updates["phone"] = req.Phone
+	}
+	if req.FirstName != nil {
+		updates["firstName"] = req.FirstName
+	}
+	if req.BirthDate != nil {
+		updates["birthDate"] = *req.BirthDate
+	}
+	if req.Avatar != nil {
+		updates["avatar"] = req.Avatar
+	}
+	errs, err := h.authUseCase.UpdateProfile(r.Context(), userID, updates)
+	if err != nil {
+		if errors.Is(err, auth.ErrUserNotFound) {
+			h.writeError(w, http.StatusNotFound, err)
+		}
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to update user"))
+	}
+	if len(errs) > 0 {
+		h.writeJSON(w, http.StatusBadRequest, map[string]interface{}{"errors": errs})
+		return
+	}
+	h.writeJSON(w, http.StatusOK, map[string]string{"message": "profile updated"})
+}
+
+func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+	var req ChangePasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid request"))
+		return
+	}
+	if err := h.authUseCase.ChangePassword(r.Context(), userID, req.OldPassword, req.NewPassword); err != nil {
+		switch {
+		case errors.Is(err, auth.ErrInvalidPassword),
+			errors.Is(err, auth.ErrWeakPassword):
+			h.writeError(w, http.StatusBadRequest, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to change password"))
+		}
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

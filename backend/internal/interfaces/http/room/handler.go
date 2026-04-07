@@ -125,11 +125,13 @@ func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := RoomResponse{
-		Id:        rm.Id,
-		Name:      rm.Name,
-		Icon:      rm.Icon,
-		AdminId:   rm.AdminId,
-		CreatedAt: rm.CreatedAt,
+		Id:          rm.Id,
+		Name:        rm.Name,
+		Icon:        rm.Icon,
+		AdminId:     rm.AdminId,
+		CreatedAt:   rm.CreatedAt,
+		IsPrivate:   rm.IsPrivate,
+		InviteToken: rm.InviteToken,
 	}
 
 	h.writeJSON(w, http.StatusOK, resp)

@@ -18,16 +18,21 @@ import (
 )
 
 var (
-	ErrUserExists      = errors.New("user already exists")
-	ErrUserNotFound    = errors.New("user not found")
-	ErrInvalidPassword = errors.New("invalid password")
-	ErrInvalidUsername = errors.New("invalid username")
-	ErrInvalidEmail    = errors.New("invalid email")
-	ErrWeakPassword    = errors.New("password does not meet security requirements")
-	ErrInvalidCode     = errors.New("invalid code format")
-	ErrTokenInvalid    = errors.New("token is invalid")
-	ErrTokenExpired    = errors.New("token expired")
-	ErrUserNotVerify   = errors.New("user not verify")
+	ErrUserExists      = errors.New("Пользователь уже существует")
+	ErrUserNotFound    = errors.New("Пользователь не найден")
+	ErrInvalidPassword = errors.New("Неверный пароль")
+
+	ErrInvalidUsername  = errors.New("Имя пользователя должно быть от 1 до 32 символов и может содержать буквы, цифры, точку и подчёркивание")
+	ErrInvalidEmail     = errors.New("Некорректный email")
+	ErrWeakPassword     = errors.New("Пароль должен быть длиной не менее 8 символов и содержать буквы и цифры")
+	ErrInvalidCode      = errors.New("Код должен состоять ровно из 4 цифр")
+	ErrInvalidPhone     = errors.New("Телефон должен быть в формате +7 000 000 00 00")
+	ErrInvalidBirthDate = errors.New("Некорректная дата рождения")
+	ErrInvalidFirstName = errors.New("Имя может содержать только буквы")
+
+	ErrTokenInvalid  = errors.New("Неверный токен")
+	ErrTokenExpired  = errors.New("Токен истек")
+	ErrUserNotVerify = errors.New("Email не подврержден")
 )
 
 type AuthUseCase struct {
@@ -52,6 +57,8 @@ func NewAuthUseCase(
 }
 
 func (uc *AuthUseCase) Register(ctx context.Context, username, email, password string) error {
+	const defaultAvatarPath = "/uploads/default-user-avatar.jpg"
+
 	if err := validator.Var(username, "required,username"); err != nil {
 		return ErrInvalidUsername
 	}
@@ -91,10 +98,12 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 		return fmt.Errorf("hash password: %w", err)
 	}
 
+	defaultAvatar := defaultAvatarPath
 	user := &entity.User{
 		Username: username,
 		Code:     codeStr,
 		Email:    email,
+		Avatar:   &defaultAvatar,
 	}
 
 	if err := uc.userRepo.CreateUser(ctx, user, passwordHash); err != nil {
@@ -141,9 +150,6 @@ func (uc *AuthUseCase) VerifyEmailAndLogin(ctx context.Context, token string) (s
 func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (string, error) {
 	if err := validator.Var(email, "required,email"); err != nil {
 		return "", ErrInvalidUsername
-	}
-	if err := validator.Var(password, "required,password"); err != nil {
-		return "", ErrWeakPassword
 	}
 
 	user, err := uc.userRepo.GetUserByEmail(ctx, email)
@@ -235,7 +241,7 @@ func (uc *AuthUseCase) ResendVerificationEmail(ctx context.Context, email string
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil
 		}
-		return fmt.Errorf("get user by email: %w", err)
+		return ErrUserNotFound
 	}
 	if user.IsVerified {
 		return nil
@@ -256,8 +262,116 @@ func (uc *AuthUseCase) GetMeById(ctx context.Context, id string) (*entity.User, 
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("get user by id: %w", err)
+		return nil, ErrUserNotFound
 	}
 
 	return user, nil
+}
+
+type ValidationErrors map[string]string
+
+func (uc *AuthUseCase) UpdateProfile(ctx context.Context, userID string, updates map[string]interface{}) (ValidationErrors, error) {
+	user, err := uc.userRepo.GetUserById(ctx, userID)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	oldUsername := user.Username
+	oldCode := user.Code
+
+	errs := make(ValidationErrors)
+	if username, ok := updates["username"]; ok && username != nil {
+		if err := validator.Var(username, "username"); err != nil {
+			errs["username"] = ErrInvalidUsername.Error()
+		} else {
+			user.Username = username.(string)
+		}
+	}
+	if code, ok := updates["code"]; ok && code != nil {
+		if err := validator.Var(code, "code"); err != nil {
+			errs["code"] = ErrInvalidCode.Error()
+		} else {
+			user.Code = code.(string)
+		}
+	}
+	if email, ok := updates["email"]; ok && email != nil {
+		if err := validator.Var(email, "email"); err != nil {
+			errs["email"] = ErrInvalidEmail.Error()
+		} else {
+			user.Email = email.(string)
+		}
+	}
+	if phone, ok := updates["phone"]; ok && phone != nil {
+		if err := validator.Var(*phone.(*string), "phone"); err != nil {
+			errs["phone"] = ErrInvalidPhone.Error()
+		} else {
+			user.Phone = phone.(*string)
+		}
+	}
+	if firstName, ok := updates["firstName"]; ok && firstName != nil {
+		if err := validator.Var(*firstName.(*string), "name"); err != nil {
+			errs["firstName"] = ErrInvalidFirstName.Error()
+		} else {
+			user.FirstName = firstName.(*string)
+		}
+	}
+	if birthDate, ok := updates["birthDate"]; ok && birthDate != nil {
+		if err := validator.Var(birthDate, "birthdate"); err != nil {
+			errs["birthDate"] = ErrInvalidBirthDate.Error()
+		} else {
+			if bd, ok := birthDate.(string); ok {
+				parsed, _ := time.Parse("2006-01-02", bd)
+				user.BirthDate = &parsed
+			} else if bd, ok := birthDate.(*time.Time); ok {
+				user.BirthDate = bd
+			}
+		}
+	}
+	if avatar, ok := updates["avatar"]; ok && avatar != nil {
+		user.Avatar = avatar.(*string)
+	}
+
+	if user.Username != oldUsername || user.Code != oldCode {
+		exists, err := uc.userRepo.CheckUserExistsByUsernameAndCode(ctx, user.Username, user.Code, userID)
+		if err != nil {
+			return nil, fmt.Errorf("check uniqueness: %w", err)
+		}
+		if exists {
+			errs["usernameCode"] = ErrUserExists.Error()
+		}
+	}
+
+	if len(errs) > 0 {
+		return errs, nil
+	}
+
+	if err := uc.userRepo.UpdateUser(ctx, user); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (uc *AuthUseCase) ChangePassword(ctx context.Context, userID, oldPassword, newPassword string) error {
+	user, err := uc.userRepo.GetUserById(ctx, userID)
+	if err != nil {
+		return ErrUserNotFound
+	}
+
+	if err := validator.Var(newPassword, "required,password"); err != nil {
+		return ErrWeakPassword
+	}
+
+	if err := uc.hasher.Check(oldPassword, user.PasswordHash); err != nil {
+		return ErrInvalidPassword
+	}
+
+	newHash, err := uc.hasher.Hash(newPassword)
+	if err != nil {
+		return fmt.Errorf("hash new password: %w", err)
+	}
+
+	if err := uc.userRepo.UpdatePassword(ctx, userID, newHash); err != nil {
+		return err
+	}
+	return nil
 }

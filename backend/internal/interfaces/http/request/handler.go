@@ -154,7 +154,7 @@ func (h *Handler) RejectRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.requestUseCase.AcceptRequest(r.Context(), userId, requestId)
+	err := h.requestUseCase.RejectRequest(r.Context(), userId, requestId)
 	if err != nil {
 		switch {
 		case errors.Is(err, request.ErrRequestNotFound):

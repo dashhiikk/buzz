@@ -138,7 +138,7 @@ func (uc *FriendUseCase) AcceptFriendRequest(ctx context.Context, requestId stri
 }
 
 func (uc *FriendUseCase) RejectFriendRequest(ctx context.Context, requestId string) error {
-	if err := uc.requestRepo.DeleteRequest(ctx, requestId); err != nil {
+	if err := uc.requestRepo.UpdateStatus(ctx, requestId, "rejected"); err != nil {
 		return err
 	}
 

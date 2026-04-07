@@ -16,12 +16,13 @@ type SendRoomInviteRequest struct {
 
 // RoomResponse — структура ответа с информацией о комнате
 type RoomResponse struct {
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	Icon      *string   `json:"icon,omitempty"`
-	AdminId   string    `json:"adminId"`
-	CreatedAt time.Time `json:"createdAt"`
-	IsPrivate bool      `json:"isPrivate"`
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	Icon        *string   `json:"icon,omitempty"`
+	AdminId     string    `json:"adminId"`
+	CreatedAt   time.Time `json:"createdAt"`
+	IsPrivate   bool      `json:"isPrivate"`
+	InviteToken *string   `json:"inviteToken"`
 }
 
 // ParticipantResponse — информация об участнике

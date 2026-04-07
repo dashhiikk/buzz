@@ -39,7 +39,7 @@ func (r *userRepository) GetUserById(ctx context.Context, id string) (*entity.Us
 	var user entity.User
 
 	query := `
-		SELECT id, username, code, email, password_hash, avatar, created_at
+		SELECT id, username, code, email, password_hash, avatar, created_at, is_verified, phone, first_name, birth_date
 		FROM users
 		WHERE id = $1
 	`
@@ -127,4 +127,38 @@ func (r *userRepository) DeleteUserByEmail(ctx context.Context, email string) er
 	}
 
 	return nil
+}
+
+func (r *userRepository) UpdateUser(ctx context.Context, user *entity.User) error {
+	query := `
+        UPDATE users SET
+            username = $1,
+            email = $2,
+            phone = $3,
+            first_name = $4,
+            birth_date = $5,
+            avatar = $6
+        WHERE id = $7
+    `
+	_, err := r.db.ExecContext(ctx, query,
+		user.Username, user.Email, user.Phone, user.FirstName, user.BirthDate, user.Avatar, user.Id)
+	if err != nil {
+		return fmt.Errorf("update user: %w", err)
+	}
+	return nil
+}
+
+func (r *userRepository) CheckUserExistsByUsernameAndCode(ctx context.Context, username, code, excludeUserID string) (bool, error) {
+	var exists bool
+	query := `
+        SELECT EXISTS(
+            SELECT 1 FROM users
+            WHERE username = $1 AND code = $2 AND id != $3
+        )
+    `
+	err := r.db.QueryRowContext(ctx, query, username, code, excludeUserID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("check user exists: %w", err)
+	}
+	return exists, nil
 }

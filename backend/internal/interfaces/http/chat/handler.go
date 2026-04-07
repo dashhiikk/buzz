@@ -5,6 +5,7 @@ import (
 	"Buzz/internal/app/room"
 	ws "Buzz/internal/infra/websocket"
 	"Buzz/internal/middleware"
+	"Buzz/pkg/jwt"
 	"context"
 	"encoding/json"
 	"errors"
@@ -19,13 +20,15 @@ type Handler struct {
 	chatUseCase *chat.ChatUseCase
 	roomUseCase *room.RoomUseCase
 	hub         *ws.Hub
+	jwtService  jwt.Service
 }
 
-func NewHandler(chatUseCase *chat.ChatUseCase, roomUseCase *room.RoomUseCase, hub *ws.Hub) *Handler {
+func NewHandler(chatUseCase *chat.ChatUseCase, roomUseCase *room.RoomUseCase, hub *ws.Hub, jwtService jwt.Service) *Handler {
 	return &Handler{
 		chatUseCase: chatUseCase,
 		roomUseCase: roomUseCase,
 		hub:         hub,
+		jwtService:  jwtService,
 	}
 }
 
@@ -53,11 +56,18 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Failure      403 "Не является участником комнаты"
 // @Router       /ws/chat [get]
 func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
-	if !ok {
+	token := r.URL.Query().Get("token")
+	if token == "" {
 		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
+
+	claims, err := h.jwtService.Validate(token)
+	if err != nil {
+		h.writeError(w, http.StatusUnauthorized, errors.New("invalid token"))
+		return
+	}
+	userId := claims.UserId
 
 	roomId := r.URL.Query().Get("roomId")
 	if roomId == "" {

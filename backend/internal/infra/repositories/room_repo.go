@@ -36,7 +36,7 @@ func (r *RoomRepository) CreateRoom(ctx context.Context, room *entity.Room) erro
 func (r *RoomRepository) GetRoomById(ctx context.Context, id string) (*entity.Room, error) {
 	var room entity.Room
 	query := `
-		SELECT id, name, icon, admin_id, created_at
+		SELECT id, name, icon, admin_id, created_at, is_private, invite_token
 		FROM rooms
 		WHERE id = $1
 	`

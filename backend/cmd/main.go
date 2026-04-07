@@ -102,7 +102,7 @@ func main() {
 	friendHTTPHandler := friendHandler.NewHandler(friendUseCase)
 	roomHTTPHandler := roomHandler.NewHandler(roomUseCase, cfg.AppURL)
 	requestHTTPHandler := requestHandler.NewHandler(requestUseCase)
-	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub)
+	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub, jwtService)
 	boardHTTPHandler := boardHandler.NewHandler(boardUseCase, roomUseCase, hub)
 	jitsiHTTPHandler := jitsiHandler.NewHandler(jitsiJWT, roomUseCase, cfg.Jitsi.ServerUrl)
 	notificationWSHandler := notificationHandler.NewHandler(notificationHub)
@@ -138,11 +138,16 @@ func main() {
 		r.Post("/resend-verification", authHTTPHandler.ResendVerification)
 	})
 
+	r.Get("/ws/chat", chatHTTPHandler.ServeWebSocket)
+	r.Get("/ws/board", boardHTTPHandler.ServeWebSocket)
+
 	r.Group(func(r chi.Router) {
 		r.Use(appMiddleware.AuthMiddleware(jwtService))
 
 		r.Get("/auth/me", authHTTPHandler.GetMe)
 		r.Get("/ws/notifications", notificationWSHandler.ServeWebSocket)
+		r.Patch("/users/me", authHTTPHandler.UpdateProfile)
+		r.Post("/auth/change-password", authHTTPHandler.ChangePassword)
 
 		r.Route("/friends", func(r chi.Router) {
 			r.Get("/", friendHTTPHandler.GetFriends)
@@ -174,9 +179,6 @@ func main() {
 			r.Get("/{id}/board", boardHTTPHandler.GetState)
 			r.Get("/{id}/voice-chat", jitsiHTTPHandler.GetToken)
 		})
-
-		r.Get("/ws/chat", chatHTTPHandler.ServeWebSocket)
-		r.Get("/ws/board", boardHTTPHandler.ServeWebSocket)
 
 		r.Post("/upload", uploadHTTPHandler.UploadFile)
 	})

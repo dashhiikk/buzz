@@ -37,3 +37,23 @@ type ErrorResponse struct {
 type cancelRequest struct {
 	Email string `json:"email"`
 }
+
+type UpdateProfileRequest struct {
+	Username  *string `json:"username,omitempty"`
+	Code      *string `json:"code,omitempty"`
+	Email     *string `json:"email,omitempty"`
+	Phone     *string `json:"phone,omitempty"`
+	FirstName *string `json:"firstName,omitempty"`
+	BirthDate *string `json:"birthDate,omitempty"`
+	Avatar    *string `json:"avatar,omitempty"`
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"oldPassword"`
+	NewPassword string `json:"newPassword"`
+}
+
+type FieldError struct {
+	Field   string `json:"field"`
+	Message string `json:"message"`
+}
