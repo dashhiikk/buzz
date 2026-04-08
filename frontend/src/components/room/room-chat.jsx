@@ -8,9 +8,9 @@ import '../../css/right-block.css'
 
 import { useEffect, useLayoutEffect, useRef, useMemo, useState } from "react";
 import { useWebSocket } from "../../hooks/useWebSocket";
+import { getPinnedMessage, pinMessage } from "../../api/rooms";
 
 import Messages from "./message/messages"
-
 
 export default function RoomChat({ roomId, initialMessages = [] }) {
 
@@ -20,8 +20,7 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
     const chatRef = useRef(null);
     const textRef = useRef(null);
     const [canScroll, setCanScroll] = useState(false);
-
-    const [menuMessageId, setMenuMessageId] = useState(null);
+    const [pinnedMessage, setPinnedMessage] = useState(null);
 
     const allMessages = useMemo(() => [...historyMessages, ...wsMessages], [historyMessages, wsMessages]);
 
@@ -59,15 +58,39 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
         }
     };
 
+    const handleDeleteMessage = (deletedId) => {
+        // Обновляем allMessages, удаляя сообщение с этим id
+        // Но allMessages вычисляется из historyMessages и wsMessages – нужно обновить состояние.
+        // Проще всего перезагрузить историю или использовать локальное состояние.
+        // Для простоты: установить флаг, что сообщение удалено, или отфильтровать.
+        setHistoryMessages(prev => prev.filter(m => m.id !== deletedId));
+        // Для wsMessages нужно либо тоже отфильтровать (но они в состоянии), либо оставить как есть.
+        // Лучше использовать единый массив сообщений в состоянии, а не useMemo.
+    };
+
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.minidots-wrapper')) {
-                setMenuMessageId(null);
+        const fetchPinned = async () => {
+            try {
+                const res = await getPinnedMessage(roomId);
+                setPinnedMessage(res.data);
+            } catch (err) {
+                console.error("Failed to get pinned message:", err);
             }
         };
-        document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+        fetchPinned();
+    }, [roomId]);
+
+    const handlePinMessage = async (messageId) => {
+        try {
+            await pinMessage(roomId, messageId);
+            // Обновляем закреплённое сообщение
+            const res = await getPinnedMessage(roomId);
+            setPinnedMessage(res.data);
+        } catch (err) {
+            console.error("Failed to pin message:", err);
+            alert("Не удалось закрепить сообщение");
+        }
+    };
 
     return (
         <main className="right-block">
@@ -78,10 +101,7 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
                 <img src={pin}/>
                 <div className="pinned-message-wrapper">
                     <p ref={textRef} className="pinned-message-text">
-                    Археологи установили, что монеты были отчеканены во времена короля Кнута Эрикссона, 
-                    правившего Швецией во второй половине XII века. На них можно различить надпись KANUTUS. 
-                    По словам экспертов, клад был зарыт примерно в XII веке, то есть задолго до основания самого Стокгольма, 
-                    который появился лишь в 1252 году.
+                        {pinnedMessage ? pinnedMessage.text : ""}
                     </p>
                 </div>
                 <img src={copy} className="copy-pinned-message" onClick={handleCopy}/>
@@ -89,12 +109,10 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
             </div>
             <div ref={chatRef} className="message-block">
                 <Messages 
-                    messages={allMessages}
-                    menuMessageId={menuMessageId}
-                    setMenuMessageId={setMenuMessageId}
+                    messages={allMessages} 
+                    roomId = {roomId}
                 />
             </div>
-
             <div className="input-block">
                 <textarea
                     placeholder="Введите сообщение..."

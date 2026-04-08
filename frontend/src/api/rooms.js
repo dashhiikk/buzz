@@ -15,3 +15,6 @@ export const sendRoomInvite = (roomId, username, code) =>
     apiClient.post(`/rooms/${roomId}/send-invite`, { username, code });
 export const getInviteLink = (roomId) => apiClient.get(`/rooms/${roomId}/invite-link`);
 export const joinRoomByToken = (token) => apiClient.post(`/rooms/join/${token}`);
+export const deleteMessage = (messageId) => apiClient.delete(`/rooms/messages/${messageId}`)
+export const pinMessage = (roomId, messageId) => apiClient.post(`/rooms/messages/${roomId}/${messageId}/pin`)
+export const getPinnedMessage = (roomId) => apiClient.get(`rooms/${roomId}/pinned-message`)
