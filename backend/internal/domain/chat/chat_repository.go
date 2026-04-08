@@ -8,4 +8,8 @@ import (
 type ChatRepository interface {
 	CreateMessage(ctx context.Context, msg *entity.Message) error
 	GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.Message, error)
+	DeleteMessage(ctx context.Context, messageId string) error
+	PinMessage(ctx context.Context, roomId, messageId string) error
+	GetPinnedMessage(ctx context.Context, roomId string) (*entity.Message, error)
+	GetMessageById(ctx context.Context, id string) (*entity.Message, error)
 }

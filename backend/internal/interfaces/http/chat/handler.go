@@ -223,3 +223,80 @@ func (h *Handler) GetHistory(w http.ResponseWriter, r *http.Request) {
 
 	h.writeJSON(w, http.StatusOK, messages)
 }
+
+func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	messageId := chi.URLParam(r, "messageId")
+	if messageId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing message id"))
+		return
+	}
+
+	if err := h.chatUseCase.DeleteMessage(r.Context(), messageId, userId); err != nil {
+		switch {
+		case errors.Is(err, chat.ErrMessageNotFound):
+			h.writeError(w, http.StatusNotFound, err)
+		case errors.Is(err, chat.ErrUserNotSender):
+			h.writeError(w, http.StatusForbidden, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to delete message"))
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) PinMessage(w http.ResponseWriter, r *http.Request) {
+	_, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "roomId")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	messageId := chi.URLParam(r, "messageId")
+	if messageId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing message id"))
+		return
+	}
+
+	if err := h.chatUseCase.PinMessage(r.Context(), messageId, roomId); err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to pin messade"))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) GetPinnedMessage(w http.ResponseWriter, r *http.Request) {
+	_, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "roomId")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	msg, err := h.chatUseCase.GetPinnedMessage(r.Context(), roomId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get pinned message"))
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, msg)
+}

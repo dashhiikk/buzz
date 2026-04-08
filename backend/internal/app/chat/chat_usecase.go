@@ -6,9 +6,16 @@ import (
 	"Buzz/internal/entity"
 	ws "Buzz/internal/infra/websocket"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"strings"
+)
+
+var (
+	ErrMessageNotFound = errors.New("Сообщение не найдено")
+	ErrUserNotSender   = errors.New("Пользователь можкт удлаить только своё сообщение")
 )
 
 type ChatUseCase struct {
@@ -83,4 +90,28 @@ func (uc *ChatUseCase) GetHistory(ctx context.Context, roomId string, limit, off
 	}
 
 	return messages, nil
+}
+
+func (uc *ChatUseCase) DeleteMessage(ctx context.Context, messageId, userId string) error {
+	msg, err := uc.msgRepo.GetMessageById(ctx, messageId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrMessageNotFound
+		}
+		return err
+	}
+
+	if userId != msg.SenderId {
+		return ErrUserNotSender
+	}
+
+	return uc.msgRepo.DeleteMessage(ctx, messageId)
+}
+
+func (uc *ChatUseCase) PinMessage(ctx context.Context, messageId, roomId string) error {
+	return uc.msgRepo.PinMessage(ctx, roomId, messageId)
+}
+
+func (uc *ChatUseCase) GetPinnedMessage(ctx context.Context, roomId string) (*entity.Message, error) {
+	return uc.msgRepo.GetPinnedMessage(ctx, roomId)
 }

@@ -3,7 +3,9 @@ package repositories
 import (
 	"Buzz/internal/entity"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -69,4 +71,63 @@ func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, o
 	}
 
 	return messages, nil
+}
+
+func (r *ChatRepository) DeleteMessage(ctx context.Context, messageId string) error {
+	query := `DELETE FROM messages WHERE id = $1`
+
+	_, err := r.db.ExecContext(ctx, query, messageId)
+	if err != nil {
+		return fmt.Errorf("delete message: %w", err)
+	}
+
+	return nil
+}
+
+func (r *ChatRepository) PinMessage(ctx context.Context, roomId, messageId string) error {
+	query := `UPDATE rooms SET pinned_message_id = $1 WHERE id = $2`
+
+	_, err := r.db.ExecContext(ctx, query, messageId, roomId)
+	if err != nil {
+		return fmt.Errorf("pin message: %w", err)
+	}
+
+	return nil
+}
+
+func (r *ChatRepository) GetPinnedMessage(ctx context.Context, roomId string) (*entity.Message, error) {
+	query := `
+		SELECT m.id, m.room_id, m.sender_id, m.text, m.files, m.created_at
+		FROM messages m
+		JOIN rooms r ON r.pinned_message_id = m.id
+		WHERE r.id = $1
+	`
+	var msg entity.Message
+	err := r.db.GetContext(ctx, &msg, query, roomId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get pinned message: %w", err)
+	}
+
+	return &msg, nil
+}
+
+func (r *ChatRepository) GetMessageById(ctx context.Context, id string) (*entity.Message, error) {
+	query := `
+		SELECT id, room_id, sender_id, text, files, created_at
+		FROM messages 
+		WHERE id = $1
+	`
+	var msg entity.Message
+	err := r.db.GetContext(ctx, &msg, query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, sql.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &msg, nil
 }

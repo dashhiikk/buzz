@@ -178,6 +178,12 @@ func main() {
 			r.Get("/{id}/text-chat", chatHTTPHandler.GetHistory)
 			r.Get("/{id}/board", boardHTTPHandler.GetState)
 			r.Get("/{id}/voice-chat", jitsiHTTPHandler.GetToken)
+			r.Get("/{roomId}/pinned-message", chatHTTPHandler.GetPinnedMessage)
+			r.Route("/messages", func(r chi.Router) {
+				r.Post("/{roomId}/{messageId}/pin", chatHTTPHandler.PinMessage)
+				r.Delete("/{messageId}", chatHTTPHandler.DeleteMessage)
+			})
+
 		})
 
 		r.Post("/upload", uploadHTTPHandler.UploadFile)
