@@ -115,3 +115,7 @@ func (uc *ChatUseCase) PinMessage(ctx context.Context, messageId, roomId string)
 func (uc *ChatUseCase) GetPinnedMessage(ctx context.Context, roomId string) (*entity.Message, error) {
 	return uc.msgRepo.GetPinnedMessage(ctx, roomId)
 }
+
+func (uc *ChatUseCase) GetMessageById(ctx context.Context, messageId string) (*entity.Message, error) {
+	return uc.msgRepo.GetMessageById(ctx, messageId)
+}

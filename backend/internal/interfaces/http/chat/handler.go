@@ -7,6 +7,7 @@ import (
 	"Buzz/internal/middleware"
 	"Buzz/pkg/jwt"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"log"
@@ -237,6 +238,16 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	msg, err := h.chatUseCase.GetMessageById(r.Context(), messageId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			h.writeError(w, http.StatusNotFound, chat.ErrMessageNotFound)
+		} else {
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to get message"))
+		}
+		return
+	}
+
 	if err := h.chatUseCase.DeleteMessage(r.Context(), messageId, userId); err != nil {
 		switch {
 		case errors.Is(err, chat.ErrMessageNotFound):
@@ -247,6 +258,20 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 			h.writeError(w, http.StatusInternalServerError, errors.New("failed to delete message"))
 		}
 		return
+	}
+
+	event := map[string]interface{}{
+		"type": "message_deleted",
+		"data": map[string]interface{}{
+			"messageId": messageId,
+			"roomId":    msg.RoomId,
+		},
+	}
+
+	payload, _ := json.Marshal(event)
+	h.hub.Broadcast <- &ws.BroadcastMessage{
+		RoomId:  msg.RoomId,
+		Message: payload,
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -274,6 +299,25 @@ func (h *Handler) PinMessage(w http.ResponseWriter, r *http.Request) {
 	if err := h.chatUseCase.PinMessage(r.Context(), messageId, roomId); err != nil {
 		h.writeError(w, http.StatusInternalServerError, errors.New("failed to pin messade"))
 		return
+	}
+
+	pinnedMsg, err := h.chatUseCase.GetPinnedMessage(r.Context(), roomId)
+	if err != nil {
+		log.Printf("failed to get pinned message for broadcast: %v", err)
+	}
+
+	event := map[string]interface{}{
+		"type": "message_pinned",
+		"data": map[string]interface{}{
+			"roomId":    roomId,
+			"messageId": messageId,
+			"message":   pinnedMsg,
+		},
+	}
+	payload, _ := json.Marshal(event)
+	h.hub.Broadcast <- &ws.BroadcastMessage{
+		RoomId:  roomId,
+		Message: payload,
 	}
 
 	w.WriteHeader(http.StatusOK)
