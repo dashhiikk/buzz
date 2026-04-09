@@ -1,6 +1,6 @@
 import '../../../css/menu.css'
 
-export default function FriendMenu({ onCancel, onRemoveFriend }) {
+export default function FriendMenu({ onCancel, onRemoveFriend}) {
     return (
         <main>
             <div className="menu left-menu">

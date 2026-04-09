@@ -1,5 +1,5 @@
 import defaultAvatar from "../../../assets/user-icon.svg"
-
+import fileIcon from "../../../assets/file.svg"
 import MessageMenu from "./message-menu";
 import {formatMessageTime} from "./date"
 
@@ -20,6 +20,8 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
     })
     const menuRef = useRef();
     const longPressTimer = useRef(null);
+    const [openedImage, setOpenedImage] = useState(null);
+    const [openedVideo, setOpenedVideo] = useState(null);
 
     // Расчёт позиции с учётом размеров меню и границ экрана
     const calculateMenuPosition = (clientX, clientY, menuType, menuRect) => {
@@ -148,6 +150,48 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
         }
     };
 
+    const isImageFile = (file) => {
+        const name = file?.originalName?.toLowerCase() || "";
+        const url = file?.url?.toLowerCase() || "";
+
+        return (
+            name.endsWith(".png") ||
+            name.endsWith(".jpg") ||
+            name.endsWith(".jpeg") ||
+            name.endsWith(".gif") ||
+            name.endsWith(".webp") ||
+            name.endsWith(".bmp") ||
+            name.endsWith(".svg") ||
+            url.endsWith(".png") ||
+            url.endsWith(".jpg") ||
+            url.endsWith(".jpeg") ||
+            url.endsWith(".gif") ||
+            url.endsWith(".webp") ||
+            url.endsWith(".bmp") ||
+            url.endsWith(".svg")
+        );
+    };
+
+    const isVideoFile = (file) => {
+        const name = file?.originalName?.toLowerCase() || "";
+        const url = file?.url?.toLowerCase() || "";
+
+        return (
+            name.endsWith(".mp4") ||
+            name.endsWith(".webm") ||
+            name.endsWith(".ogg") ||
+            name.endsWith(".mov") ||
+            name.endsWith(".avi") ||
+            name.endsWith(".mkv") ||
+            url.endsWith(".mp4") ||
+            url.endsWith(".webm") ||
+            url.endsWith(".ogg") ||
+            url.endsWith(".mov") ||
+            url.endsWith(".avi") ||
+            url.endsWith(".mkv")
+        );
+    };
+
     if (!Array.isArray(messages)) return null;
 
     return (
@@ -155,7 +199,12 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
             {messages.map((msg) => {
                 const isCurrentUser = msg.senderId === user?.id;
                 const menuType = isCurrentUser ? "user" : "friend";
-                return (
+
+                const imageFiles = Array.isArray(msg.files) ? msg.files.filter(isImageFile) : [];
+                const videoFiles = Array.isArray(msg.files) ? msg.files.filter(isVideoFile) : [];
+                const otherFiles = Array.isArray(msg.files) ? msg.files.filter((file) => !isImageFile(file)) : [];
+               
+               return (
                     <div 
                         key={msg.id}
                         data-message-id={msg.id}
@@ -167,7 +216,7 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
                         onTouchEnd={handleTouchEnd}
                         onTouchCancel={handleTouchEnd}
                     >
-                        {!isCurrentUser && <img src={msg.senderAvatar || defaultAvatar} alt="avatar" />}
+                        {!isCurrentUser && <img className="message-icon" src={msg.senderAvatar || defaultAvatar} alt="avatar" />}
                         <div className={`${isCurrentUser ? "user-message-content" : "friend-message-content"}`}>
                             <div className="message-name">
                                 {!isCurrentUser && <p>{msg.senderName || "Неизвестный"}</p>}
@@ -178,33 +227,82 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
                                 <p className="input-text text--light message-text">{msg.text}</p>
                             )}
 
-                            {Array.isArray(msg.files) && msg.files.length > 0 && (
-                                <div className="message-files-list">
-                                {msg.files.map((file, index) => (
-                                    <div
-                                        key={file.url || index}
-                                        className="message-file-item"
-                                        onClick={(e) => e.stopPropagation()}
-                                        onContextMenu={(e) => e.stopPropagation()}
-                                        title={file.originalName}
-                                    >
-                                        <a
-                                            href={file.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="message-file-link input-text text--light"
+                            {imageFiles.length > 0 && (
+                                <div className="message-images-list">
+                                    {imageFiles.map((file, index) => (
+                                        <div
+                                            key={file.url || index}
+                                            className="message-image-item"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenedImage(file);
+                                            }}
+                                            onContextMenu={(e) => e.stopPropagation()}
+                                            title={file.originalName}
                                         >
-                                            <span className="message-file-icon">📎</span>
-                                            <span className="message-file-name">
-                                                {file.originalName || "Файл"}
-                                            </span>
-                                        </a>
-                                    </div>
-                                ))}
-                            </div>
+                                            <img
+                                                src={file.url}
+                                                alt={file.originalName || "image"}
+                                                className="message-image-preview"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             )}
+
+                            {videoFiles.length > 0 && (
+                                <div className="message-videos-list">
+                                    {videoFiles.map((file, index) => (
+                                        <div
+                                            key={file.url || index}
+                                            className="message-video-item"
+                                            title={file.originalName}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenedVideo(file);
+                                            }}
+                                            onContextMenu={(e) => e.stopPropagation()}
+                                        >
+                                            <video
+                                                className="message-video-preview"
+                                                src={file.url}
+                                                muted
+                                                preload="metadata"
+                                            />
+                                            <div className="message-video-badge">▶</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {otherFiles.length > 0 && (
+                                <div className="message-files-list">
+                                    {otherFiles.map((file, index) => (
+                                        <div
+                                            key={file.url || index}
+                                            className="message-file-item"
+                                            onClick={(e) => e.stopPropagation()}
+                                            onContextMenu={(e) => e.stopPropagation()}
+                                            title={file.originalName}
+                                        >
+                                            <a
+                                                href={file.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="message-file-link input-text text--dark"
+                                            >
+                                                <img className="message-file-icon" src={fileIcon}/>
+                                                <span className="message-file-name">
+                                                    {file.originalName || "Файл"}
+                                                </span>
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            
                         </div>
-                        {isCurrentUser && <img src={user?.avatar || defaultAvatar} alt="avatar" />}
+                        {isCurrentUser && <img className="message-icon" src={user?.avatar || defaultAvatar} alt="avatar" />}
                     </div>
                 );
             })}
@@ -229,6 +327,53 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
                         onDelete={handleDelete}
                         onPin={handlePin}
                     />
+                </div>,
+                document.body
+            )}
+
+            {openedImage &&
+            createPortal(
+                <div
+                    className="image-preview-overlay"
+                    onClick={() => setOpenedImage(null)}
+                >
+                    <div
+                        className="image-preview-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <img
+                            src={openedImage.url}
+                            alt={openedImage.originalName || "image"}
+                            className="image-preview-full"
+                        />
+                        <p className="input-text text--light image-preview-name">
+                            {openedImage.originalName || "Изображение"}
+                        </p>
+                    </div>
+                </div>,
+            document.body
+            )}
+
+            {openedVideo &&
+            createPortal(
+                <div
+                    className="video-preview-overlay"
+                    onClick={() => setOpenedVideo(null)}
+                >
+                    <div
+                        className="video-preview-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <video
+                            src={openedVideo.url}
+                            className="video-preview-full"
+                            controls
+                            autoPlay
+                        />
+                        <p className="input-text text--light video-preview-name">
+                            {openedVideo.originalName || "Видео"}
+                        </p>
+                    </div>
                 </div>,
                 document.body
             )}
