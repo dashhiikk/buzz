@@ -48,10 +48,10 @@
     gap:15px;
     width: 100%;
     max-width: 360px;
+    border-bottom: 1px solid #BFB1A4;
 }
 
 .list-element--active {
-    border-bottom: 1px solid #BFB1A4;
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
@@ -81,7 +81,14 @@
 
 .list-status {
     position: absolute;
-    top: 5px;
+    top: 2px;
+    right: 0;
+    box-sizing: border-box;
+}
+
+.list-admin-btn {
+    position: absolute;
+    top: 8px;
     right: 0;
     box-sizing: border-box;
 }

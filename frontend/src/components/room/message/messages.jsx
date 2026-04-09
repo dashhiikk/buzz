@@ -218,8 +218,8 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
                     >
                         {!isCurrentUser && <img className="message-icon" src={msg.senderAvatar || defaultAvatar} alt="avatar" />}
                         <div className={`${isCurrentUser ? "user-message-content" : "friend-message-content"}`}>
-                            <div className="message-name">
-                                {!isCurrentUser && <p>{msg.senderName || "Неизвестный"}</p>}
+                            <div className={`${isCurrentUser ? "user-message-info" : "friend-message-info"}`}>
+                                {!isCurrentUser && <p className="medium-text text--average">{msg.senderUsername || "Неизвестный"}</p>}
                                 {isCurrentUser && <p className="medium-text text--average">{user.username}</p>}
                                 <p className="input-text text--average">{formatMessageTime(msg.createdAt)}</p>
                             </div>

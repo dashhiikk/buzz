@@ -14,9 +14,8 @@ import { useAuth } from "../../hooks/use-auth"
 import { leaveRoom } from "../../api/rooms";
 import { removeFriend } from "../../api/friends";
 import { getInviteLink } from "../../api/rooms";
-
-import RoomMenu from "./menu/room-menu"
-import FriendMenu from "./menu/friend-menu"
+import {useRoomAdmin} from "../../hooks/useRoomAdmin"
+import RoomMenu from "./room-menu"
 import RoomMembers from "./members"
 import List from "../list"
 import SendRequest from "../../modals/send-request"
@@ -27,13 +26,14 @@ import '../../css/voice-chat.css'
 
 export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }) { 
     const { user } = useAuth();
+    const { isAdmin} = useRoomAdmin(roomId);
     const menuRef = useRef(null);
     const [menuVisible, setMenuVisible] = useState(false);
     const [isMembersOpen, setIsMembersOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
     const [micOn, setMicOn] = useState(true);
     const [headphonesOn, setHeadphonesOn] = useState(true);
-    const [copying, setCopying] = useState(false);
+    const [setCopying] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState(null);
     const navigate = useNavigate();
 
@@ -142,13 +142,18 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
                             onClick={toggleMenu}
                         />
                         {menuVisible && (
+
                             room.isPrivate ? (
-                                <FriendMenu
+                                
+                                <RoomMenu
+                                    type = "friend"
                                     onCancel={() => setMenuVisible(false)}
                                     onRemoveFriend={handleRemoveFriend}
                                 />
                             ) : (
                                 <RoomMenu
+                                    type = "room"
+                                    isAdmin={isAdmin}
                                     onCancel={() => setMenuVisible(false)}
                                     onOpenMembers={openMembersModal}
                                     onLeave={handleLeave}
@@ -161,6 +166,7 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
                             onOpenInvite ={openInviteModal}
                             participants={participants}
                             roomAdminId={room.adminId}
+                            isAdmin = {isAdmin}
                             currentUserId={user.id}
                         />
                         <SendRequest

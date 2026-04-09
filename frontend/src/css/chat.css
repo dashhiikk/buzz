@@ -188,23 +188,20 @@
     align-items: start;
 }
 
-.message-name {
+.user-message-info,
+.friend-message-info {
     display: inline-flex;
     flex-direction: column;
     width: fit-content;
     height: fit-content;
+}
+
+.user-message-info {
     align-items: end;
 }
 
-.message-name img {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-}
-
-.message-name img:hover {
-    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+.friend-message-info {
+    align-items: start;
 }
 
 .message-text {

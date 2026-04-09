@@ -20,9 +20,7 @@
     transform: translateX(-50%); /* смещение для центрирования */
 }
     
-.red-menu-btn,
-.gray-menu-btn,
-.beige-menu-btn {
+.menu-btn {
     width: 180px;
     height: fit-content;
     padding: 8px 10px;
@@ -33,32 +31,29 @@
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.red-menu-btn:hover,
-.gray-menu-btn:hover,
-.beige-menu-btn:hover {
+.menu-btn:hover {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
-.red-menu-btn,
-.gray-menu-btn,
-.beige-menu-btn {
+.menu-btn {
     font-family: 'Comfortaa', sans-serif;
     font-size: clamp(10px, 1vw + 0.2vh, 14px);
     color: #FFFBF4;
 }
 
-.red-menu-btn {
-    background-color: #4F6273;
+.blue-menu-btn {
+    background-color: #729DA6;
 }
 
 .gray-menu-btn {
+    background-color: #4F6273;
+}
+
+.dark-menu-btn {
     background-color: #283740;
 }
 
-.beige-menu-btn {
-    background-color: #729DA6;
-}
 
 .message-menu-btn {
     width: fit-content;
