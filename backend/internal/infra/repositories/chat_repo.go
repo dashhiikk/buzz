@@ -39,27 +39,32 @@ func (r *ChatRepository) CreateMessage(ctx context.Context, msg *entity.Message)
 	return nil
 }
 
-func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.Message, error) {
-	var messages []entity.Message
-
+func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.MessageForHistory, error) {
 	query := `
-		SELECT id, room_id, sender_id, text, files, created_at
-		FROM messages
-		WHERE room_id = $1
-		ORDER BY created_at ASC
-		LIMIT $2 OFFSET $3
-	`
+        SELECT 
+            m.id, m.room_id, m.sender_id, m.text, m.files, m.created_at,
+            u.username AS sender_username,
+            u.avatar AS sender_avatar
+        FROM messages m
+        JOIN users u ON m.sender_id = u.id
+        WHERE m.room_id = $1
+        ORDER BY m.created_at ASC
+        LIMIT $2 OFFSET $3
+    `
 	rows, err := r.db.QueryxContext(ctx, query, roomId, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("get history: %w", err)
 	}
 	defer rows.Close()
 
+	var result []entity.MessageForHistory
 	for rows.Next() {
-		var msg entity.Message
+		var msg entity.MessageForHistory
 		var filesJSON []byte
 
-		err := rows.Scan(&msg.Id, &msg.RoomId, &msg.SenderId, &msg.Text, &filesJSON, &msg.CreatedAt)
+		err := rows.Scan(&msg.Message.Id, &msg.Message.RoomId, &msg.Message.SenderId,
+			&msg.Message.Text, &filesJSON, &msg.Message.CreatedAt,
+			&msg.SenderUsername, &msg.SenderAvatar)
 		if err != nil {
 			return nil, fmt.Errorf("scan message: %w", err)
 		}
@@ -68,10 +73,10 @@ func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, o
 			msg.Files = []entity.MessageFile{}
 		}
 
-		messages = append(messages, msg)
+		result = append(result, msg)
 	}
 
-	return messages, nil
+	return result, nil
 }
 
 func (r *ChatRepository) DeleteMessage(ctx context.Context, messageId string) error {

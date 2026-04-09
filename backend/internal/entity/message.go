@@ -15,3 +15,9 @@ type Message struct {
 	Files     []MessageFile `db:"files" json:"files,omitempty"`
 	CreatedAt time.Time     `db:"created_at" json:"createdAt"`
 }
+
+type MessageForHistory struct {
+	Message
+	SenderUsername string  `json:"senderUsername"`
+	SenderAvatar   *string `json:"senderAvatar"`
+}

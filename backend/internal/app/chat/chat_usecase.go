@@ -13,7 +13,7 @@ import (
 
 var (
 	ErrMessageNotFound = errors.New("Сообщение не найдено")
-	ErrUserNotSender   = errors.New("Пользователь можкт удлаить только своё сообщение")
+	ErrUserNotSender   = errors.New("Пользователь может удалить только своё сообщение")
 )
 
 type ChatUseCase struct {
@@ -47,7 +47,7 @@ func truncateString(s string, maxLen int) string {
 	return strings.TrimSpace(s[:maxLen]) + "..."
 }
 
-func (uc *ChatUseCase) GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.Message, error) {
+func (uc *ChatUseCase) GetHistory(ctx context.Context, roomId string, limit, offset int) ([]entity.MessageForHistory, error) {
 	messages, err := uc.msgRepo.GetHistory(ctx, roomId, limit, offset)
 	if err != nil {
 		return nil, err
