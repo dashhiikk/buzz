@@ -35,7 +35,7 @@
 
 .left-block-header {
     width: 90%;
-    height: 50px;
+    height: 60px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

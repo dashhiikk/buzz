@@ -2,7 +2,7 @@
     width: fit-content;
     height: fit-content;
     border-radius: 10px;
-    background-color: #4F6273;
+    background-color: #F2E4D8;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -10,6 +10,7 @@
     gap: 7px;
     padding: 10px 10px;
     z-index: 100;
+    box-shadow: -4px 4px 6px rgba(0, 0, 0, 0.6);
 }
 
 .left-menu {
@@ -43,12 +44,12 @@
 .gray-menu-btn,
 .beige-menu-btn {
     font-family: 'Comfortaa', sans-serif;
-    font-size: clamp(10px, 0.6vw + 0.3vh, 16px);
+    font-size: clamp(10px, 1vw + 0.2vh, 14px);
     color: #FFFBF4;
 }
 
 .red-menu-btn {
-    background-color: #7F2829;
+    background-color: #4F6273;
 }
 
 .gray-menu-btn {
@@ -56,31 +57,32 @@
 }
 
 .beige-menu-btn {
-    background-color: #BFB1A4;
+    background-color: #729DA6;
 }
 
 .message-menu-btn {
     width: fit-content;
-    min-width: 75px;
+    min-width: 85px;
     height: fit-content;
     padding: 6px 3px;
     padding-top: 0;
     text-align: center;
     border: none;
     background-color: rgba(0, 0, 0, 0);
-    border-bottom: 1px solid #BFB1A4;
+    border-bottom: 1px solid #283740;
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .message-menu-btn{
     font-family: 'Comfortaa', sans-serif;
-    font-size: clamp(10px, 0.6vw + 0.3vh, 16px);
-    color: #FFFBF4;
+    font-size: clamp(10px, 1vw + 0.2vh, 14px);
+    font-weight: 500;
+    color: #4F6273;
 }
 
 .message-menu-btn:hover {
     cursor: pointer;
-    color: #BFB1A4;
+    color: #283740;
     font-weight: 700;
 }

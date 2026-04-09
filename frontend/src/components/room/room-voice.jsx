@@ -187,7 +187,7 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
             <div className="user-voice">
                 <div className="user-voice-chat-member">
                     <img src={user.avatar}></img>
-                    <p>{user.username}</p>
+                    <p className="medium-text text--light">{user.username}</p>
                 </div>
                 <div className="voice-icons">
                     <img 

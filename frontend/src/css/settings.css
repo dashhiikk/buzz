@@ -78,6 +78,7 @@
 }
 
 .change-device {
+  position: relative;
   background-color: #283740;
   border: 2px solid #4F6273;
   border-radius: 10px;
@@ -86,9 +87,13 @@
   box-sizing: border-box;
   justify-content: space-between;
   padding: 5px 5px;
+  padding-right: 25px;
 }
 
 .change-device img {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
   width: 16px;
   height: 16px;
   margin-top: auto;

@@ -32,74 +32,108 @@
   position: relative;
   background-color: #283740;
   width: 100%;
-  height: 70px;
+  height: fit-content;
+  max-height: 60px;
+  min-height: 35px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 3%;
-  padding: 0 3%;
+  padding: 0 40px;
+  padding-top: 5px;
   box-sizing: border-box;
   border-bottom: 2px solid #BFB1A4;
   z-index: 40; 
 }
 
-.pinned-message img {
-    margin-top: 10px;
-    width: 32px;
-    height: 32px;
+
+.pin-pinned-message {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    top:3px;
 }
 
-.copy-pinned-message {
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.copy-pinned-message:hover {
-    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+.pin-pinned-message {
+    left: 3px;
 }
 
 .pinned-message-wrapper {
-  position: relative;
-  flex: 1;
-  margin-top: 5px;
-  overflow: hidden; /* скрываем лишнее для градиента */
+    position: relative;
+    flex: 1;
+    margin-top: 5px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    max-height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.pinned-message-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.pinned-message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .pinned-message-text {
   margin: 0;
-  color: #FFFBF4;
-  font-size: clamp(13px, 0.8vw + 0.4vh, 16px);
-  overflow-y: auto;
-  max-height: 100%;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 
-.pinned-message-text::-webkit-scrollbar {
-  display: none;
+.pinned-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+    padding-right: 8px;
 }
 
-.pin-gradient-overlay {
+.pinned-file-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pin-gradient-overlay,
+.messages-gradient-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 30px;
   pointer-events: none;
+}
+
+.pin-gradient-overlay {
+  bottom: 0;
   background: linear-gradient(to bottom, rgba(40,55,64,0) 0%, #283740 100%);
+}
+
+.messages-gradient-overlay {
+    top: 0;
+    background: linear-gradient(to top, rgba(40,55,64,0) 0%, #283740 100%);
 }
 
 /* Блок с сообщениями */
 
-.message-block {
+.message-block-wrapper {
+    position: relative;
     flex: 1;
-    width: 94%;
+    overflow: hidden;
     padding-top: 10px;
+    margin-bottom: 10px;
+}
+
+.message-block {
+    width: 94%;
+    height: 100%;
     overflow-y: auto;
     overflow-x: visible; 
     scrollbar-width: none;
     -ms-overflow-style: none;
-    position: relative;
     z-index: 50;
 }
 
@@ -140,10 +174,26 @@
     border-radius: 50%;
 }
 
+.user-message-content,
+.friend-message-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-message-content {
+    align-items: end;
+}
+
+.friend-message-content {
+    align-items: start;
+}
+
 .message-name {
     display: inline-flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    width: fit-content;
+    height: fit-content;
+    align-items: end;
 }
 
 .message-name img {
@@ -157,23 +207,55 @@
     box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
 }
 
-.message-name p{
-    font-weight: 500;
-    font-size: clamp(14px, 0.7vw + 0.3vh, 18px);
-    margin: 0;
-    color: #BFB1A4;
-}
-
-.minidots-wrapper {
-    position: relative;
-    overflow: visible;
-}
-
 .message-text {
-    color: #FFFBF4;
-    margin: 0;
-    font-weight: 300;
-    font-size: clamp(12px, 0.8vw + 0.3vh, 17px);
+    width: fit-content;
+    height: fit-content;
+}
+
+.message-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.message-file-item {
+    padding: 5px;
+    background-color: #3a4b55;
+    border-radius: 10px;
+    width: fit-content;
+    height: fit-content;
+    max-width: 200px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message-file-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.message-file-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.message-file-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.message-file-name {
+    display: block;
+    min-width: 0;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* БЛОК ВВОДА СООБЩЕНИЯ */
@@ -197,7 +279,7 @@
     color: #283740;
     background-color: #BFB1A4;
     border: none;
-    font-size: clamp(12px, 0.7vw + 0.3vh, 16px);
+    font-size: clamp(10px, 1vw + 0.2vh, 14px);
     font-weight: 400;
     margin: 0;
 
@@ -215,7 +297,7 @@
     color: #283740; /* тот же цвет, что у текста */
     opacity: 0.6; /* можно чуть прозрачнее, если хочешь */
     font-family: 'Comfortaa', sans-serif;
-    font-size: clamp(12px, 0.7vw + 0.3vh, 16px);
+    font-size: clamp(10px, 1vw + 0.2vh, 14px);
     font-weight: 300;
 }
 
@@ -232,4 +314,71 @@
 
 .input-icons img:hover {
     box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+}
+
+.message-highlighted {
+    animation: messageFlash 0.5s ease;
+    border-radius: 12px;
+}
+
+@keyframes messageFlash {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pinned-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+    padding-right: 8px;
+}
+
+.pinned-file-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.95;
+}
+
+.attached-files-preview {
+    width: 94%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.attached-file-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 220px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #3a4b55;
+    color: #FFFBF4;
+    font-size: 12px;
+}
+
+.attached-file-chip span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.attached-file-remove {
+    border: none;
+    background: transparent;
+    color: #FFFBF4;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
 }
