@@ -4,10 +4,8 @@ import (
 	"Buzz/internal/domain/chat"
 	"Buzz/internal/domain/room"
 	"Buzz/internal/entity"
-	ws "Buzz/internal/infra/websocket"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"log"
 	"strings"
@@ -19,19 +17,15 @@ var (
 )
 
 type ChatUseCase struct {
-	msgRepo         chat.ChatRepository
-	roomRepo        room.RoomRepository
-	notificationHub *ws.NotificationHub
+	msgRepo  chat.ChatRepository
+	roomRepo room.RoomRepository
 }
 
-func NewChatUseCase(msgRepo chat.ChatRepository, roomRepo room.RoomRepository, notificationHub *ws.NotificationHub) *ChatUseCase {
-	return &ChatUseCase{msgRepo: msgRepo,
-		roomRepo:        roomRepo,
-		notificationHub: notificationHub,
-	}
+func NewChatUseCase(msgRepo chat.ChatRepository, roomRepo room.RoomRepository) *ChatUseCase {
+	return &ChatUseCase{msgRepo: msgRepo, roomRepo: roomRepo}
 }
 
-func (uc *ChatUseCase) SendMessage(ctx context.Context, roomId, senderId, text string, files []string) (*entity.Message, error) {
+func (uc *ChatUseCase) SendMessage(ctx context.Context, roomId, senderId, text string, files []entity.MessageFile) (*entity.Message, error) {
 	msg := &entity.Message{
 		RoomId:   roomId,
 		SenderId: senderId,
@@ -41,36 +35,6 @@ func (uc *ChatUseCase) SendMessage(ctx context.Context, roomId, senderId, text s
 
 	if err := uc.msgRepo.CreateMessage(ctx, msg); err != nil {
 		return nil, err
-	}
-
-	if uc.notificationHub != nil {
-		participants, err := uc.roomRepo.GetParticipants(ctx, roomId)
-		if err != nil {
-			log.Printf("failed to get participants for notification: %v", err)
-			return msg, nil
-		}
-
-		notif := map[string]interface{}{
-			"type": "new_message",
-			"data": map[string]interface{}{
-				"roomId":    roomId,
-				"messageId": msg.Id,
-				"senderId":  senderId,
-				"preview":   truncateString(text, 100),
-				"timestamp": msg.CreatedAt,
-			},
-		}
-		payload, err := json.Marshal(notif)
-		if err != nil {
-			log.Printf("failed to marshal notification: %v", err)
-			return msg, nil
-		}
-
-		for _, p := range participants {
-			if p.Id != senderId {
-				uc.notificationHub.SendToUser(p.Id, payload)
-			}
-		}
 	}
 
 	return msg, nil
@@ -109,10 +73,19 @@ func (uc *ChatUseCase) DeleteMessage(ctx context.Context, messageId, userId stri
 }
 
 func (uc *ChatUseCase) PinMessage(ctx context.Context, messageId, roomId string) error {
-	return uc.msgRepo.PinMessage(ctx, roomId, messageId)
+	err := uc.msgRepo.PinMessage(ctx, roomId, messageId)
+	if err != nil {
+		log.Printf("GetPinnedMessage in usecase error: %v", err)
+	}
+	return nil
+}
+
+func (uc *ChatUseCase) UnpinMessage(ctx context.Context, roomId string) error {
+	return uc.msgRepo.UnpinMessage(ctx, roomId)
 }
 
 func (uc *ChatUseCase) GetPinnedMessage(ctx context.Context, roomId string) (*entity.Message, error) {
+
 	return uc.msgRepo.GetPinnedMessage(ctx, roomId)
 }
 

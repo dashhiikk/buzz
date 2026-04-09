@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -45,7 +46,7 @@ func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, o
 		SELECT id, room_id, sender_id, text, files, created_at
 		FROM messages
 		WHERE room_id = $1
-		ORDER BY created_at DESC
+		ORDER BY created_at ASC
 		LIMIT $2 OFFSET $3
 	`
 	rows, err := r.db.QueryxContext(ctx, query, roomId, limit, offset)
@@ -64,7 +65,7 @@ func (r *ChatRepository) GetHistory(ctx context.Context, roomId string, limit, o
 		}
 
 		if err := json.Unmarshal(filesJSON, &msg.Files); err != nil {
-			msg.Files = []string{}
+			msg.Files = []entity.MessageFile{}
 		}
 
 		messages = append(messages, msg)
@@ -86,10 +87,19 @@ func (r *ChatRepository) DeleteMessage(ctx context.Context, messageId string) er
 
 func (r *ChatRepository) PinMessage(ctx context.Context, roomId, messageId string) error {
 	query := `UPDATE rooms SET pinned_message_id = $1 WHERE id = $2`
-
 	_, err := r.db.ExecContext(ctx, query, messageId, roomId)
 	if err != nil {
 		return fmt.Errorf("pin message: %w", err)
+	}
+
+	return nil
+}
+
+func (r *ChatRepository) UnpinMessage(ctx context.Context, roomId string) error {
+	query := `UPDATE rooms SET pinned_message_id = NULL WHERE id = $1`
+	_, err := r.db.ExecContext(ctx, query, roomId)
+	if err != nil {
+		return fmt.Errorf("unpin message: %w", err)
 	}
 
 	return nil
@@ -103,31 +113,36 @@ func (r *ChatRepository) GetPinnedMessage(ctx context.Context, roomId string) (*
 		WHERE r.id = $1
 	`
 	var msg entity.Message
-	err := r.db.GetContext(ctx, &msg, query, roomId)
+	var filesJSON []byte
+	err := r.db.QueryRowContext(ctx, query, roomId).Scan(&msg.Id, &msg.RoomId, &msg.SenderId, &msg.Text, &filesJSON, &msg.CreatedAt)
 	if err != nil {
+		log.Printf("GetPinnedMessage error: %v", err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("get pinned message: %w", err)
 	}
-
+	if err := json.Unmarshal(filesJSON, &msg.Files); err != nil {
+		msg.Files = []entity.MessageFile{}
+	}
 	return &msg, nil
 }
 
 func (r *ChatRepository) GetMessageById(ctx context.Context, id string) (*entity.Message, error) {
-	query := `
-		SELECT id, room_id, sender_id, text, files, created_at
-		FROM messages 
-		WHERE id = $1
-	`
 	var msg entity.Message
-	err := r.db.GetContext(ctx, &msg, query, id)
+	var filesJSON []byte
+	query := `SELECT id, room_id, sender_id, text, files, created_at FROM messages WHERE id = $1`
+	err := r.db.QueryRowxContext(ctx, query, id).Scan(&msg.Id, &msg.RoomId, &msg.SenderId, &msg.Text, &filesJSON, &msg.CreatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, sql.ErrNoRows
 		}
 		return nil, err
 	}
-
+	if len(filesJSON) > 0 {
+		if err := json.Unmarshal(filesJSON, &msg.Files); err != nil {
+			msg.Files = []entity.MessageFile{}
+		}
+	}
 	return &msg, nil
 }

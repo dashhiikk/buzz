@@ -92,7 +92,7 @@ func main() {
 	roomUseCase := room.NewRoomUseCase(roomRepo, userRepo, requestRepo, notificationHub)
 	friendUseCase := friend.NewFriendUseCase(requestRepo, userRepo, roomUseCase, notificationHub)
 	requestUseCase := request.NewRequestUseCase(requestRepo, userRepo, roomRepo, friendUseCase, roomUseCase)
-	chatUseCase := chat.NewChatUseCase(chatRepo, roomRepo, notificationHub)
+	chatUseCase := chat.NewChatUseCase(chatRepo, roomRepo)
 	boardUseCase := board.NewBoardUseCase(boardRepo)
 
 	hub := ws.NewHub()
@@ -102,7 +102,7 @@ func main() {
 	friendHTTPHandler := friendHandler.NewHandler(friendUseCase)
 	roomHTTPHandler := roomHandler.NewHandler(roomUseCase, cfg.AppURL)
 	requestHTTPHandler := requestHandler.NewHandler(requestUseCase)
-	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub, jwtService)
+	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub, jwtService, notificationHub)
 	boardHTTPHandler := boardHandler.NewHandler(boardUseCase, roomUseCase, hub)
 	jitsiHTTPHandler := jitsiHandler.NewHandler(jitsiJWT, roomUseCase, cfg.Jitsi.ServerUrl)
 	notificationWSHandler := notificationHandler.NewHandler(notificationHub)
@@ -179,6 +179,7 @@ func main() {
 			r.Get("/{id}/board", boardHTTPHandler.GetState)
 			r.Get("/{id}/voice-chat", jitsiHTTPHandler.GetToken)
 			r.Get("/{roomId}/pinned-message", chatHTTPHandler.GetPinnedMessage)
+			r.Delete("/{roomId}/pinned-message", chatHTTPHandler.UnpinMessage)
 			r.Route("/messages", func(r chi.Router) {
 				r.Post("/{roomId}/{messageId}/pin", chatHTTPHandler.PinMessage)
 				r.Delete("/{messageId}", chatHTTPHandler.DeleteMessage)

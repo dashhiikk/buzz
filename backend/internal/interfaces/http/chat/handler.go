@@ -3,6 +3,7 @@ package chat
 import (
 	"Buzz/internal/app/chat"
 	"Buzz/internal/app/room"
+	"Buzz/internal/entity"
 	ws "Buzz/internal/infra/websocket"
 	"Buzz/internal/middleware"
 	"Buzz/pkg/jwt"
@@ -18,18 +19,26 @@ import (
 )
 
 type Handler struct {
-	chatUseCase *chat.ChatUseCase
-	roomUseCase *room.RoomUseCase
-	hub         *ws.Hub
-	jwtService  jwt.Service
+	chatUseCase     *chat.ChatUseCase
+	roomUseCase     *room.RoomUseCase
+	hub             *ws.Hub
+	jwtService      jwt.Service
+	notificationHub *ws.NotificationHub
 }
 
-func NewHandler(chatUseCase *chat.ChatUseCase, roomUseCase *room.RoomUseCase, hub *ws.Hub, jwtService jwt.Service) *Handler {
+func NewHandler(
+	chatUseCase *chat.ChatUseCase,
+	roomUseCase *room.RoomUseCase,
+	hub *ws.Hub,
+	jwtService jwt.Service,
+	notificationHub *ws.NotificationHub,
+) *Handler {
 	return &Handler{
-		chatUseCase: chatUseCase,
-		roomUseCase: roomUseCase,
-		hub:         hub,
-		jwtService:  jwtService,
+		chatUseCase:     chatUseCase,
+		roomUseCase:     roomUseCase,
+		hub:             hub,
+		jwtService:      jwtService,
+		notificationHub: notificationHub,
 	}
 }
 
@@ -76,8 +85,11 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	participants, err := h.roomUseCase.GetParticipants(r.Context(), roomId)
+	log.Printf("WebSocket request: roomId=%s, token=%s", roomId, token)
+
+	participants, err := h.roomUseCase.GetParticipants(context.Background(), roomId)
 	if err != nil {
+		log.Printf("get participantsf for websocket: %v", err)
 		h.writeError(w, http.StatusInternalServerError, errors.New("failed to get room participants"))
 		return
 	}
@@ -92,13 +104,14 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 		h.writeError(w, http.StatusInternalServerError, errors.New("failed to verify room membership"))
 		return
 	}
-
+	log.Println("Before upgrade")
 	conn, err := ws.Upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		log.Printf("Upgrade error: %v", err)
 		log.Printf("failed to upgrade: %v", err)
 		return
 	}
-
+	log.Println("Upgrade successful")
 	client := &ws.Client{
 		Hub:    h.hub,
 		Conn:   conn,
@@ -111,7 +124,7 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.hub.Register <- client
-
+	log.Println("Client registered")
 	go client.WritePump()
 	go client.ReadPump()
 }
@@ -121,8 +134,8 @@ func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []by
 	type MessageRequest struct {
 		Type    string `json:"type"`
 		Payload struct {
-			Text  string   `json:"text"`
-			Files []string `json:"files,omitempty"`
+			Text  string               `json:"text"`
+			Files []entity.MessageFile `json:"files,omitempty"`
 		} `json:"payload"`
 	}
 
@@ -312,6 +325,39 @@ func (h *Handler) PinMessage(w http.ResponseWriter, r *http.Request) {
 			"roomId":    roomId,
 			"messageId": messageId,
 			"message":   pinnedMsg,
+		},
+	}
+	payload, _ := json.Marshal(event)
+	h.hub.Broadcast <- &ws.BroadcastMessage{
+		RoomId:  roomId,
+		Message: payload,
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) UnpinMessage(w http.ResponseWriter, r *http.Request) {
+	_, ok := r.Context().Value(middleware.UserIdKey).(string)
+	if !ok {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	roomId := chi.URLParam(r, "roomId")
+	if roomId == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("missing room id"))
+		return
+	}
+
+	if err := h.chatUseCase.UnpinMessage(r.Context(), roomId); err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to unpin message"))
+		return
+	}
+
+	event := map[string]interface{}{
+		"type": "message_unpinned",
+		"data": map[string]interface{}{
+			"roomId": roomId,
 		},
 	}
 	payload, _ := json.Marshal(event)

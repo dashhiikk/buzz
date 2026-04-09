@@ -5,6 +5,7 @@ import (
 	"Buzz/internal/middleware"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 )
 
@@ -42,7 +43,7 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 // @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /upload [post]
 func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
-	_, ok := r.Context().Value(middleware.UserIdKey).(string)
+	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
 	if !ok {
 		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
@@ -50,7 +51,8 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	r.Body = http.MaxBytesReader(w, r.Body, 10<<20+1024)
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		h.writeError(w, http.StatusBadRequest, errors.New("file too large"))
+		log.Printf("failed to parse form for user %s: %v", userId, err)
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid file data"))
 		return
 	}
 
@@ -67,5 +69,8 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, map[string]string{"url": url})
+	h.writeJSON(w, http.StatusOK, map[string]string{
+		"url":          url,
+		"originalName": header.Filename,
+	})
 }
