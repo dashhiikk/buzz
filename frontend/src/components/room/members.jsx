@@ -9,10 +9,11 @@ import miniDots from "../../assets/dots-mini.svg"
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 
+import { appointAdmin, removeParticipant, getParticipants } from '../../api/rooms';
+
 import RoomMenu from './room-menu'
 
-
-export default function RoomMembers({ isOpen, onClose, onOpenInvite, participants, roomAdminId, isAdmin, currentUserId  }) {
+export default function RoomMembers({ isOpen, onClose, onOpenInvite, participants, roomAdminId, isAdmin, currentUserId, roomId, onParticipantsUpdate }) {
     const members = participants.map(p => {
         let status = '';
         if (p.id === roomAdminId && p.id === currentUserId) {
@@ -65,6 +66,32 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
     
     const handleCloseMenu = () => {
         setMenuState((prev) => ({ ...prev, visible: false }));
+    };
+
+    const handleMakeAdmin = async (memberId) => {
+        try {
+            await appointAdmin(roomId, memberId);
+            // Обновляем список участников
+            const updated = await getParticipants(roomId);
+            onParticipantsUpdate(updated.data);
+            handleCloseMenu();
+        } catch (err) {
+            console.error("Failed to appoint admin:", err);
+            alert("Не удалось назначить администратора");
+        }
+    };
+
+    const handleRemoveMember = async (memberId) => {
+        if (!window.confirm("Удалить участника из комнаты?")) return;
+        try {
+            await removeParticipant(roomId, memberId);
+            const updated = await getParticipants(roomId);
+            onParticipantsUpdate(updated.data);
+            handleCloseMenu();
+        } catch (err) {
+            console.error("Failed to remove participant:", err);
+            alert("Не удалось удалить участника");
+        }
     };
 
     useLayoutEffect(() => {
@@ -195,6 +222,8 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
                             type="member"
                             isAdmin={isAdmin}
                             onCancel={handleCloseMenu}
+                            onMakeAdmi = {handleMakeAdmin}
+                            onRemoveFromRoom = {handleRemoveMember}
                         />
                     </div>,
                     document.body

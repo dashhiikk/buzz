@@ -24,9 +24,10 @@ import Notification from "./invite-link"
 import '../../css/left-block.css'
 import '../../css/voice-chat.css'
 
-export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }) { 
+export default function RoomVoiceChat({ room, participants: initialParticipants, jitsiToken, roomId, onParticipantsUpdate }) { 
     const { user } = useAuth();
     const { isAdmin} = useRoomAdmin(roomId);
+    const [participants, setParticipants] = useState(initialParticipants);
     const menuRef = useRef(null);
     const [menuVisible, setMenuVisible] = useState(false);
     const [isMembersOpen, setIsMembersOpen] = useState(false);
@@ -36,6 +37,10 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
     const [setCopying] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setParticipants(initialParticipants);
+    }, [initialParticipants]);
 
     const openMembersModal = () => {
         setMenuVisible(false);      // закрываем меню
@@ -48,6 +53,7 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
     };
 
     const toggleMenu = () => {setMenuVisible(prev => !prev); };
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -109,12 +115,19 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
             setCopying(false);
         }
     };
+
+    const handleParticipantsUpdate = (newParticipants) => {
+        setParticipants(newParticipants);
+        if (onParticipantsUpdate) {
+            onParticipantsUpdate(newParticipants);
+        }
+    };
  
     return (
         <main className="left-block">
             <div className="left-block-header">
                 <Link to="/start">
-                    <img src={backward} className="left-block-header-btn" onClick={handleCopyInviteLink}/>
+                    <img src={backward} className="left-block-header-btn"/>
                 </Link>
                 <div className="left-block-header-name">
                     <img src={room.icon || defaultRoom}></img>
@@ -168,6 +181,8 @@ export default function RoomVoiceChat({ room, participants, jitsiToken, roomId }
                             roomAdminId={room.adminId}
                             isAdmin = {isAdmin}
                             currentUserId={user.id}
+                            roomId={roomId}
+                            onParticipantsUpdate={handleParticipantsUpdate}
                         />
                         <SendRequest
                             isOpen={isInviteOpen}

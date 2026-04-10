@@ -2,7 +2,7 @@ import RoomChat from "../components/room/room-chat";
 import RoomVoiceChat from "../components/room/room-voice";
 import Header from "../components/header/header";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRoom, getParticipants, getMessages, getBoardState, getJitsiToken } from "../api/rooms";
 
@@ -29,39 +29,41 @@ export default function Room () {
 
     const dataFetched = useRef(false);
 
+    const fetchData = useCallback(async () => {
+        if (!roomId) return;
+        try {
+            setLoading(true);
+            const [roomRes, participantsRes, messagesRes, boardRes, jitsiRes] = await Promise.all([
+                getRoom(roomId),
+                getParticipants(roomId),
+                getMessages(roomId, 50, 0),
+                getBoardState(roomId),
+                getJitsiToken(roomId)
+            ]);
+            setRoom(roomRes.data);
+            setParticipants(participantsRes.data);
+            setMessages(Array.isArray(messagesRes.data) ? messagesRes.data : []);
+            setBoardState(boardRes.data);
+            setJitsiToken(jitsiRes.data.token);
+            setError(null);
+        } catch (err) {
+            console.error(err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [roomId]);
+
     useEffect(() => {
-        
         if (!roomId) {
             navigate("/start");
             return;
         }
         if (dataFetched.current) return;
         dataFetched.current = true;
-
-        const fetchData = async () => {
-            try {
-                const [roomRes, participantsRes, messagesRes, boardRes, jitsiRes] = await Promise.all([
-                    getRoom(roomId),
-                    getParticipants(roomId),
-                    getMessages(roomId, 50, 0),
-                    getBoardState(roomId),
-                    getJitsiToken(roomId)
-                ]);
-                setRoom(roomRes.data);
-                setParticipants(participantsRes.data);
-                setMessages(Array.isArray(messagesRes.data) ? messagesRes.data : []);
-                setBoardState(boardRes.data);
-                setJitsiToken(jitsiRes.data.token);
-            } catch (err) {
-                console.error(err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
-    }, [roomId, navigate]);
-
+    }, [roomId, navigate, fetchData]);
+               
     const swipeHandlers = useSwipe({
         onSwipeLeft: () => {
             if (isPortrait && mobileView === "voice") setMobileView("chat");
@@ -70,6 +72,15 @@ export default function Room () {
             if (isPortrait && mobileView === "chat") setMobileView("voice");
         }
     });
+
+    const handleParticipantsUpdate = (newParticipants) => {
+        setParticipants(newParticipants);
+        // Если изменился администратор, можно обновить комнату
+        if (room && !newParticipants.some(p => p.id === room.adminId)) {
+            // Перезагрузить комнату, чтобы получить нового adminId
+            fetchData(); // ваша функция загрузки комнаты
+        }
+    };
 
     useEffect(() => {
         if (isPortrait) {
@@ -82,6 +93,8 @@ export default function Room () {
     if (error) return <div>Ошибка: {error}</div>;
     if (!room) return null;
 
+
+
     return (
         <main>
             <Header/>
@@ -92,6 +105,7 @@ export default function Room () {
                         participants={participants}
                         jitsiToken={jitsiToken}
                         roomId={roomId}
+                        onParticipantsUpdate={handleParticipantsUpdate}
                     />
                 )}
                 

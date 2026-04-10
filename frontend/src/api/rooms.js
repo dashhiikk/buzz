@@ -18,4 +18,9 @@ export const joinRoomByToken = (token) => apiClient.post(`/rooms/join/${token}`)
 export const deleteMessage = (messageId) => apiClient.delete(`/rooms/messages/${messageId}`)
 export const pinMessage = (roomId, messageId) => apiClient.post(`/rooms/messages/${roomId}/${messageId}/pin`)
 export const unpinMessage = (roomId) => apiClient.delete(`/rooms/${roomId}/pinned-message`);
-export const getPinnedMessage = (roomId) => apiClient.get(`rooms/${roomId}/pinned-message`)
+export const getPinnedMessage = (roomId) => apiClient.get(`rooms/${roomId}/pinned-message`);
+export const appointAdmin = (roomId, userId) => 
+    apiClient.post(`/rooms/${roomId}/admin`, { userId });
+
+export const removeParticipant = (roomId, userId) => 
+    apiClient.delete(`/rooms/${roomId}/participants/${userId}`);
