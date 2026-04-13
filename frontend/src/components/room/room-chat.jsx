@@ -1,6 +1,7 @@
 import send from "../../assets/send.svg" 
 import put from "../../assets/paperclip.svg"
 import pin from "../../assets/pin.svg"
+import voice from "../../assets/voice.svg"
 
 import '../../css/chat.css'
 import '../../css/right-block.css'
@@ -14,7 +15,12 @@ import { uploadFile } from "../../api/upload";
 import Messages from "./message/messages"
 import MessageMenu from "./message/message-menu";
 
-export default function RoomChat({ roomId, initialMessages = [] }) {
+export default function RoomChat({ 
+    roomId, 
+    initialMessages = [],
+    onSwitchToLeft,
+    isSinglePane 
+}) {
 
     const [newMessage, setNewMessage] = useState("");
     const [historyMessages, setHistoryMessages] = useState(initialMessages);
@@ -256,6 +262,16 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
 
     return (
         <main className="right-block-content">
+            {isSinglePane && (
+                <button
+                    className="to-left-switch-btn"
+                    type="button"
+                    onClick={onSwitchToLeft}
+                >
+                    <img src={voice} alt="Открыть голосовой чат" />
+                </button>
+            )}
+
             <div className="right-block-header">
                 <p className="large-text text--light">Чат</p>
             </div>

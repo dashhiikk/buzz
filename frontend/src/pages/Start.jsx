@@ -13,12 +13,15 @@ import RecoveryNotice from "../modals/recovery-notice";
 import SendRequest from "../modals/send-request"
 import CreateRoom from "../modals/create-room"
 
-import useIsPortrait from "../hooks/is-portrait";
+import useTwoPanelLayout from "../hooks/use-two-panel-layout";
 
 export default function Start() {
 
     const [active, setActive] = useState("room");
-    const isPortrait = useIsPortrait();
+
+    const layout = useTwoPanelLayout({
+        defaultPane: "left" // left = voice, right = chat
+    });
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -64,52 +67,64 @@ export default function Start() {
     return (
         <main>
             <Header/>
-            <div className="page">
+            <div className="page" data-layout={layout.layoutMode}>
                 {active === "room" && (
                     <>
-                        <StartMenu
-                            title = "Комнаты"
-                            items={groupRooms}
-                            onAddClick={() => setIsCreateRoomOpen(true)}
-                            active={active}
-                            setActive={setActive}
-                            onItemClick={(room) => {
-                                navigate("/room", {
-                                    state: { roomId: room.id, room }
-                                });
-                            }}
-                            loading={loading}
-                            error={error}
-                            emptyMessage="У вас пока нет комнат, 
-                            но вы можете создать свою, нажав на + в правом верхнем углу, или присоединиться к существующей 
-                            комнате, перейдя по ссылке от друга или приняв приглашение."
-                        />
-                        {!isPortrait && (
-                            <StartChat text="Зайдите в комнату, чтобы начать общение"/>
+                        {layout.showPane("left") && (
+                            <div className={`left-block ${layout.showPane("left") ? "" : "panel-hidden"}`}>
+                                <StartMenu
+                                    title = "Комнаты"
+                                    items={groupRooms}
+                                    onAddClick={() => setIsCreateRoomOpen(true)}
+                                    active={active}
+                                    setActive={setActive}
+                                    onItemClick={(room) => {
+                                        navigate("/room", {
+                                            state: { roomId: room.id, room }
+                                        });
+                                    }}
+                                    loading={loading}
+                                    error={error}
+                                    emptyMessage="У вас пока нет комнат, 
+                                    но вы можете создать свою, нажав на + в правом верхнем углу, или присоединиться к существующей 
+                                    комнате, перейдя по ссылке от друга или приняв приглашение."
+                                />
+                            </div>
+                        )}
+                        {layout.showPane("right") && (
+                            <div className={`right-block ${layout.showPane("right") ? "" : "panel-hidden"}`}>
+                                <StartChat text="Зайдите в комнату, чтобы начать общение"/>
+                            </div>
                         )}
                     </>
                 )}
                 {active === "friend" && (
                     <>
-                        <StartMenu
-                            title = "Друзья"
-                            items={privateRooms}
-                            onAddClick={() => setIsAddFriendOpen(true)}
-                            active={active}
-                            setActive={setActive}
-                            onItemClick={(room) => {
-                                navigate("/room", {
-                                    state: { roomId: room.id, room }
-                                });
-                            }}
-                            loading={loading}
-                            error={error}
-                            emptyMessage="У вас пока нет друзей, 
-                            но вы можете отправить запрос на дружбу другому пользователю, если знаете его ник и код, нажав на + в правом верхнем углу. 
-                            Либо можете принять приглашение от друга."
-                        />
-                        {!isPortrait && (
-                            <StartChat text="Выберите друга, чтобы начать общение"/>
+                        {layout.showPane("left") && (
+                            <div className={`left-block ${layout.showPane("left") ? "" : "panel-hidden"}`}>
+                                <StartMenu
+                                    title = "Друзья"
+                                    items={privateRooms}
+                                    onAddClick={() => setIsAddFriendOpen(true)}
+                                    active={active}
+                                    setActive={setActive}
+                                    onItemClick={(room) => {
+                                        navigate("/room", {
+                                            state: { roomId: room.id, room }
+                                        });
+                                    }}
+                                    loading={loading}
+                                    error={error}
+                                    emptyMessage="У вас пока нет друзей, 
+                                    но вы можете отправить запрос на дружбу другому пользователю, если знаете его ник и код, нажав на + в правом верхнем углу. 
+                                    Либо можете принять приглашение от друга."
+                                />
+                            </div>
+                        )}
+                        {layout.showPane("right") && (
+                            <div className={`right-block ${layout.showPane("right") ? "" : "panel-hidden"}`}>
+                                 <StartChat text="Выберите друга, чтобы начать общение"/>
+                            </div>
                         )}
                     </>
                 )}

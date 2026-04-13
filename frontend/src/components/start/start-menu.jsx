@@ -20,7 +20,7 @@ export default function StartMenu({
 }) {
 
     return (
-        <main className="left-block">
+        <main className="left-block-content">
             <div className="left-block-header">
                 <img src={search} className="left-block-header-btn"></img>
                 <p className="medium-text text--light">{title}</p>

@@ -8,7 +8,7 @@
     overflow-y: auto;
     overflow-x:hidden;
     scrollbar-width: thin; /* тонкая полоса */
-    width: 90%;
+    width: 92%;
 }
 
 .list--light {
@@ -47,7 +47,6 @@
     align-items: center;
     gap:15px;
     width: 100%;
-    max-width: 360px;
     border-bottom: 1px solid #BFB1A4;
 }
 

@@ -5,7 +5,7 @@ import Header from "../components/header/header";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRoom, getParticipants, getMessages, getBoardState, getJitsiToken } from "../api/rooms";
-
+ 
 import useTwoPanelLayout from "../hooks/use-two-panel-layout";
 import useSwipe from "../hooks/swipe";
 
@@ -108,6 +108,8 @@ export default function Room () {
                             jitsiToken={jitsiToken}
                             roomId={roomId}
                             onParticipantsUpdate={handleParticipantsUpdate}
+                            onSwitchToRight={() => layout.openPane("right")}
+                            isSinglePane={layout.isSinglePane}
                         />
                     </div>
                 )}
@@ -117,6 +119,8 @@ export default function Room () {
                         <RoomChat
                             roomId={roomId}
                             initialMessages={messages}
+                            onSwitchToRight={() => layout.openPane("left")}
+                            isSinglePane={layout.isSinglePane}
                         />
                     </div>
                 )} 

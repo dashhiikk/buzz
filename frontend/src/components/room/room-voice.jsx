@@ -6,6 +6,11 @@ import micON from "../../assets/mic-on.svg"
 import headON from "../../assets/head-on.svg"
 import micOFF from "../../assets/mic-off.svg"
 import headOFF from "../../assets/head-off.svg"
+import demoON from "../../assets/demo-on.svg"
+import demoOFF from "../../assets/demo-off.svg"
+import cameraON from "../../assets/camera-on.svg"
+import cameraOFF from "../../assets/camera-off.svg"
+import chat from "../../assets/chat.svg"
 
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
@@ -24,7 +29,15 @@ import Notification from "./invite-link"
 import '../../css/left-block.css'
 import '../../css/voice-chat.css'
 
-export default function RoomVoiceChat({ room, participants: initialParticipants, jitsiToken, roomId, onParticipantsUpdate }) { 
+export default function RoomVoiceChat({ 
+    room, 
+    participants: initialParticipants, 
+    jitsiToken, 
+    roomId, 
+    onParticipantsUpdate,
+    onSwitchToRight,
+    isSinglePane 
+}) { 
     const { user } = useAuth();
     const { isAdmin} = useRoomAdmin(roomId);
     const [participants, setParticipants] = useState(initialParticipants);
@@ -125,6 +138,15 @@ export default function RoomVoiceChat({ room, participants: initialParticipants,
  
     return (
         <main className="left-block-content">
+            {isSinglePane && (
+                <button
+                    className="to-right-switch-btn"
+                    type="button"
+                    onClick={onSwitchToRight}
+                >
+                    <img src={chat} alt="Открыть чат" />
+                </button>
+            )}
             <div className="left-block-header">
                 <Link to="/start">
                     <img src={backward} className="left-block-header-btn"/>

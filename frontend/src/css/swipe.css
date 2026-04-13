@@ -9,10 +9,21 @@
 }
 
 .swipe-dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    min-height: 8px;
+    padding: 0;
+    margin: 0;
+    border: none;
     border-radius: 50%;
     background: rgba(215, 217, 216, 0.3); /* неактивная */
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    flex: 0 0 6px;
+    cursor: pointer;
     transition: background 0.2s ease, transform 0.2s ease;
 }
 

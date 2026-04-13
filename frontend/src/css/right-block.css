@@ -7,3 +7,21 @@
   text-align: center;
   line-height: 60px;
 }
+
+.to-left-switch-btn {
+  position: absolute;
+  width: 50px;
+  height:50px;
+  top: 62px;
+  left: -50px;
+  background-color: #283740;
+  border: none;
+  border-radius: 5px 0 0 5px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.to-left-switch-btn:hover {
+  transform: translateY(-2px);
+  cursor: pointer;
+}
