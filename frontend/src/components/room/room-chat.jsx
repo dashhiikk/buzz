@@ -255,7 +255,7 @@ export default function RoomChat({ roomId, initialMessages = [] }) {
     };
 
     return (
-        <main className="right-block">
+        <main className="right-block-content">
             <div className="right-block-header">
                 <p className="large-text text--light">Чат</p>
             </div>

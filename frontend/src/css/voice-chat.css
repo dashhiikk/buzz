@@ -1,7 +1,7 @@
 /* Блок голосовго чата */
 
 .voice-chat {
-    width: 90%;
+    width: 92%;
     flex: 1;
     min-height: 0;
     margin-bottom: 10px;
@@ -50,8 +50,7 @@
 /* Панель пользователя в голосовом чате */
 
 .user-voice {
-    width: 90%;
-    margin: 0 20px;
+    width: 92%;
     margin-top: auto;
     margin-bottom: 10px;
     height: 60px;

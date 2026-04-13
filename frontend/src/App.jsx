@@ -1,5 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'; // Убрал неиспользуемый Navigate
 import { lazy, Suspense } from 'react';
+
+import ResponsiveLayoutProvider from "./context/responsive-layout-provider";
 import Background from './components/background'; // Импортируй компонент (предполагаю путь src/components/Background.jsx)
 import ProtectedRoute from './components/protected-route'
 
@@ -11,6 +13,8 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const Recovery = lazy(() => import('./pages/Recovery'));
 const Verify = lazy(() => import('./pages/Verify'));
 const JoinRoom = lazy(() => import('./pages/JoinRoom'));
+
+
 
 const router = createBrowserRouter([
   { path: '*', element: <NotFound /> },
@@ -38,10 +42,12 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <>
-      <Background /> 
-      <Suspense fallback={<div>Загрузка...</div>}>
-        <RouterProvider router={router} />
-      </Suspense>
+    <ResponsiveLayoutProvider breakpoint={1024}>
+        <Background /> 
+        <Suspense fallback={<div>Загрузка...</div>}>
+          <RouterProvider router={router} />
+        </Suspense>
+      </ResponsiveLayoutProvider>
     </>
   );
 }

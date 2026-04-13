@@ -6,7 +6,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRoom, getParticipants, getMessages, getBoardState, getJitsiToken } from "../api/rooms";
 
-import useIsPortrait from "../hooks/is-portrait";
+import useTwoPanelLayout from "../hooks/use-two-panel-layout";
 import useSwipe from "../hooks/swipe";
 
 import "../css/swipe.css"
@@ -24,11 +24,13 @@ export default function Room () {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const isPortrait = useIsPortrait();
-    const [mobileView, setMobileView] = useState("voice");
-
     const dataFetched = useRef(false);
 
+    const layout = useTwoPanelLayout({
+        defaultPane: "left" // left = voice, right = chat
+        
+    });
+    console.log("layout:", layout);
     const fetchData = useCallback(async () => {
         if (!roomId) return;
         try {
@@ -66,10 +68,14 @@ export default function Room () {
                
     const swipeHandlers = useSwipe({
         onSwipeLeft: () => {
-            if (isPortrait && mobileView === "voice") setMobileView("chat");
+            if (layout.isSinglePane && layout.activePane === "left") {
+                layout.openPane("right");
+            }
         },
         onSwipeRight: () => {
-            if (isPortrait && mobileView === "chat") setMobileView("voice");
+            if (layout.isSinglePane && layout.activePane === "right") {
+                layout.openPane("left");
+            }
         }
     });
 
@@ -82,12 +88,6 @@ export default function Room () {
         }
     };
 
-    useEffect(() => {
-        if (isPortrait) {
-            setMobileView("voice");
-        }
-    }, [isPortrait]);
-
 
     if (loading) return <div>Загрузка...</div>;
     if (error) return <div>Ошибка: {error}</div>;
@@ -98,29 +98,42 @@ export default function Room () {
     return (
         <main>
             <Header/>
-            <div className="page" {...swipeHandlers}>
-                {(!isPortrait || mobileView === "voice") && (
-                    <RoomVoiceChat
-                        room={room}
-                        participants={participants}
-                        jitsiToken={jitsiToken}
-                        roomId={roomId}
-                        onParticipantsUpdate={handleParticipantsUpdate}
-                    />
+
+            <div className="page" data-layout={layout.layoutMode} {...swipeHandlers}>
+                {layout.showPane("left") && (
+                    <div className={`left-block ${layout.showPane("left") ? "" : "panel-hidden"}`}>
+                        <RoomVoiceChat
+                            room={room}
+                            participants={participants}
+                            jitsiToken={jitsiToken}
+                            roomId={roomId}
+                            onParticipantsUpdate={handleParticipantsUpdate}
+                        />
+                    </div>
                 )}
                 
-                { (!isPortrait || mobileView === "chat") && (
-                    <RoomChat
-                        roomId={roomId}
-                        initialMessages={messages}
-                    />
-                ) }
-                
+                {layout.showPane("right") && (
+                    <div className={`right-block ${layout.showPane("right") ? "" : "panel-hidden"}`}>
+                        <RoomChat
+                            roomId={roomId}
+                            initialMessages={messages}
+                        />
+                    </div>
+                )} 
             </div>
-            {isPortrait && (
+
+            {layout.showSwitchers && (
                 <div className="swipe-dots">
-                    <span className={`swipe-dot ${mobileView === "voice" ? "active" : ""}`}/>
-                    <span className={`swipe-dot ${mobileView === "chat" ? "active" : ""}`}/>
+                    <button
+                        type="button"
+                        className={`swipe-dot ${layout.activePane === "left" ? "active" : ""}`}
+                        onClick={() => layout.openPane("left")}
+                    />
+                    <button
+                        type="button"
+                        className={`swipe-dot ${layout.activePane === "right" ? "active" : ""}`}
+                        onClick={() => layout.openPane("right")}
+                    />
                 </div>
             )}
         </main>

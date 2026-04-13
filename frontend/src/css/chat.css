@@ -18,12 +18,6 @@
     margin: 0 auto;
 }
 
-.start-chat-content p {
-    color: #FFFBF4;
-    font-size: clamp(15px, 1.2vw + 0.3vh, 22px);
-    font-weight: 600;
-    margin: 0;
-}
 
 
 /* Блок закрепленного сообщения */
@@ -352,7 +346,7 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-}
+} 
 
 /* БЛОК ВВОДА СООБЩЕНИЯ */
 

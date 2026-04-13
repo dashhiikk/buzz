@@ -1,40 +1,9 @@
-/* Общий стиль блока */
-
-.left-block {
-    flex: 0 0 calc(40% - 30px);
-    min-width: 300px;
-    max-width: 450px;
-    height: calc(100vh - 150px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-
-    background-color: #283740;
-    border-radius: 20px;
-
-    position: relative;
-}
-
-@media (max-width: 840px) {
-    .left-block {
-        flex: 0 0 70%;
-        max-width: 600px;
-    }
-}
-
-@media (max-width: 768px) {
-    .left-block {
-        height: calc(100vh - 100px);
-    }
-}
 
 
 /* Общий стиль заголовков */
 
 .left-block-header {
-    width: 90%;
+    width: 92%;
     height: 60px;
     display: flex;
     flex-direction: row;

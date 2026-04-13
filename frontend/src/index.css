@@ -31,4 +31,100 @@ body {
   position: relative;
 }
 
+/* базовый вид левого блока — как у тебя был */
+.left-block {
+  flex: 0 0 calc(40% - 30px);
+  min-width: 300px;
+  max-width: 450px;
+  height: calc(100vh - 150px);
+
+  background-color: #283740;
+  border-radius: 20px;
+  position: relative;
+}
+
+.left-block-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* базовый вид правого блока — как у тебя был */
+.right-block {
+  flex: 0 0 60%;
+  max-width: 810px;
+  height: calc(100vh - 150px);
+
+  background-color: #283740;
+  border-radius: 20px;
+}
+
+.right-block-content {
+  width: 100%;
+  height: 100%;
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  position: relative;
+}
+
+/* режим с двумя блоками — внешний вид остается прежним */
+.page[data-layout="split"] {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+}
+
+.page[data-layout="split"] .left-block {
+  flex: 0 0 calc(40% - 30px);
+  min-width: 300px;
+  max-width: 450px;
+  margin: 0;
+}
+
+.page[data-layout="split"] .right-block {
+  flex: 0 0 60%;
+  max-width: 810px;
+  margin: 0;
+}
+
+/* режим с одним блоком */
+.page[data-layout="single"] {
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+}
+
+/* когда на странице один блок, он шире и по центру */
+.page[data-layout="single"] .left-block,
+.page[data-layout="single"] .right-block {
+  flex: 0 0 70%;
+  width: 70%;
+  min-width: 300px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .left-block,
+  .right-block {
+    height: calc(100vh - 100px);
+  }
+
+  page[data-layout="single"] .left-block,
+  .page[data-layout="single"] .right-block {
+    width: 90%;
+    flex: 0 0 90%;
+    max-width: 700px;
+  }
+}
+
+
 

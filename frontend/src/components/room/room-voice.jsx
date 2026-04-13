@@ -124,7 +124,7 @@ export default function RoomVoiceChat({ room, participants: initialParticipants,
     };
  
     return (
-        <main className="left-block">
+        <main className="left-block-content">
             <div className="left-block-header">
                 <Link to="/start">
                     <img src={backward} className="left-block-header-btn"/>
