@@ -1,4 +1,4 @@
-import RoomChat from "../components/room/room-chat";
+import RoomChat from "../components/room/chat/room-chat";
 import RoomVoiceChat from "../components/room/room-voice";
 import Header from "../components/header/header";
 
@@ -99,9 +99,21 @@ export default function Room () {
         <main>
             <Header/>
 
-            <div className="page" data-layout={layout.layoutMode} {...swipeHandlers}>
-                {layout.showPane("left") && (
-                    <div className={`left-block ${layout.showPane("left") ? "" : "panel-hidden"}`}>
+            <div 
+                className="page" 
+                data-layout={layout.layoutMode}
+                {...swipeHandlers}
+            >
+                <div
+                    className={`panel-shell panel-shell--left ${
+                        layout.isSinglePane
+                            ? layout.activePane === "left"
+                                ? "panel-shell--active"
+                                : "panel-shell--hidden-left"
+                            : "panel-shell--split"
+                    }`}
+                >
+                    <div className="left-block">
                         <RoomVoiceChat
                             room={room}
                             participants={participants}
@@ -112,18 +124,26 @@ export default function Room () {
                             isSinglePane={layout.isSinglePane}
                         />
                     </div>
-                )}
-                
-                {layout.showPane("right") && (
-                    <div className={`right-block ${layout.showPane("right") ? "" : "panel-hidden"}`}>
+                </div>
+
+                <div
+                    className={`panel-shell panel-shell--right ${
+                        layout.isSinglePane
+                            ? layout.activePane === "right"
+                                ? "panel-shell--active"
+                                : "panel-shell--hidden-right"
+                            : "panel-shell--split"
+                    }`}
+                >
+                    <div className="right-block">
                         <RoomChat
                             roomId={roomId}
                             initialMessages={messages}
-                            onSwitchToRight={() => layout.openPane("left")}
+                            onSwitchToLeft={() => layout.openPane("left")}
                             isSinglePane={layout.isSinglePane}
                         />
                     </div>
-                )} 
+                </div>
             </div>
 
             {layout.showSwitchers && (

@@ -1,0 +1,89 @@
+.pinned-message {
+  position: relative;
+  background-color: #283740;
+  width: 100%;
+  height: fit-content;
+  max-height: 60px;
+  min-height: 35px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 40px;
+  padding-top: 5px;
+  box-sizing: border-box;
+  border-bottom: 2px solid #BFB1A4;
+  z-index: 40; 
+}
+
+.pin-pinned-message {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    top:3px;
+    left: 3px;
+}
+
+.pinned-message-wrapper {
+    position: relative;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    max-height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.pinned-message-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.pinned-message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+
+.pinned-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+    padding-right: 8px;
+}
+
+.pinned-file-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pin-gradient-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    pointer-events: none;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(40,55,64,0) 0%, #283740 100%);
+}
+
+.pinned-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+    padding-right: 8px;
+}
+
+.pinned-file-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.95;
+}
+
+
+

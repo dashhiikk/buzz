@@ -18,80 +18,6 @@
     margin: 0 auto;
 }
 
-
-
-/* Блок закрепленного сообщения */
-
-.pinned-message {
-  position: relative;
-  background-color: #283740;
-  width: 100%;
-  height: fit-content;
-  max-height: 60px;
-  min-height: 35px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 0 40px;
-  padding-top: 5px;
-  box-sizing: border-box;
-  border-bottom: 2px solid #BFB1A4;
-  z-index: 40; 
-}
-
-
-.pin-pinned-message {
-    width: 24px;
-    height: 24px;
-    position: absolute;
-    top:3px;
-}
-
-.pin-pinned-message {
-    left: 3px;
-}
-
-.pinned-message-wrapper {
-    position: relative;
-    flex: 1;
-    margin-top: 5px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-width: 0;
-    max-height: 100%;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.pinned-message-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-.pinned-message-content {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.pinned-message-text {
-  margin: 0;
-}
-
-.pinned-files-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 6px;
-    padding-right: 8px;
-}
-
-.pinned-file-item {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.pin-gradient-overlay,
 .messages-gradient-overlay {
   position: absolute;
   bottom: 0;
@@ -99,16 +25,8 @@
   width: 100%;
   height: 30px;
   pointer-events: none;
-}
-
-.pin-gradient-overlay {
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(40,55,64,0) 0%, #283740 100%);
-}
-
-.messages-gradient-overlay {
-    top: 0;
-    background: linear-gradient(to top, rgba(40,55,64,0) 0%, #283740 100%);
+  top: 0;
+  background: linear-gradient(to top, rgba(40,55,64,0) 0%, #283740 100%);
 }
 
 /* Блок с сообщениями */
@@ -141,212 +59,7 @@
     z-index: 9999;
 }
 
-.friend-message,
-.user-message {
-    width: 80%;
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-    margin-bottom: 10px;
-    overflow: visible;
-}
 
-.friend-message {
-    margin-right: auto;
-    justify-content: flex-start;
-}
-
-.user-message {
-    margin-left: auto;
-    justify-content: flex-end;
-    text-align: right;
-}
-
-.message-icon {
-    height: 40px;
-    width: 40px;
-    border-radius: 50%;
-}
-
-.user-message-content,
-.friend-message-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.user-message-content {
-    align-items: end;
-}
-
-.friend-message-content {
-    align-items: start;
-}
-
-.user-message-info,
-.friend-message-info {
-    display: inline-flex;
-    flex-direction: column;
-    width: fit-content;
-    height: fit-content;
-}
-
-.user-message-info {
-    align-items: end;
-}
-
-.friend-message-info {
-    align-items: start;
-}
-
-.message-text {
-    width: fit-content;
-    height: fit-content;
-}
-
-.message-files-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 6px;
-}
-
-.message-file-item {
-    padding: 5px;
-    background-color: #BFB1A4;
-    border-radius: 10px;
-    width: fit-content;
-    height: fit-content;
-    max-width: 200px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.message-file-item:hover {
-    transform: translateY(-1px);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.18);
-}
-
-.message-file-link {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-    min-width: 0;
-    max-width: 100%;
-}
-
-.message-file-icon {
-    flex-shrink: 0;
-    font-size: 14px;
-    line-height: 1;
-}
-
-.message-file-name {
-    display: block;
-    min-width: 0;
-    max-width: 180px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.message-images-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
-}
-
-.message-image-item {
-    width:fit-content;
-    height: fit-content;
-    max-width: 140px;
-    max-height: 140px;
-    border-radius: 5px;
-    overflow: hidden;
-    background: #BFB1A4;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-}
-
-.message-image-item:hover {
-    transform: translateY(-1px);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.18);
-}
-
-.message-image-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.image-preview-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.image-preview-modal {
-    max-width: 90vw;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-.image-preview-full {
-    max-width: 90vw;
-    max-height: 80vh;
-    border-radius: 16px;
-    object-fit: contain;
-    display: block;
-}
-
-.image-preview-name {
-    margin: 0;
-    text-align: center;
-}
-
-.video-preview-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.video-preview-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.video-preview-modal {
-    max-width: 90vw;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-} 
 
 /* БЛОК ВВОДА СООБЩЕНИЯ */
 
@@ -369,7 +82,7 @@
     color: #283740;
     background-color: #BFB1A4;
     border: none;
-    font-size: clamp(10px, 1vw + 0.2vh, 14px);
+    font-size: clamp(10px, 1.3vw + 0.3vh, 14px);
     font-weight: 400;
     margin: 0;
 
@@ -423,20 +136,6 @@
     }
 }
 
-.pinned-files-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 6px;
-    padding-right: 8px;
-}
-
-.pinned-file-item {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 0.95;
-}
 
 .attached-files-preview {
     width: 94%;

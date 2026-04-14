@@ -31,11 +31,15 @@ body {
   position: relative;
 }
 
-/* базовый вид левого блока — как у тебя был */
-.left-block {
-  flex: 0 0 calc(40% - 30px);
-  min-width: 300px;
-  max-width: 450px;
+/* базовые обертки */
+.panel-shell {
+  min-width: 0;
+}
+
+/* базовый вид блоков */
+.left-block,
+.right-block {
+  width: 100%;
   height: calc(100vh - 150px);
 }
 
@@ -52,17 +56,9 @@ body {
   position: relative;
 }
 
-/* базовый вид правого блока — как у тебя был */
-.right-block {
-  flex: 0 0 60%;
-  max-width: 810px;
-  height: calc(100vh - 150px);
-}
-
 .right-block-content {
   width: 100%;
   height: 100%;
-  
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -73,60 +69,101 @@ body {
   position: relative;
 }
 
-/* режим с двумя блоками — внешний вид остается прежним */
+/* ===== split ===== */
+
 .page[data-layout="split"] {
-  flex-direction: row;
+  display: flex;
   justify-content: center;
   align-items: center;
   gap: 60px;
 }
 
-.page[data-layout="split"] .left-block {
+.page[data-layout="split"] .panel-shell {
+  transform: none;
+  opacity: 1;
+  transition: none;
+}
+
+.page[data-layout="split"] .panel-shell--left {
   flex: 0 0 calc(40% - 30px);
+  width: calc(40% - 30px);
   min-width: 300px;
   max-width: 450px;
-  margin: 0;
 }
 
-.page[data-layout="split"] .right-block {
+.page[data-layout="split"] .panel-shell--right {
   flex: 0 0 60%;
+  width: 60%;
+  min-width: 420px;
   max-width: 810px;
-  margin: 0;
 }
 
-/* режим с одним блоком */
+/* внутренние блоки просто заполняют shell */
+.page[data-layout="split"] .left-block,
+.page[data-layout="split"] .right-block {
+  width: 100%;
+}
+
+/* ===== single ===== */
+
 .page[data-layout="single"] {
-  justify-content: center;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
   align-items: center;
   gap: 0;
-}
-
-
-/* когда на странице один блок, он шире и по центру */
-.page[data-layout="single"] .left-block,
-.page[data-layout="single"] .right-block {
-  flex: 0 0 100%;
   width: 100%;
-  min-width: 300px;
-  margin: 0 auto;
+  overflow: hidden;
 }
 
-.page[data-layout="single"] .left-block {
-  max-width: 500px;
+.page[data-layout="single"] .panel-shell {
+  grid-area: 1 / 1;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-.page[data-layout="single"] .right-block {
+.page[data-layout="single"] .panel-shell--active {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.page[data-layout="single"] .panel-shell--hidden-left {
+  opacity: 0;
+  transform: translate3d(-40px, 0, 0);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.page[data-layout="single"] .panel-shell--hidden-right {
+  opacity: 0;
+  transform: translate3d(40px, 0, 0);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* в single разные максимальные ширины */
+.page[data-layout="single"] .panel-shell--left {
+  width: min(100%, 450px);
+  max-width: 450px;
+}
+
+.page[data-layout="single"] .panel-shell--right {
+  width: min(100%, 900px);
   max-width: 900px;
 }
 
-.page[data-layout="single"] .left-block-content {
-  padding-right: 60px;
-  box-sizing: border-box;
-}
-
-.page[data-layout="single"] .right-block-content {
-  padding-left: 60px;
-  box-sizing: border-box;
+.page[data-layout="single"] .left-block,
+.page[data-layout="single"] .right-block {
+  width: 100%;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
@@ -136,11 +173,6 @@ body {
   }
 
   .page[data-layout="single"] .left-block {
-    width: 100%;
-    flex: 0 0 100%;
-    max-width: 700px;
+    max-width: 450px;
   }
 }
-
-
-

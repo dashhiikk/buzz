@@ -3,7 +3,7 @@ import fileIcon from "../../../assets/file.svg"
 import MessageMenu from "./message-menu";
 import {formatMessageTime} from "./date"
 
-import '../../../css/chat.css'
+import '../../../css/chat/message.css'
 import { createPortal } from 'react-dom';
 import { useState, useRef, useEffect, useLayoutEffect} from 'react';
 import { useAuth } from "../../../hooks/use-auth";
@@ -204,7 +204,7 @@ export default function Messages({ messages, onDelete, onPin, highlightedMessage
                 const videoFiles = Array.isArray(msg.files) ? msg.files.filter(isVideoFile) : [];
                 const otherFiles = Array.isArray(msg.files) ? msg.files.filter((file) => !isImageFile(file)) : [];
                
-               return (
+               return (  
                     <div 
                         key={msg.id}
                         data-message-id={msg.id}

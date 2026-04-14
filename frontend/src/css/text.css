@@ -15,14 +15,14 @@
 .small-text {
     margin: 0;
     font-weight: 400;
-    font-size: clamp(12px, 1.3vw + 0.3vh, 14px);  
+    font-size: clamp(12px, 1.3vw + 0.4vh, 14px);  
 }
 
 .input-text { 
     font-family: 'Comfortaa', sans-serif;
     margin: 0;
     font-weight: 400;
-    font-size: clamp(10px, 1.1vw + 0.3vh, 14px);
+    font-size: clamp(10px, 1.3vw + 0.3vh, 14px);
     text-rendering: optimizeLegibility;
 
     background: transparent;
