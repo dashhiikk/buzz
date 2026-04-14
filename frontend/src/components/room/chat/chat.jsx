@@ -1,7 +1,6 @@
 import voice from "../../../assets/voice.svg"
 
-import '../../../css/chat.css'
-import '../../../css/right-block.css'
+import '../../../css/chat/chat.css'
 
 import { useEffect, useRef, useMemo, useState} from "react";
 import { useWebSocket } from "../../../hooks/useWebSocket";
@@ -11,8 +10,9 @@ import { uploadFile } from "../../../api/upload";
 import usePinnedMessage from "../../../hooks/use-pinned-message"
 
 import PinnedMessage from "./pinned-message"
-import Messages from "./messages"
-import InputMessage from "./input-message"
+import Messages from "./messages/messages"
+import AttachedFilesPreview from "./input/attached-files-preview";
+import InputMessage from "./input/input"
 
 export default function RoomChat({ 
     roomId, 
@@ -23,12 +23,12 @@ export default function RoomChat({
 
     const [newMessage, setNewMessage] = useState("");
     const [historyMessages, setHistoryMessages] = useState(initialMessages);
-    
-    const chatRef = useRef(null);
-    
-    const fileInputRef = useRef(null);
+
     const [uploading, setUploading] = useState(false);
     const [attachedFiles, setAttachedFiles] = useState([]);
+
+    const chatRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     const pinned = usePinnedMessage({ roomId, chatRef });
 
@@ -173,24 +173,10 @@ export default function RoomChat({
                 <div className="messages-gradient-overlay" />
             </div>
 
-            {attachedFiles.length > 0 && (
-                <div className="attached-files-preview">
-                    {attachedFiles.map((file, index) => (
-                        <div key={file.url || index} className="attached-file-chip">
-                            <span title={file.originalName}>
-                                {file.originalName || "Файл"}
-                            </span>
-                            <button
-                                type="button"
-                                className="attached-file-remove"
-                                onClick={() => handleRemoveAttachedFile(index)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
+            <AttachedFilesPreview
+                files={attachedFiles}
+                onRemoveFile={handleRemoveAttachedFile}
+            />
 
             <InputMessage
                 value={newMessage}

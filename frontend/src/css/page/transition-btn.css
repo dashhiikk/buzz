@@ -1,0 +1,40 @@
+.to-left-switch-btn,
+.to-right-switch-btn {
+  position: absolute;
+  width: min(4.5vw, 50px);
+  height: min(7vw, 50px);
+  top: 100px;
+  background-color: #BFB1A4;
+  border: none;
+  text-align: center;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.to-left-switch-btn {
+    left: 0px;
+    transform: translateX(-100%);
+    border-radius: 5px 0 0 5px;
+}
+
+.to-right-switch-btn {
+    right: 0px;
+    transform: translateX(100%);
+    border-radius: 0 5px 5px 0;
+}
+
+.to-left-switch-btn img,
+.to-right-switch-btn img {
+  display: block;
+  width: calc(100% - 1px);
+  height: auto;
+  max-width: 32px;
+}
+
+.to-left-switch-btn:hover {
+  transform: translateX(-100%) translateY(-2px);
+}
+
+.to-right-switch-btn:hover {
+    transform: translateX(100%) translateY(-2px);
+}

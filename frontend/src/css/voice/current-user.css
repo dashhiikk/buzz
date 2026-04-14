@@ -1,0 +1,47 @@
+.user-voice {
+    width: 92%;
+    margin-top: auto;
+    margin-bottom: 10px;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.user-voice-chat-member {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+}
+
+
+.user-voice-chat-member img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+
+.voice-icons {
+    position: absolute;
+    bottom:5px;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.voice-icons img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.voice-icons img:hover {
+    transform: translateY(-2px);
+}
+

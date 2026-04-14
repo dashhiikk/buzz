@@ -15,6 +15,9 @@ import CreateRoom from "../modals/create-room"
 
 import useTwoPanelLayout from "../hooks/use-two-panel-layout";
 
+import "../css/page/blocks.css"
+import "../css/page/layout.css"
+
 export default function Start() {
 
     const [active, setActive] = useState("room");
@@ -70,8 +73,16 @@ export default function Start() {
             <div className="page" data-layout={layout.layoutMode}>
                 {active === "room" && (
                     <>
-                        {layout.showPane("left") && (
-                            <div className={`left-block ${layout.showPane("left") ? "" : "panel-hidden"}`}>
+                        <div
+                            className={`panel-shell panel-shell--left ${
+                                layout.isSinglePane
+                                    ? layout.activePane === "left"
+                                        ? "panel-shell--active"
+                                        : "panel-shell--hidden-left"
+                                    : "panel-shell--split"
+                            }`}
+                        >
+                            <div className="left-block">
                                 <StartMenu
                                     title = "Комнаты"
                                     items={groupRooms}
@@ -90,18 +101,35 @@ export default function Start() {
                                     комнате, перейдя по ссылке от друга или приняв приглашение."
                                 />
                             </div>
-                        )}
-                        {layout.showPane("right") && (
-                            <div className={`right-block ${layout.showPane("right") ? "" : "panel-hidden"}`}>
+                        </div>
+
+                        <div
+                            className={`panel-shell panel-shell--right ${
+                                layout.isSinglePane
+                                    ? layout.activePane === "right"
+                                        ? "panel-shell--active"
+                                        : "panel-shell--hidden-right"
+                                    : "panel-shell--split"
+                            }`}
+                        >
+                            <div className="right-block">
                                 <StartChat text="Зайдите в комнату, чтобы начать общение"/>
                             </div>
-                        )}
+                        </div>
                     </>
                 )}
                 {active === "friend" && (
                     <>
-                        {layout.showPane("left") && (
-                            <div className={`left-block ${layout.showPane("left") ? "" : "panel-hidden"}`}>
+                        <div
+                            className={`panel-shell panel-shell--left ${
+                                layout.isSinglePane
+                                    ? layout.activePane === "left"
+                                        ? "panel-shell--active"
+                                        : "panel-shell--hidden-left"
+                                    : "panel-shell--split"
+                            }`}
+                        >
+                            <div className="left-block">
                                 <StartMenu
                                     title = "Друзья"
                                     items={privateRooms}
@@ -120,12 +148,21 @@ export default function Start() {
                                     Либо можете принять приглашение от друга."
                                 />
                             </div>
-                        )}
-                        {layout.showPane("right") && (
-                            <div className={`right-block ${layout.showPane("right") ? "" : "panel-hidden"}`}>
-                                 <StartChat text="Выберите друга, чтобы начать общение"/>
+                        </div>
+
+                        <div
+                            className={`panel-shell panel-shell--right ${
+                                layout.isSinglePane
+                                    ? layout.activePane === "right"
+                                        ? "panel-shell--active"
+                                        : "panel-shell--hidden-right"
+                                    : "panel-shell--split"
+                            }`}
+                        >
+                            <div className="right-block">
+                                <StartChat text="Выберите друга, чтобы начать общение"/>
                             </div>
-                        )}
+                        </div>
                     </>
                 )}
             </div>

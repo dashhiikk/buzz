@@ -1,0 +1,132 @@
+.message-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.message-file-item {
+    padding: 5px;
+    background-color: #BFB1A4;
+    border-radius: 10px;
+    width: fit-content;
+    height: fit-content;
+    max-width: 200px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message-file-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.message-file-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.message-file-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.message-file-name {
+    display: block;
+    min-width: 0;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.message-images-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.message-image-item {
+    width:fit-content;
+    height: fit-content;
+    max-width: 140px;
+    max-height: 140px;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #BFB1A4;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+}
+
+.message-image-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+.message-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.image-preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.image-preview-modal {
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.image-preview-full {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 16px;
+    object-fit: contain;
+    display: block;
+}
+
+.image-preview-name {
+    margin: 0;
+    text-align: center;
+}
+
+.video-preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.video-preview-modal {
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+} 

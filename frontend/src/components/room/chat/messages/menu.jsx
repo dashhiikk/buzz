@@ -1,4 +1,4 @@
-import '../../../css/menu.css'
+import '../../../../css/menu.css'
 
 export default function MessageMenu({ type, messageId, messageText, onClose, onDelete, onPin, onUnpin}) {
     const handleCopy = async () => {

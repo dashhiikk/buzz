@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom";
 import '../../../css/chat/pinned-message.css'
 import pin from "../../../assets/pin.svg"
-import MessageMenu from "./message-menu";
+import MessageMenu from "./messages/menu";
 
 export default function PinnedMessage({
     pinnedMessage,

@@ -1,0 +1,58 @@
+.input-block {
+    background-color: #BFB1A4;
+    width: 94%;
+    height: 10%;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+
+}
+
+.input-block textarea {
+    flex: 1;
+    color: #283740;
+    background-color: #BFB1A4;
+    border: none;
+    font-size: clamp(10px, 1.3vw + 0.3vh, 14px);
+    font-weight: 400;
+    margin: 0;
+
+    outline: none; /* убираем синий контур при фокусе */
+    resize: none;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.input-block textarea::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.input-block textarea::placeholder {
+    color: #283740; /* тот же цвет, что у текста */
+    opacity: 0.6; /* можно чуть прозрачнее, если хочешь */
+    font-family: 'Comfortaa', sans-serif;
+    font-size: clamp(10px, 1.3vw + 0.3vh, 14px);
+    font-weight: 300;
+}
+
+.input-icons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}
+
+.input-icons img {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.input-icons img:hover {
+    box-shadow: 4px 4px 2px rgba(0,0,0,0.35);
+}

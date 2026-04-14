@@ -1,0 +1,34 @@
+.attached-files-preview {
+    width: 94%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.attached-file-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 220px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #3a4b55;
+    color: #FFFBF4;
+    font-size: 12px;
+}
+
+.attached-file-chip span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.attached-file-remove {
+    border: none;
+    background: transparent;
+    color: #FFFBF4;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}

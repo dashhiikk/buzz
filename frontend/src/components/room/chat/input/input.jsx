@@ -1,5 +1,7 @@
-import send from "../../../assets/send.svg";
-import put from "../../../assets/paperclip.svg";
+import send from "../../../../assets/send.svg";
+import put from "../../../../assets/paperclip.svg";
+
+import '../../../../css/chat/input-message.css'
 
 export default function InputMessage({
     value,
@@ -23,15 +25,6 @@ export default function InputMessage({
                 />
                 <div className="input-icons">
                     <img
-                        src={send}
-                        onClick={onSend}
-                        style={{
-                            opacity: disabled ? 0.5 : 1,
-                            cursor: disabled ? "not-allowed" : "pointer",
-                        }}
-                        alt="send"
-                    />
-                    <img
                         src={put}
                         onClick={onAttachClick}
                         style={{
@@ -39,6 +32,15 @@ export default function InputMessage({
                             cursor: disabled ? "not-allowed" : "pointer",
                         }}
                         alt="attach"
+                    />
+                    <img
+                        src={send}
+                        onClick={onSend}
+                        style={{
+                            opacity: disabled ? 0.5 : 1,
+                            cursor: disabled ? "not-allowed" : "pointer",
+                        }}
+                        alt="send"
                     />
                 </div>
             </div>

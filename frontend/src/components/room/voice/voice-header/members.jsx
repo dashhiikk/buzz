@@ -1,17 +1,17 @@
-import '../../css/list.css'
-import '../../css/modals.css'
+import '../../../../css/list.css'
+import '../../../../css/modals.css'
 
-import close from "../../assets/close.svg"
-import plus from "../../assets/plus.svg"
-import defaultAvatar from "../../assets/user-icon.svg"
-import miniDots from "../../assets/dots-mini.svg"
+import close from "../../../../assets/close.svg"
+import plus from "../../../../assets/plus.svg"
+import defaultAvatar from "../../../../assets/user-icon.svg"
+import miniDots from "../../../../assets/dots-mini.svg"
 
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 
-import { appointAdmin, removeParticipant, getParticipants } from '../../api/rooms';
+import { appointAdmin, removeParticipant, getParticipants } from '../../../../api/rooms';
 
-import RoomMenu from './room-menu'
+import RoomMenu from '../../room-menu'
 
 export default function RoomMembers({ isOpen, onClose, onOpenInvite, participants, roomAdminId, isAdmin, currentUserId, roomId, onParticipantsUpdate }) {
     const members = participants.map(p => {

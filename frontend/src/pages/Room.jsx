@@ -1,5 +1,5 @@
-import RoomChat from "../components/room/chat/room-chat";
-import RoomVoiceChat from "../components/room/room-voice";
+import RoomChat from "../components/room/chat/chat";
+import RoomVoiceChat from "../components/room/voice/voice";
 import Header from "../components/header/header";
 
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -9,7 +9,11 @@ import { getRoom, getParticipants, getMessages, getBoardState, getJitsiToken } f
 import useTwoPanelLayout from "../hooks/use-two-panel-layout";
 import useSwipe from "../hooks/swipe";
 
+import "../css/page/blocks.css"
+import "../css/page/layout.css"
+import "../css/page/transition-btn.css"
 import "../css/swipe.css"
+
 
 export default function Room () {
     const location = useLocation();
@@ -98,7 +102,6 @@ export default function Room () {
     return (
         <main>
             <Header/>
-
             <div 
                 className="page" 
                 data-layout={layout.layoutMode}

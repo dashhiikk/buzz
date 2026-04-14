@@ -1,6 +1,5 @@
 import buzzlogofull from "../../assets/buzz-logo.svg"
-import '../../css/chat.css'
-import '../../css/right-block.css'
+import '../../css/chat/chat.css'
 
 export default function StartChatRoom({text}) {
     return (
