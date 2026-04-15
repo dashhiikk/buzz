@@ -3,7 +3,7 @@
   display: flex;
   top: 0;
   right: 0;
-  z-index: 10;
+  z-index: 90;
 
   opacity: 0;
   transform: translateY(-10px); /* чуть выше позиции */
@@ -24,6 +24,7 @@
 
   background-color: #4F6273;
   border-radius: 20px 30px 30px 20px;
+  z-index: 100;
 }
 
 @media (max-width: 768px) {

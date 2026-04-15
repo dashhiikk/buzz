@@ -7,6 +7,8 @@ import demoOFF from "../../../assets/demo-off.svg"
 import cameraON from "../../../assets/camera-on.svg"
 import cameraOFF from "../../../assets/camera-off.svg"
 
+import defaultAvatar from "../../../assets/user-icon.svg"
+
 import "../../../css/voice/current-user.css"
 
 export default function CurrentVoiceUser({
@@ -23,7 +25,7 @@ export default function CurrentVoiceUser({
     return (
         <div className="user-voice">
             <div className="user-voice-chat-member">
-                <img src={user.avatar} alt="Аватар пользователя" />
+                <img src={user?.avatar || defaultAvatar } alt="Аватар пользователя" />
                 <p className="medium-text text--light">{user.username}</p>
             </div>
 

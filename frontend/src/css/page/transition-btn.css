@@ -6,28 +6,29 @@
   top: 100px;
   background-color: #BFB1A4;
   border: none;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.2s ease;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .to-left-switch-btn {
-    left: 0px;
-    transform: translateX(-100%);
-    border-radius: 5px 0 0 5px;
+  left: 0px;
+  transform: translateX(-100%);
+  border-radius: 5px 0 0 5px;
 }
 
 .to-right-switch-btn {
-    right: 0px;
-    transform: translateX(100%);
-    border-radius: 0 5px 5px 0;
+  right: 0px;
+  transform: translateX(100%);
+  border-radius: 0 5px 5px 0;
 }
 
 .to-left-switch-btn img,
 .to-right-switch-btn img {
   display: block;
-  width: calc(100% - 1px);
-  height: auto;
   max-width: 32px;
 }
 
@@ -36,5 +37,5 @@
 }
 
 .to-right-switch-btn:hover {
-    transform: translateX(100%) translateY(-2px);
+  transform: translateX(100%) translateY(-2px);
 }

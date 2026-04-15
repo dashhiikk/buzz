@@ -144,6 +144,7 @@ export default function Room () {
                             initialMessages={messages}
                             onSwitchToLeft={() => layout.openPane("left")}
                             isSinglePane={layout.isSinglePane}
+                            voiceMembers = {participants}
                         />
                     </div>
                 </div>

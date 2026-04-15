@@ -13,12 +13,14 @@ import PinnedMessage from "./pinned-message"
 import Messages from "./messages/messages"
 import AttachedFilesPreview from "./input/attached-files-preview";
 import InputMessage from "./input/input"
+import MiniVoiceChatPanel from "../mini-voice-pannel";
 
 export default function RoomChat({ 
     roomId, 
     initialMessages = [],
     onSwitchToLeft,
-    isSinglePane 
+    isSinglePane,
+    voiceMembers = [] 
 }) {
 
     const [newMessage, setNewMessage] = useState("");
@@ -141,6 +143,10 @@ export default function RoomChat({
                 >
                     <img src={voice} alt="Открыть голосовой чат" />
                 </button>
+            )}
+
+            {isSinglePane && (
+                <MiniVoiceChatPanel voiceMembers={voiceMembers}/>
             )}
 
             <div className="right-block-header">

@@ -44,7 +44,7 @@
 
 .header-wrapper-img {
   position: relative; /* чтобы z-index сработал */
-  z-index: 30; /* выше чем у Settings */
+  z-index: 110; /* выше чем у Settings */
   transition: transform 0.3s ease, box-shadow 0.2s ease;
   cursor: pointer;
   border-radius: 50%;
