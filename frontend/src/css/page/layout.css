@@ -4,10 +4,11 @@
   justify-content: center;
   align-items: center;
   gap: 60px;
-  padding: 0 5%;
+  padding: 0 5vw;
   box-sizing: border-box;
   margin-bottom: 50px;
   position: relative;
+  z-index: 10;
 }
 
 .panel-shell {
@@ -37,8 +38,8 @@
 }
 
 .page[data-layout="split"] .panel-shell--right {
-  flex: 0 0 60%;
-  width: 60%;
+  flex: 0 0 calc(60% - 30px);
+  width: calc(60% - 30px);
   min-width: 420px;
   max-width: 810px;
 }

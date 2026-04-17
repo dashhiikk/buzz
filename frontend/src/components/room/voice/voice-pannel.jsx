@@ -1,53 +1,22 @@
-import defaultRoom from "../../../assets/room-default.jpg";
-import demo from "../../../assets/demo.svg"
+import chat from "../../../assets/chat.svg"
 import video from "../../../assets/video.svg"
 import board from "../../../assets/board.svg"
 import disconnect from "../../../assets/disconnect.svg"
 
-import List from "../../list";
+import VoiceChatMembers from "./voice-chat-members"
 import "../../../css/voice/voice-pannel.css"
 
-import { useMemo, useState } from "react";
-import { useAuth } from "../../../hooks/use-auth";
-
 export default function VoiceChatPanel({
-    participants = [],
-    jitsiToken
+    voiceMembers,
+    demoOn,
+    jitsiToken,
+    onJoinVoice,
+    onDisconnectVoice,
+    onOpenScreenShare,
+    onOpenVideoChat,
+    onOpenChat
 }) {
-    const { user } = useAuth();
-    const [isJoined, setIsJoined] = useState(false);
-
-    const voiceMembers = useMemo(() => {
-        if (!isJoined || !user) return [];
-
-        const normalizedParticipants = participants.map((p) => ({
-            id: p.id,
-            name: p.username,
-            icon: p.avatar || defaultRoom,
-        }));
-
-        const currentUserItem = {
-            id: user.id,
-            name: user.username,
-            icon: user.avatar || defaultRoom,
-        };
-
-        const alreadyExists = normalizedParticipants.some(
-            (member) => member.id === user.id
-        );
-
-        return alreadyExists
-            ? normalizedParticipants
-            : [...normalizedParticipants, currentUserItem];
-    }, [isJoined, participants, user]);
-
-    const handleJoin = () => {
-        setIsJoined(true);
-    };
-
-    const handleDisconnect = () => {
-        setIsJoined(false);
-    };
+    const isJoined  = voiceMembers.length > 0;
 
     return (
         <div className="voice-chat">
@@ -56,28 +25,32 @@ export default function VoiceChatPanel({
                 <button
                     type="button"
                     className="disconnect-btn"
-                    onClick={handleDisconnect}
+                    onClick={onDisconnectVoice}
                 >
                     <img src={disconnect} alt="Отключиться" />
                 </button>
             )}
-            <List items={voiceMembers} mode="passive" color="dark" />
+            <VoiceChatMembers 
+                items={voiceMembers}
+                demoOn = {demoOn}
+                onOpenScreenShare = {onOpenScreenShare}
+            />
             <div className="voice-chat-control"> 
                 {!isJoined && jitsiToken && (
                     <button
                         type="button"
                         className="join-btn"
-                        onClick={handleJoin}
+                        onClick={onJoinVoice}
                     >
                         <p>Присоединиться</p>
                     </button>
                 )}
                 {isJoined && (
                     <div className="voice-chat-btns">
-                        <button type="button">
-                            <img src={demo} alt="Демонстрация" />
+                        <button type="button" onClick={onOpenChat}> 
+                            <img src={chat} alt="Демонстрация" />
                         </button>
-                        <button type="button">
+                        <button type="button" onClick={onOpenVideoChat}>
                             <img src={video} alt="Видео" />
                         </button>
                         <button type="button">

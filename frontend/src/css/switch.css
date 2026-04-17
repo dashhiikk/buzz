@@ -40,7 +40,7 @@
 
 
 .entry-switch-btn-left {
-    border-radius: 0 0 0 20px;
+    border-radius: 0 0 0 10px;
 }
 
 .entry-switch-btn-center {
@@ -50,15 +50,15 @@
 }
 
 .entry-switch-btn-right {
-    border-radius: 0 0 20px 0;
+    border-radius: 0 0 10px 0;
 }
 
 .start-switch-btn-left {
-    border-radius: 0 0 0 20px;
+    border-radius: 0 0 0 10px;
 }
 
 .start-switch-btn-right {
-    border-radius: 0 0 20px 0;
+    border-radius: 0 0 10px 0;
 }
 
 .switch-btn-active {

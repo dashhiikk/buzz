@@ -7,7 +7,6 @@
 
 .header-content {
     height: 100px;
-    max-width: 1320px;
     display: flex;
     flex-direction: row;           
     justify-content: space-between; 
@@ -99,7 +98,7 @@
         flex-direction: row; /* оставляем горизонтально */
         justify-content: space-between;
         align-items: center;
-        height: auto;
+        height: 50px;
         padding: 5px 0;
         gap: 10px;
     }

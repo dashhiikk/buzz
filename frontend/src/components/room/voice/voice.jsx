@@ -1,5 +1,3 @@
-import chat from "../../../assets/chat.svg";
-
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -21,8 +19,12 @@ export default function RoomVoiceChat({
     jitsiToken,
     roomId,
     onParticipantsUpdate,
-    onSwitchToRight,
-    isSinglePane,
+    voiceMembers,
+    onJoinVoice,
+    onDisconnectVoice,
+    onOpenScreenShare,
+    onOpenVideoChat,
+    onOpenChat
 }) {
     const { user } = useAuth();
     const { isAdmin } = useRoomAdmin(roomId);
@@ -35,8 +37,8 @@ export default function RoomVoiceChat({
 
     const [micOn, setMicOn] = useState(true);
     const [headphonesOn, setHeadphonesOn] = useState(true);
-    const [demoOn, setDemoOn] = useState(true);
-    const [cameraOn, setCameraOn] = useState(true);
+    const [demoOn, setDemoOn] = useState(false);
+    const [cameraOn, setCameraOn] = useState(false);
 
     const [, setCopying] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState(null);
@@ -93,16 +95,6 @@ export default function RoomVoiceChat({
 
     return (
         <main className="left-block-content">
-            {isSinglePane && (
-                <button
-                    className="to-right-switch-btn"
-                    type="button"
-                    onClick={onSwitchToRight}
-                >
-                    <img src={chat} alt="Открыть чат" />
-                </button>
-            )}
-
             <RoomVoiceHeader
                 room={room}
                 isAdmin={isAdmin}
@@ -124,9 +116,14 @@ export default function RoomVoiceChat({
             />
 
             <VoiceChatPanel
-                participants={participants}
+                voiceMembers={voiceMembers}
+                demoOn = {demoOn}
                 jitsiToken={jitsiToken}
-                roomId={roomId}
+                onJoinVoice={onJoinVoice}
+                onDisconnectVoice={onDisconnectVoice}
+                onOpenScreenShare={onOpenScreenShare}
+                onOpenVideoChat = {onOpenVideoChat}
+                onOpenChat ={onOpenChat}
             />
 
             <CurrentVoiceUser

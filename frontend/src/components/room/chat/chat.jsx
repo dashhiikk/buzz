@@ -1,5 +1,3 @@
-import voice from "../../../assets/voice.svg"
-
 import '../../../css/chat/chat.css'
 
 import { useEffect, useRef, useMemo, useState} from "react";
@@ -13,14 +11,10 @@ import PinnedMessage from "./pinned-message"
 import Messages from "./messages/messages"
 import AttachedFilesPreview from "./input/attached-files-preview";
 import InputMessage from "./input/input"
-import MiniVoiceChatPanel from "../mini-voice-pannel";
 
 export default function RoomChat({ 
     roomId, 
     initialMessages = [],
-    onSwitchToLeft,
-    isSinglePane,
-    voiceMembers = [] 
 }) {
 
     const [newMessage, setNewMessage] = useState("");
@@ -135,20 +129,6 @@ export default function RoomChat({
 
     return (
         <main className="right-block-content">
-            {isSinglePane && (
-                <button
-                    className="to-left-switch-btn"
-                    type="button"
-                    onClick={onSwitchToLeft}
-                >
-                    <img src={voice} alt="Открыть голосовой чат" />
-                </button>
-            )}
-
-            {isSinglePane && (
-                <MiniVoiceChatPanel voiceMembers={voiceMembers}/>
-            )}
-
             <div className="right-block-header">
                 <p className="large-text text--light">Чат</p>
             </div>

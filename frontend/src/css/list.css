@@ -149,3 +149,30 @@
     border-radius: 5px;
 }
 
+.voice-buttons {
+    position: absolute;
+    bottom: 5px;
+    right: 0;
+    display: flex;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.voice-btn {
+    background-color: rgba(0,0,0,0);
+    border: none;
+    padding: 0;
+}
+
+.voice-btn img{
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.voice-btn img:hover {
+    transform: translateY(-2px);
+}
+
+

@@ -1,21 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo} from "react";
 import useResponsiveLayout from "./use-responsive-layout";
+import usePersistedState from "./use-persisted-state";
 
 export default function useTwoPanelLayout({
-    defaultPane = "left"
+    defaultPane = "left",
+    storageKey = "two-panel-layout"
 } = {}) {
     const { isSinglePane, layoutMode } = useResponsiveLayout();
-    const [activePane, setActivePane] = useState(defaultPane);
 
-    useEffect(() => {
-        if (isSinglePane) {
-            setActivePane(defaultPane);
-        }
-    }, [isSinglePane, defaultPane]);
+    const [activePane, setActivePane] = usePersistedState(
+        `${storageKey}:activePane`,
+        defaultPane
+    );
 
     const openPane = useCallback((pane) => {
         setActivePane(pane);
-    }, []);
+    }, [setActivePane]);
 
     const showPane = useCallback(
         (pane) => !isSinglePane || activePane === pane,
@@ -24,11 +24,11 @@ export default function useTwoPanelLayout({
 
     const goNext = useCallback(() => {
         setActivePane((prev) => (prev === "left" ? "right" : "left"));
-    }, []);
+    }, [setActivePane]);
 
     const goPrev = useCallback(() => {
         setActivePane((prev) => (prev === "right" ? "left" : "right"));
-    }, []);
+    }, [setActivePane]);
 
     return useMemo(() => {
         return {

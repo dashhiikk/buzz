@@ -1,33 +1,68 @@
 .mini-voice-pannel {
   position: absolute;
   width: min(4.5vw, 50px);
-  height: fit-content;
+  max-height: 50%;
   top: 160px;
-  left: 0px;
+  left: 0;
   background-color: #BFB1A4;
-  border: none;
-  border-radius: 5px 0 0 5px;border-radius: 5px 0 0 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 5px 0 0 5px;
   transform: translateX(-100%);
   transition: transform 0.2s ease;
-  cursor: pointer;
   padding: 5px 0;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+.mini-voice-members-wrapper {
+  position: relative;
+  height: 100%;
 }
 
 .mini-voice-members-list {
-    margin: 0;
-    padding: 0;
-    overflow-y: auto;
-    overflow-x:hidden;
-    scrollbar-width: thin;
+  margin: 0;
+  padding: 0 2px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  max-height: 100%;
+
+  /* скрыть scrollbar */
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* old Edge/IE */
 }
+
+.mini-voice-members-list::-webkit-scrollbar {
+  display: none;               /* Chrome/Safari */
+}
+
+.mini-voice-members-wrapper::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(191, 177, 164, 0),
+    rgba(191, 177, 164, 1)
+  );
+}
+
 
 .mini-voice-members-list-element img {
   display: block;
+  margin: 0 auto;
+  width: 96%;
   max-width: 32px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 1px #283740 solid;
 }
 
 

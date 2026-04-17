@@ -12,6 +12,7 @@
   transition: transform 0.2s ease;
   cursor: pointer;
   box-sizing: border-box;
+  padding: 2px;
 }
 
 .to-left-switch-btn {
@@ -29,6 +30,8 @@
 .to-left-switch-btn img,
 .to-right-switch-btn img {
   display: block;
+  width: 94%;
+  height: auto;
   max-width: 32px;
 }
 
