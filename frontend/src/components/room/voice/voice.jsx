@@ -24,7 +24,15 @@ export default function RoomVoiceChat({
     onDisconnectVoice,
     onOpenScreenShare,
     onOpenVideoChat,
-    onOpenChat
+    onOpenChat,
+    micOn,
+    setMicOn,
+    headphonesOn,
+    setHeadphonesOn,
+    demoOn,
+    setDemoOn,
+    cameraOn,
+    setCameraOn,
 }) {
     const { user } = useAuth();
     const { isAdmin } = useRoomAdmin(roomId);
@@ -34,11 +42,6 @@ export default function RoomVoiceChat({
     const [menuVisible, setMenuVisible] = useState(false);
     const [isMembersOpen, setIsMembersOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
-
-    const [micOn, setMicOn] = useState(true);
-    const [headphonesOn, setHeadphonesOn] = useState(true);
-    const [demoOn, setDemoOn] = useState(false);
-    const [cameraOn, setCameraOn] = useState(false);
 
     const [, setCopying] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState(null);

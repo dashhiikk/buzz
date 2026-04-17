@@ -1,21 +1,77 @@
 .mini-voice-pannel {
   position: absolute;
   width: min(4.5vw, 50px);
-  max-height: 50%;
-  top: 160px;
+  top: 170px;
   left: 0;
+  transform: translateX(-100%);
+}
+
+.mini-voice-members,
+.mini-voice-btns {
   background-color: #BFB1A4;
   border-radius: 5px 0 0 5px;
-  transform: translateX(-100%);
-  transition: transform 0.2s ease;
-  padding: 5px 0;
   box-sizing: border-box;
   overflow: hidden;
 }
 
+.mini-voice-members {
+  padding: 5px 2px;
+  box-sizing: border-box;
+  max-height: 25vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-voice-btns {
+  margin-top: 20px;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap:5px;
+  padding: 5px 2px;
+}
+
+.mini-voice-btns button,
+.mini-disconnect-btn,
+.mini-voice-members-list-element button {
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 26px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.mini-voice-members-list-element button {
+  height: fit-content;
+}
+
+.mini-disconnect-btn {
+  margin-top: auto;
+}
+
+.mini-voice-btns button:hover,
+.mini-disconnect-btn:hover,
+.mini-voice-members-list-element button:hover {
+  transform: scale(1.05);
+}
+
+.mini-voice-btns img,
+.mini-disconnect-btn img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 24px;
+}
+
 .mini-voice-members-wrapper {
   position: relative;
-  height: 100%;
+  flex: 1;
 }
 
 .mini-voice-members-list {
@@ -27,7 +83,6 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-
   max-height: 100%;
 
   /* скрыть scrollbar */
@@ -39,7 +94,7 @@
   display: none;               /* Chrome/Safari */
 }
 
-.mini-voice-members-wrapper::after {
+.mini-voice-members-wrapper[data-show-gradient="true"]::after {
   content: "";
   position: absolute;
   left: 0;
@@ -54,8 +109,30 @@
   );
 }
 
+.mini-voice-members-list-element {
+  position: relative;
+}
 
-.mini-voice-members-list-element img {
+
+.open-demo-btn {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 16px;
+  height: auto;
+  padding: 0;
+  height: auto;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  z-index: 200;
+}
+
+.open-demo-btn img {
+  width: 16px;
+  height: auto;
+}
+
+.voice-member-icon {
   display: block;
   margin: 0 auto;
   width: 96%;

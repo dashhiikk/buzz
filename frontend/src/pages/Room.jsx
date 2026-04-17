@@ -46,6 +46,11 @@ export default function Room () {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [micOn, setMicOn] = useState(true);
+    const [headphonesOn, setHeadphonesOn] = useState(true);
+    const [demoOn, setDemoOn] = useState(false);
+    const [cameraOn, setCameraOn] = useState(false);
+
     const dataFetched = useRef(false);
 
     const layout = useTwoPanelLayout({
@@ -199,6 +204,14 @@ export default function Room () {
                             onOpenScreenShare={openScreenShare}
                             onOpenVideoChat={openVideoChat}
                             onOpenChat={openChat}
+                            micOn={micOn}
+                            setMicOn={setMicOn}
+                            headphonesOn={headphonesOn}
+                            setHeadphonesOn={setHeadphonesOn}
+                            demoOn={demoOn}
+                            setDemoOn={setDemoOn}
+                            cameraOn={cameraOn}
+                            setCameraOn={setCameraOn}
                         />
                     </div>
                 </div>
@@ -230,6 +243,14 @@ export default function Room () {
                                 onOpenScreenShare = {openScreenShare}
                                 onOpenVideoChat = {openVideoChat}
                                 onOpenChat = {openChat}
+                                micOn={micOn}
+                                setMicOn={setMicOn}
+                                headphonesOn={headphonesOn}
+                                setHeadphonesOn={setHeadphonesOn}
+                                demoOn={demoOn}
+                                setDemoOn={setDemoOn}
+                                cameraOn={cameraOn}
+                                setCameraOn={setCameraOn}
                             />
                         )}
 
