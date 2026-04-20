@@ -10,13 +10,14 @@ export default function VoiceChatPanel({
     voiceMembers,
     demoOn,
     jitsiToken,
+    isJoined,
     onJoinVoice,
     onDisconnectVoice,
     onOpenScreenShare,
     onOpenVideoChat,
-    onOpenChat
+    onOpenChat,
+    onOpenBoard
 }) {
-    const isJoined  = voiceMembers.length > 0;
 
     return (
         <div className="voice-chat">
@@ -53,7 +54,7 @@ export default function VoiceChatPanel({
                         <button type="button" onClick={onOpenVideoChat}>
                             <img src={video} alt="Видео" />
                         </button>
-                        <button type="button">
+                        <button type="button" onClick={onOpenBoard}>
                             <img src={board} alt="Доска" />
                         </button>
                     </div>

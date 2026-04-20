@@ -20,11 +20,13 @@ export default function RoomVoiceChat({
     roomId,
     onParticipantsUpdate,
     voiceMembers,
+    isJoined,
     onJoinVoice,
     onDisconnectVoice,
     onOpenScreenShare,
     onOpenVideoChat,
     onOpenChat,
+    onOpenBoard,
     micOn,
     setMicOn,
     headphonesOn,
@@ -122,11 +124,13 @@ export default function RoomVoiceChat({
                 voiceMembers={voiceMembers}
                 demoOn = {demoOn}
                 jitsiToken={jitsiToken}
+                isJoined = {isJoined}
                 onJoinVoice={onJoinVoice}
                 onDisconnectVoice={onDisconnectVoice}
                 onOpenScreenShare={onOpenScreenShare}
                 onOpenVideoChat = {onOpenVideoChat}
                 onOpenChat ={onOpenChat}
+                onOpenBoard = {onOpenBoard}
             />
 
             <CurrentVoiceUser

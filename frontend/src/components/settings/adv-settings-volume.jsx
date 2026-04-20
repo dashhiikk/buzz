@@ -1,12 +1,12 @@
 import "../../css/settings.css"
-import "../../css/right-block.css"
+
 
 import VolumeSlider from "./volume";
 import open from "../../assets/down-arrow.svg"
 
 export default function AdvSettingsVolume() {
     return (
-        <main className="right-block">
+        <main className="right-block-content">
             <div className="right-block-header">
                 <p className="large-text text--light">Звук</p>
             </div>

@@ -42,3 +42,10 @@
 .to-right-switch-btn:hover {
   transform: translateX(100%) translateY(-2px);
 }
+
+@media (max-width: 500px) {
+  .to-left-switch-btn,
+  .to-right-switch-btn {
+    display: none;
+  }
+}

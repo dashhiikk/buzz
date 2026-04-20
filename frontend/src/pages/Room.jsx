@@ -3,6 +3,7 @@ import RoomVoiceChat from "../components/room/voice/voice";
 import Header from "../components/header/header";
 import ScreenShare from "../components/room/screen-sharing";
 import VideoChat from "../components/room/video";
+import VirtualBoard from "../components/room/virtual-board";
 
 import { useAuth } from "../hooks/use-auth";
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -12,7 +13,8 @@ import { getRoom, getParticipants, getMessages, getBoardState, getJitsiToken } f
 
 import useTwoPanelLayout from "../hooks/use-two-panel-layout";
 import useSwipe from "../hooks/swipe";
-import MiniVoiceChatPanel from "../components/room/mini-voice-pannel";
+import MiniUserVoice from "../components/room/mini-voice/mini-user-voice";
+import MiniVoiceMembers from "../components/room/mini-voice/mini-voice-members";
 
 import "../css/page/blocks.css"
 import "../css/page/layout.css"
@@ -23,6 +25,9 @@ import voice from "../assets/voice.svg"
 import chat from "../assets/chat.svg"
 import video from "../assets/video.svg"
 import demo from "../assets/demo.svg"
+import board from "../assets/board.svg"
+
+const RIGHT_VIEW_ANIMATION_MS = 220;
 
 export default function Room () {
     const location = useLocation();
@@ -34,6 +39,17 @@ export default function Room () {
         `room:${roomId}:rightView`,
         "chat"
     );
+    const isBoardView = rightView === "board";
+
+    const layout = useTwoPanelLayout({
+        defaultPane: "left",
+        storageKey: `room:${roomId}`
+    });
+
+    const effectiveIsSinglePane = layout.isSinglePane || isBoardView;
+    const effectiveLayoutMode = effectiveIsSinglePane ? "single" : "split";
+    const effectiveActivePane = layout.activePane;
+
     const [room, setRoom] = useState(null);
     const [participants, setParticipants] = useState([]);
     const [voiceMembers, setVoiceMembers] = usePersistedState(
@@ -51,12 +67,10 @@ export default function Room () {
     const [demoOn, setDemoOn] = useState(false);
     const [cameraOn, setCameraOn] = useState(false);
 
-    const dataFetched = useRef(false);
+    const [displayedRightView, setDisplayedRightView] = useState(rightView);
+    const [rightViewStage, setRightViewStage] = useState("entered");
 
-    const layout = useTwoPanelLayout({
-        defaultPane: "left",
-        storageKey: `room:${roomId}`
-    });
+    const dataFetched = useRef(false);
 
     const fetchData = useCallback(async () => {
         if (!roomId) return;
@@ -106,6 +120,34 @@ export default function Room () {
         }
     });
 
+    useEffect(() => {
+        if (!effectiveIsSinglePane) {
+            setDisplayedRightView(rightView);
+            setRightViewStage("entered");
+            return;
+        }
+
+        if (rightView === displayedRightView) return;
+
+        let enterRafId = 0;
+
+        setRightViewStage("exiting");
+
+        const exitTimer = setTimeout(() => {
+            setDisplayedRightView(rightView);
+            setRightViewStage("entering");
+
+            enterRafId = requestAnimationFrame(() => {
+                setRightViewStage("entered");
+            });
+        }, RIGHT_VIEW_ANIMATION_MS);
+
+        return () => {
+            clearTimeout(exitTimer);
+            cancelAnimationFrame(enterRafId);
+        };
+    }, [rightView, displayedRightView, effectiveIsSinglePane]);
+
     const handleParticipantsUpdate = (newParticipants) => {
         setParticipants(newParticipants);
         // Если изменился администратор, можно обновить комнату
@@ -114,6 +156,8 @@ export default function Room () {
             fetchData(); // ваша функция загрузки комнаты
         }
     };
+
+    const isJoined = voiceMembers.some((member) => member.id === user?.id);
 
     const handleJoinVoice = () => {
         if (!user) return;
@@ -159,6 +203,11 @@ export default function Room () {
         }
     };
 
+    const openBoard = () => {
+        setRightView("board");
+        layout.openPane("right");
+    };
+
     if (loading) return <div>Загрузка...</div>;
     if (error) return <div>Ошибка: {error}</div>;
     if (!room) return null;
@@ -168,28 +217,30 @@ export default function Room () {
             <Header/>
             <div 
                 className="page" 
-                data-layout={layout.layoutMode}
+                data-layout={effectiveLayoutMode}
+                data-right-view={rightView}
                 {...swipeHandlers}
             >
                 <div
                     className={`panel-shell panel-shell--left ${
-                        layout.isSinglePane
-                            ? layout.activePane === "left"
+                        effectiveIsSinglePane
+                            ? effectiveActivePane === "left"
                                 ? "panel-shell--active"
                                 : "panel-shell--hidden-left"
                             : "panel-shell--split"
                     }`}
                 >
                     <div className="left-block">
-                        {layout.isSinglePane && (
+                        {effectiveIsSinglePane && (
                             <button
                                 className="to-right-switch-btn"
                                 type="button"
                                 onClick={() => layout.openPane("right")}
                             >
                                 {rightView === "chat" && <img src={chat} alt="Открыть чат" />}
-                                {rightView === "screenShare" && <img src={demo} alt="Открыть чат" />}
-                                {rightView === "videoChat" && <img src={video} alt="Открыть чат" />}
+                                {rightView === "screenShare" && <img src={demo} alt="Открыть демонстрацию" />}
+                                {rightView === "videoChat" && <img src={video} alt="Открыть видеочат" />}
+                                {rightView === "board" && <img src={board} alt="Открыть виртуальную доску" />}
                             </button>
                         )}
                         <RoomVoiceChat
@@ -199,11 +250,13 @@ export default function Room () {
                             roomId={roomId}
                             onParticipantsUpdate={handleParticipantsUpdate}
                             voiceMembers={voiceMembers}
+                            isJoined = {isJoined}
                             onJoinVoice={handleJoinVoice}
                             onDisconnectVoice={handleDisconnectVoice}
                             onOpenScreenShare={openScreenShare}
                             onOpenVideoChat={openVideoChat}
                             onOpenChat={openChat}
+                            onOpenBoard = {openBoard}
                             micOn={micOn}
                             setMicOn={setMicOn}
                             headphonesOn={headphonesOn}
@@ -218,31 +271,76 @@ export default function Room () {
 
                 <div
                     className={`panel-shell panel-shell--right ${
-                        layout.isSinglePane
-                            ? layout.activePane === "right"
+                        effectiveIsSinglePane
+                            ? effectiveActivePane === "right"
                                 ? "panel-shell--active"
                                 : "panel-shell--hidden-right"
                             : "panel-shell--split"
                     }`}
                 >
-                    <div className="right-block">
-                        {layout.isSinglePane && (
-                            <button
-                                className="to-left-switch-btn"
-                                type="button"
-                                onClick={() => layout.openPane("left")}
-                            >
-                                <img src={voice} alt="Открыть голосовой чат" />
-                            </button>
-                        )}
+                    <div className="right-panel-stack">
+                        <div className="right-block">
+                            {effectiveIsSinglePane && (
+                                <button
+                                    className="to-left-switch-btn"
+                                    type="button"
+                                    onClick={() => layout.openPane("left")}
+                                >
+                                    <img src={voice} alt="Открыть голосовой чат" />
+                                </button>
+                            )}
 
-                        {layout.isSinglePane && voiceMembers.length > 0 && (
-                            <MiniVoiceChatPanel 
-                                voiceMembers={participants}
-                                onDisconnectVoice = {handleDisconnectVoice}
-                                onOpenScreenShare = {openScreenShare}
+                            {effectiveIsSinglePane && voiceMembers.length > 0 && (
+                                <MiniVoiceMembers
+                                    voiceMembers={participants}
+                                />
+                            )}
+                            <main className={`right-block-content right-block-content--${rightViewStage}`}>
+                                    {displayedRightView === "chat" && (
+                                        <RoomChat
+                                            roomId={roomId}
+                                            initialMessages={messages}
+                                            onSwitchToLeft={() => layout.openPane("left")}
+                                            isSinglePane={layout.isSinglePane}
+                                        />
+                                    )}
+
+                                    {displayedRightView === "screenShare" && (
+                                        <ScreenShare 
+                                            onClose={openChat} 
+                                            participantVideos={participants.map((member) => ({
+                                                id: member.id,
+                                                title: member.username,
+                                                src: member.avatar
+                                            }))}
+                                        />
+                                    )} 
+
+                                    {displayedRightView === "videoChat" && (
+                                        <VideoChat
+                                            onClose={openChat}
+                                            videos={participants.map((member) => ({
+                                                id: member.id,
+                                                title: member.username,
+                                                src: member.avatar
+                                            }))}
+                                        />
+                                    )}
+
+                                    {displayedRightView === "board" && (
+                                        <VirtualBoard
+                                            state = {boardState}
+                                            onClose={openChat} 
+                                        />
+                                    )}
+                            </main>
+                        </div>
+                        {effectiveIsSinglePane && isJoined && (
+                            <MiniUserVoice
+                                user = {user}
                                 onOpenVideoChat = {openVideoChat}
                                 onOpenChat = {openChat}
+                                onOpenBoard = {openBoard}
                                 micOn={micOn}
                                 setMicOn={setMicOn}
                                 headphonesOn={headphonesOn}
@@ -253,35 +351,11 @@ export default function Room () {
                                 setCameraOn={setCameraOn}
                             />
                         )}
-
-                        {rightView === "chat" && (
-                            <RoomChat
-                                roomId={roomId}
-                                initialMessages={messages}
-                                onSwitchToLeft={() => layout.openPane("left")}
-                                isSinglePane={layout.isSinglePane}
-                            />
-                        )}
-
-                        {rightView === "screenShare" && (
-                            <ScreenShare onClose={openChat} />
-                        )}
-
-                        {rightView === "videoChat" && (
-                            <VideoChat
-                                onClose={openChat}
-                                videos={participants.map((member) => ({
-                                    id: member.id,
-                                    title: member.username,
-                                    src: member.avatar
-                                }))}
-                            />
-                        )}
                     </div>
                 </div>
             </div>
 
-            {layout.showSwitchers && (
+            {effectiveIsSinglePane && (
                 <div className="swipe-dots">
                     <button
                         type="button"

@@ -4,7 +4,7 @@ import { updateProfile, changePassword} from "../../api/users";
 import { uploadFile } from '../../api/upload';
 
 import "../../css/settings.css";
-import "../../css/right-block.css"
+
 
 import avatar from "../../assets/user-icon.svg";
 import save from "../../assets/save.svg";
@@ -215,7 +215,7 @@ export default function AdvSettingsProfile() {
 };
 
   return (
-    <main className="right-block">
+    <main className="right-block-content">
       <div className="right-block-header">
         <p className="large-text text--light">Профиль</p>
       </div>

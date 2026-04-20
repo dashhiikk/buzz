@@ -1,6 +1,6 @@
 .swipe-dots {
     position: absolute;
-    bottom: 35px; /* или где тебе визуально удобнее */
+    bottom: 20px; /* или где тебе визуально удобнее */
     left: 50%;
     transform: translateX(-50%);
     display: flex;

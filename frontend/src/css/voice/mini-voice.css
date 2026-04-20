@@ -1,0 +1,174 @@
+.mini-voice-members {
+  position: absolute;
+  width: min(4.5vw, 50px);
+  height: min(25vw, 240px); 
+  min-height: 0;  
+  
+  top: 170px;
+  left: 0;
+  transform: translateX(-100%);
+  background-color: #BFB1A4;
+  border-radius: 5px 0 0 5px;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 5px 2px;
+}
+
+.mini-voice-members-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;         /* важно */
+}
+
+.mini-voice-members-list {
+  margin: 0;
+  padding: 0 2px;
+  box-sizing: border-box;
+  list-style: none;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  height: 100%;          /* вместо max-height */
+  min-height: 0;         /* важно */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mini-voice-members-list::-webkit-scrollbar {
+  display: none;
+}
+
+.mini-voice-members-wrapper[data-show-gradient="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(191, 177, 164, 0),
+    rgba(191, 177, 164, 1)
+  );
+}
+
+.voice-member-icon {
+  display: block;
+  margin: 0 auto;
+  width: 96%;
+  max-width: 32px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 1px #283740 solid;
+}
+
+.mini-voice-user-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.mini-voice-user {
+  width: fit-content;
+  min-width: 250px;
+  max-width: 400px;
+  position: relative;
+  background-color: #283740;
+  border-radius: 10px;
+  padding: 5px 10px;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.mini-user-voice-chat-member {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  align-items: top;
+}
+
+.mini-user-voice-chat-member img {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+}
+
+.mini-voice-icons {
+  position:absolute;
+  bottom:5px;
+  right:10px;
+  display: flex;
+  gap:10px;
+}
+
+.mini-voice-icons img {
+  width: 20px;
+  height: 20px;
+}
+
+.mini-voice-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  background-color: rgba(191, 177, 164, 0);
+}
+
+.mini-voice-btns button {
+  padding: 0 5px;
+  border: none;
+  background-color: #BFB1A4;
+  border-radius: 10px;
+  height: 50px;
+  transition: transform 0.2s ease;
+}
+
+.mini-voice-btns button:hover {
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+.mini-voice-btns button img {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 500px) {
+  .mini-voice-members {
+    display: none;
+  }
+}
+
+@media (max-width: 450px) {
+  .mini-voice-user-panel {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .mini-voice-user {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .mini-voice-btns {
+    width: 100%;
+  }
+
+  .mini-voice-btns button {
+    flex: 1;
+    height: 30px;
+  }
+
+  .mini-voice-btns button img {
+    width: 24px;
+    height: 24px;
+  }
+
+}

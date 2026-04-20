@@ -1,7 +1,7 @@
 import { useRef} from "react";
 import '../../../css/list.css'
 import defaultAvatar from "../../../assets/room-default.jpg"
-import demo from "../../../assets/demo-btn.svg"
+import demo from "../../../assets/demo.svg"
 
 export default function VoiceChatMembers({
     items,

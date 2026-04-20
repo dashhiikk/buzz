@@ -1,22 +1,21 @@
 import '../../../css/chat/chat.css'
 
-import { useEffect, useRef, useMemo, useState} from "react";
+import { useEffect, useRef, useMemo, useState, useLayoutEffect, useCallback } from "react";
 import { useWebSocket } from "../../../hooks/useWebSocket";
 import { pinMessage, deleteMessage } from "../../../api/rooms";
 import { uploadFile } from "../../../api/upload";
 
-import usePinnedMessage from "../../../hooks/use-pinned-message"
+import usePinnedMessage from "../../../hooks/use-pinned-message";
 
-import PinnedMessage from "./pinned-message"
-import Messages from "./messages/messages"
+import PinnedMessage from "./pinned-message";
+import Messages from "./messages/messages";
 import AttachedFilesPreview from "./input/attached-files-preview";
-import InputMessage from "./input/input"
+import InputMessage from "./input/input";
 
 export default function RoomChat({ 
     roomId, 
     initialMessages = [],
 }) {
-
     const [newMessage, setNewMessage] = useState("");
     const [historyMessages, setHistoryMessages] = useState(initialMessages);
 
@@ -24,7 +23,11 @@ export default function RoomChat({
     const [attachedFiles, setAttachedFiles] = useState([]);
 
     const chatRef = useRef(null);
+    const messagesContentRef = useRef(null);
+    const endRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    const shouldStickToBottomRef = useRef(true);
 
     const pinned = usePinnedMessage({ roomId, chatRef });
 
@@ -47,13 +50,74 @@ export default function RoomChat({
         }
     });
 
-    const allMessages = useMemo(() => [...historyMessages, ...wsMessages], [historyMessages, wsMessages]);
+    const allMessages = useMemo(
+        () => [...historyMessages, ...wsMessages],
+        [historyMessages, wsMessages]
+    );
+
+    const scrollToBottom = useCallback((behavior = "auto") => {
+        if (!chatRef.current) return;
+
+        endRef.current?.scrollIntoView({
+            block: "end",
+            behavior,
+        });
+
+        chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }, []);
+
+    const handleChatScroll = useCallback(() => {
+        const el = chatRef.current;
+        if (!el) return;
+
+        const distanceFromBottom =
+            el.scrollHeight - el.scrollTop - el.clientHeight;
+
+        shouldStickToBottomRef.current = distanceFromBottom < 80;
+    }, []);
+
+    useLayoutEffect(() => {
+        if (!shouldStickToBottomRef.current) return;
+
+        let raf1 = 0;
+        let raf2 = 0;
+        let timeoutId = 0;
+
+        raf1 = requestAnimationFrame(() => {
+            scrollToBottom("auto");
+
+            raf2 = requestAnimationFrame(() => {
+                scrollToBottom("auto");
+            });
+
+            timeoutId = window.setTimeout(() => {
+                scrollToBottom("auto");
+            }, 120);
+        });
+
+        return () => {
+            cancelAnimationFrame(raf1);
+            cancelAnimationFrame(raf2);
+            clearTimeout(timeoutId);
+        };
+    }, [allMessages.length, pinned.pinnedMessage?.id, scrollToBottom]);
 
     useEffect(() => {
-        if (chatRef.current) {
-            chatRef.current.scrollTop = chatRef.current.scrollHeight;
-        }
-    }, [allMessages]);
+        const contentEl = messagesContentRef.current;
+        if (!contentEl) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            if (shouldStickToBottomRef.current) {
+                scrollToBottom("auto");
+            }
+        });
+
+        resizeObserver.observe(contentEl);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [scrollToBottom]);
 
     useEffect(() => {
         setHistoryMessages(initialMessages);
@@ -68,8 +132,6 @@ export default function RoomChat({
         try {
             const responses = await Promise.all(files.map((file) => uploadFile(file)));
             const uploadedFiles = responses.map((res) => res.data);
-
-            console.log("uploadedFiles:", uploadedFiles);
 
             setAttachedFiles((prev) => [...prev, ...uploadedFiles]);
         } catch (err) {
@@ -94,12 +156,12 @@ export default function RoomChat({
         if (uploading) return;
 
         const trimmedText = newMessage.trim();
-
         if (trimmedText === "" && attachedFiles.length === 0) return;
 
         sendMessage(trimmedText, attachedFiles);
         setNewMessage("");
         setAttachedFiles([]);
+        shouldStickToBottomRef.current = true;
     };
 
     const handleKeyDown = (e) => {
@@ -128,7 +190,7 @@ export default function RoomChat({
     };
 
     return (
-        <main className="right-block-content">
+        <>
             <div className="right-block-header">
                 <p className="large-text text--light">Чат</p>
             </div>
@@ -148,13 +210,20 @@ export default function RoomChat({
             />
 
             <div className="message-block-wrapper">
-                <div ref={chatRef} className="message-block">
-                    <Messages
-                        messages={allMessages}
-                        onDelete={handleDeleteMessage}
-                        onPin={handlePinMessage}
-                        highlightedMessageId={pinned.highlightedMessageId}
-                    />
+                <div
+                    ref={chatRef}
+                    className="message-block"
+                    onScroll={handleChatScroll}
+                >
+                    <div ref={messagesContentRef}>
+                        <Messages
+                            messages={allMessages}
+                            onDelete={handleDeleteMessage}
+                            onPin={handlePinMessage}
+                            highlightedMessageId={pinned.highlightedMessageId}
+                        />
+                        <div ref={endRef} />
+                    </div>
                 </div>
                 <div className="messages-gradient-overlay" />
             </div>
@@ -174,6 +243,6 @@ export default function RoomChat({
                 fileInputRef={fileInputRef}
                 onFileSelect={handleFileSelect}
             />
-        </main>
+        </>
     );
 }

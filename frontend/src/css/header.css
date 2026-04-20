@@ -64,14 +64,21 @@
     position: absolute;
     top: -2px;
     left: -4px;
-    z-index: 40;
-    width: 24px;
-    height: 24px;
+    z-index: 300;
+    width: 20px;
+    height: 20px;
     text-align: center;
     border-radius: 50%;
 }
 
-.notification.ring {
+.notification img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 15%;
+}
+
+.notification.ring img {
     animation: ring 0.5s ease-in-out;
 }
 

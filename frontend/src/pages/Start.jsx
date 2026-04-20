@@ -112,8 +112,10 @@ export default function Start() {
                                     : "panel-shell--split"
                             }`}
                         >
-                            <div className="right-block">
-                                <StartChat text="Зайдите в комнату, чтобы начать общение"/>
+                            <div className="right-panel-stack">
+                                <div className="right-block">
+                                    <StartChat text="Зайдите в комнату, чтобы начать общение"/>
+                                </div>
                             </div>
                         </div>
                     </>
@@ -159,8 +161,10 @@ export default function Start() {
                                     : "panel-shell--split"
                             }`}
                         >
-                            <div className="right-block">
-                                <StartChat text="Выберите друга, чтобы начать общение"/>
+                            <div className="right-panel-stack">
+                                <div className="right-block">
+                                    <StartChat text="Выберите друга, чтобы начать общение"/>
+                                </div>
                             </div>
                         </div>
                     </>

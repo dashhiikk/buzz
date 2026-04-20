@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import { AuthContext } from './AuthContext';
 import { updateProfile } from '../api/users'
+import clearSessionState from '../hooks/clear-session';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -115,6 +116,7 @@ export const AuthProvider = ({ children }) => {
 
   // Выход
   const logout = () => {
+    clearSessionState();
     localStorage.removeItem('token');
     setUser(null);
   };
