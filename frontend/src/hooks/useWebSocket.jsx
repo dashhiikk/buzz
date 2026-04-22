@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { tokenManager } from '../context/tokenManager';
 
 export function useWebSocket(roomId, callbacks = {}) {
     const [messages, setMessages] = useState([]);
@@ -18,7 +19,7 @@ export function useWebSocket(roomId, callbacks = {}) {
         if (connectingRef.current) return;
         connectingRef.current = true;
 
-        const token = localStorage.getItem('token');
+        const token = tokenManager.getToken();
         const ws = new WebSocket(`ws://localhost:8080/ws/chat?roomId=${roomId}&token=${token}`);
 
         ws.onopen = () => {

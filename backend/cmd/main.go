@@ -74,12 +74,13 @@ func main() {
 	}
 	defer db.Close()
 
-	hasher := hash.NewBcryptHasher()
+	hasher := hash.NewHasher()
 	jwtService := jwt.NewJWTService(cfg.JWT.SecretKey, cfg.JWT.AccessExpire)
 	emailSender := email.NewSMTPSender(cfg.Email.SMTPHost, cfg.Email.SMTPPort, cfg.Email.Username, cfg.Email.Password, cfg.Email.From)
 	jitsiJWT := jitsi.NewJitsiJWT(cfg.Jitsi.JWTSecret, cfg.Jitsi.AppID, 1*time.Hour)
 
 	userRepo := repositories.NewUserRepository(db)
+	refreshRepo := repositories.NewRefreshRepository(db)
 	requestRepo := repositories.NewRequestRepository(db)
 	roomRepo := repositories.NewRoomRepository(db)
 	chatRepo := repositories.NewChatRepository(db)
@@ -88,7 +89,7 @@ func main() {
 	notificationHub := ws.NewNotificationHub()
 	go notificationHub.Run()
 
-	authUseCase := auth.NewAuthUseCase(userRepo, hasher, jwtService, emailSender)
+	authUseCase := auth.NewAuthUseCase(userRepo, refreshRepo, hasher, jwtService, emailSender, cfg.JWT.AccessExpire, cfg.JWT.RefreshExpire)
 	roomUseCase := room.NewRoomUseCase(roomRepo, userRepo, requestRepo, notificationHub)
 	friendUseCase := friend.NewFriendUseCase(requestRepo, userRepo, roomUseCase, notificationHub)
 	requestUseCase := request.NewRequestUseCase(requestRepo, userRepo, roomRepo, friendUseCase, roomUseCase)
@@ -102,7 +103,7 @@ func main() {
 	friendHTTPHandler := friendHandler.NewHandler(friendUseCase)
 	roomHTTPHandler := roomHandler.NewHandler(roomUseCase, cfg.AppURL)
 	requestHTTPHandler := requestHandler.NewHandler(requestUseCase)
-	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub, jwtService, notificationHub)
+	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub, jwtService)
 	boardHTTPHandler := boardHandler.NewHandler(boardUseCase, roomUseCase, hub)
 	jitsiHTTPHandler := jitsiHandler.NewHandler(jitsiJWT, roomUseCase, cfg.Jitsi.ServerUrl)
 	notificationWSHandler := notificationHandler.NewHandler(notificationHub)
@@ -136,6 +137,7 @@ func main() {
 		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
 		r.Post("/update-password", authHTTPHandler.UpdatePassword)
 		r.Post("/resend-verification", authHTTPHandler.ResendVerification)
+		r.Post("/auth/refresh", authHTTPHandler.Refresh)
 	})
 
 	r.Get("/ws/chat", chatHTTPHandler.ServeWebSocket)
@@ -145,6 +147,7 @@ func main() {
 		r.Use(appMiddleware.AuthMiddleware(jwtService))
 
 		r.Get("/auth/me", authHTTPHandler.GetMe)
+		r.Post("/auth/logout", authHTTPHandler.Logout)
 		r.Get("/ws/notifications", notificationWSHandler.ServeWebSocket)
 		r.Patch("/users/me", authHTTPHandler.UpdateProfile)
 		r.Post("/auth/change-password", authHTTPHandler.ChangePassword)

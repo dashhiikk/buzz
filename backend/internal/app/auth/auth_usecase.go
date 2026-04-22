@@ -11,9 +11,9 @@ import (
 	"Buzz/internal/domain/auth"
 	"Buzz/internal/entity"
 	"Buzz/internal/infra/email"
-	"Buzz/pkg/code"
 	"Buzz/pkg/hash"
 	"Buzz/pkg/jwt"
+	"Buzz/pkg/random"
 	"Buzz/pkg/validator"
 )
 
@@ -30,30 +30,88 @@ var (
 	ErrInvalidBirthDate = errors.New("Некорректная дата рождения")
 	ErrInvalidFirstName = errors.New("Имя может содержать только буквы")
 
-	ErrTokenInvalid  = errors.New("Неверный токен")
-	ErrTokenExpired  = errors.New("Токен истек")
+	ErrTokenInvalid = errors.New("Неверный токен")
+	ErrTokenExpired = errors.New("Токен истек")
+	ErrTokenRevoked = errors.New("Токен отменен")
+
 	ErrUserNotVerify = errors.New("Email не подврержден")
 )
 
 type AuthUseCase struct {
-	userRepo    auth.AuthRepository
-	hasher      hash.PasswordHasher
-	jwtService  jwt.Service
-	emailSender email.Sender
+	userRepo      auth.AuthRepository
+	refreshRepo   auth.RefreshRepository
+	hasher        hash.Hash
+	jwtService    jwt.Service
+	emailSender   email.Sender
+	accessExpire  time.Duration
+	refreshExpire time.Duration
 }
 
 func NewAuthUseCase(
 	userRepo auth.AuthRepository,
-	hasher hash.PasswordHasher,
+	refreshRepo auth.RefreshRepository,
+	hasher hash.Hash,
 	jwtService jwt.Service,
 	emailSender email.Sender,
+	accessExpire,
+	refreshExpire time.Duration,
 ) *AuthUseCase {
 	return &AuthUseCase{
-		userRepo:    userRepo,
-		hasher:      hasher,
-		jwtService:  jwtService,
-		emailSender: emailSender,
+		userRepo:      userRepo,
+		refreshRepo:   refreshRepo,
+		hasher:        hasher,
+		jwtService:    jwtService,
+		emailSender:   emailSender,
+		accessExpire:  accessExpire,
+		refreshExpire: refreshExpire,
 	}
+}
+
+func (uc *AuthUseCase) GenerateTokens(ctx context.Context, userId string) (accessToken, refreshToken string, err error) {
+	accessToken, err = uc.jwtService.GenerateWithExpiry(userId, uc.accessExpire)
+	if err != nil {
+		return "", "", err
+	}
+	rawRefresh, err := random.GenerateString(32)
+	if err != nil {
+		return "", "", err
+	}
+	refreshHash := uc.hasher.HashToken(rawRefresh)
+	expiresAt := time.Now().Add(uc.refreshExpire)
+	if err := uc.refreshRepo.Store(ctx, userId, refreshHash, expiresAt); err != nil {
+		return "", "", err
+	}
+	return accessToken, rawRefresh, nil
+}
+
+func (uc *AuthUseCase) RefreshToken(ctx context.Context, refreshTokenStr string) (string, error) {
+	tokenHash := uc.hasher.HashToken(refreshTokenStr)
+	stored, err := uc.refreshRepo.GetByTokenHash(ctx, tokenHash)
+	if err != nil || stored == nil {
+		return "", ErrTokenInvalid
+	}
+	if stored.Revoked {
+		return "", ErrTokenRevoked
+	}
+	if time.Now().After(stored.ExpiresAt) {
+		uc.refreshRepo.Revoke(ctx, stored.Id)
+		return "", ErrTokenExpired
+	}
+
+	return uc.jwtService.GenerateWithExpiry(stored.UserId, uc.accessExpire)
+}
+
+func (uc *AuthUseCase) RevokeRefreshToken(ctx context.Context, refreshTokenStr string) error {
+	tokenHash := uc.hasher.HashToken(refreshTokenStr)
+	stored, err := uc.refreshRepo.GetByTokenHash(ctx, tokenHash)
+	if err != nil || stored == nil {
+		return ErrTokenInvalid
+	}
+	return uc.refreshRepo.Revoke(ctx, stored.Id)
+}
+
+func (uc *AuthUseCase) RevokeAllUserTokens(ctx context.Context, userID string) error {
+	return uc.refreshRepo.RevokeAllForUser(ctx, userID)
 }
 
 func (uc *AuthUseCase) Register(ctx context.Context, username, email, password string) error {
@@ -88,12 +146,12 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 		return false, nil
 	}
 
-	codeStr, err := code.GenerateCode(ctx, checkCode, 100)
+	codeStr, err := random.GenerateCode(ctx, checkCode, 100)
 	if err != nil {
 		return fmt.Errorf("generate code: %w", err)
 	}
 
-	passwordHash, err := uc.hasher.Hash(password)
+	passwordHash, err := uc.hasher.HashPassword(password)
 	if err != nil {
 		return fmt.Errorf("hash password: %w", err)
 	}
@@ -108,15 +166,6 @@ func (uc *AuthUseCase) Register(ctx context.Context, username, email, password s
 
 	if err := uc.userRepo.CreateUser(ctx, user, passwordHash); err != nil {
 		return err
-	}
-
-	token, err := uc.jwtService.GenerateWithExpiry(user.Id, 24*time.Hour)
-	if err != nil {
-		log.Printf("failed to generate verification token: %v", err)
-	} else {
-		if err := uc.emailSender.SendVerification(user.Email, token); err != nil {
-			log.Printf("failed to send verification email: %v", err)
-		}
 	}
 
 	return nil
@@ -139,41 +188,31 @@ func (uc *AuthUseCase) VerifyEmailAndLogin(ctx context.Context, token string) (s
 		return "", err
 	}
 
-	authToken, err := uc.jwtService.Generate(claims.UserId)
-	if err != nil {
-		return "", fmt.Errorf("generate token: %w", err)
-	}
-
-	return authToken, nil
+	return claims.UserId, nil
 }
 
-func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (string, error) {
+func (uc *AuthUseCase) Login(ctx context.Context, email, password string) (*entity.User, error) {
 	if err := validator.Var(email, "required,email"); err != nil {
-		return "", ErrInvalidUsername
+		return nil, ErrInvalidUsername
 	}
 
 	user, err := uc.userRepo.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", ErrUserNotFound
+			return nil, ErrUserNotFound
 		}
-		return "", err
+		return nil, err
 	}
 
-	if err := uc.hasher.Check(password, user.PasswordHash); err != nil {
-		return "", ErrInvalidPassword
+	if err := uc.hasher.CheckPasswordHash(password, user.PasswordHash); err != nil {
+		return nil, ErrInvalidPassword
 	}
-	log.Printf("isverified: %t", user.IsVerified)
+
 	if !user.IsVerified {
-		return "", ErrUserNotVerify
+		return nil, ErrUserNotVerify
 	}
 
-	token, err := uc.jwtService.Generate(user.Id)
-	if err != nil {
-		return "", fmt.Errorf("generate token: %w", err)
-	}
-
-	return token, nil
+	return user, nil
 }
 
 func (uc *AuthUseCase) RequestPasswordReset(ctx context.Context, email string) error {
@@ -214,7 +253,7 @@ func (uc *AuthUseCase) UpdatePasswordAndVerify(ctx context.Context, token, newPa
 		return "", ErrTokenInvalid
 	}
 
-	passwordHash, err := uc.hasher.Hash(newPassword)
+	passwordHash, err := uc.hasher.HashPassword(newPassword)
 	if err != nil {
 		return "", fmt.Errorf("hash password: %w", err)
 	}
@@ -227,12 +266,7 @@ func (uc *AuthUseCase) UpdatePasswordAndVerify(ctx context.Context, token, newPa
 		return "", err
 	}
 
-	authToken, err := uc.jwtService.Generate(claims.UserId)
-	if err != nil {
-		return "", fmt.Errorf("generate token: %w", err)
-	}
-
-	return authToken, nil
+	return claims.UserId, nil
 }
 
 func (uc *AuthUseCase) ResendVerificationEmail(ctx context.Context, email string) error {
@@ -362,11 +396,11 @@ func (uc *AuthUseCase) ChangePassword(ctx context.Context, userID, oldPassword, 
 		return ErrWeakPassword
 	}
 
-	if err := uc.hasher.Check(oldPassword, user.PasswordHash); err != nil {
+	if err := uc.hasher.CheckPasswordHash(oldPassword, user.PasswordHash); err != nil {
 		return ErrInvalidPassword
 	}
 
-	newHash, err := uc.hasher.Hash(newPassword)
+	newHash, err := uc.hasher.HashPassword(newPassword)
 	if err != nil {
 		return fmt.Errorf("hash new password: %w", err)
 	}

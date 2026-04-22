@@ -1,8 +1,9 @@
-package code
+package random
 
 import (
 	"context"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"math/big"
 )
@@ -33,4 +34,12 @@ func GenerateCode(ctx context.Context, check CheckFunc, maxAttempts int) (string
 	}
 
 	return "", fmt.Errorf("failed to generate unique code after %d attempts", maxAttempts)
+}
+
+func GenerateString(length int) (string, error) {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate string: %v", err)
+	}
+	return hex.EncodeToString(bytes), nil
 }

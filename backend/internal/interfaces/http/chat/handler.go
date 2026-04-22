@@ -19,11 +19,10 @@ import (
 )
 
 type Handler struct {
-	chatUseCase     *chat.ChatUseCase
-	roomUseCase     *room.RoomUseCase
-	hub             *ws.Hub
-	jwtService      jwt.Service
-	notificationHub *ws.NotificationHub
+	chatUseCase *chat.ChatUseCase
+	roomUseCase *room.RoomUseCase
+	hub         *ws.Hub
+	jwtService  jwt.Service
 }
 
 func NewHandler(
@@ -31,14 +30,12 @@ func NewHandler(
 	roomUseCase *room.RoomUseCase,
 	hub *ws.Hub,
 	jwtService jwt.Service,
-	notificationHub *ws.NotificationHub,
 ) *Handler {
 	return &Handler{
-		chatUseCase:     chatUseCase,
-		roomUseCase:     roomUseCase,
-		hub:             hub,
-		jwtService:      jwtService,
-		notificationHub: notificationHub,
+		chatUseCase: chatUseCase,
+		roomUseCase: roomUseCase,
+		hub:         hub,
+		jwtService:  jwtService,
 	}
 }
 

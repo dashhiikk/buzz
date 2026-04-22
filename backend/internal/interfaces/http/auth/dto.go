@@ -1,5 +1,9 @@
 package auth
 
+type RefreshRequest struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
 // RegisterRequest - форма запроса на регистрацию
 type RegisterRequest struct {
 	Username string `json:"username"`
@@ -26,7 +30,7 @@ type UpdatePasswordRequest struct {
 
 // TokenResponse - ответ с токеном
 type TokenResponse struct {
-	Token string `json:"token"`
+	AccessToken string `json:"accessToken"`
 }
 
 // ErrorResponse - ответ с ошибкой

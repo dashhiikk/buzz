@@ -16,7 +16,15 @@ export const AuthProvider = ({ children }) => {
   const closeModals = () => {
     setShowRegistrationModal(false);
     setShowRecoveryModal(false);
-  };  
+  };
+  
+  const setAuthToken = (token) => {
+    if (token) {
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete apiClient.defaults.headers.common['Authorization'];
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -24,7 +32,6 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      localStorage.removeItem('token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -33,20 +40,15 @@ export const AuthProvider = ({ children }) => {
 
   // Проверка авторизации при загрузке приложения
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetchUser().finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+    setLoading(false);
   }, []);
 
   // Вход
   const login = async (email, password) => {
     try {
       const response = await apiClient.post('/auth/login', { email, password });
-      const { token } = response.data;
-      localStorage.setItem('token', token);
+      const { accessToken } = response.data;
+      setAuthToken(accessToken);
       await fetchUser();
       return response;
     } catch (error) {
@@ -73,10 +75,10 @@ export const AuthProvider = ({ children }) => {
   const verifyEmail = async (token) => {
     try {
       const response = await apiClient.get(`/auth/verify?token=${token}`);
-      const { token: authToken } = response.data;
-      if (!authToken) throw new Error('Токен не получен');
+      const { accessToken } = response.data;
+      if (!accessToken) throw new Error('Токен не получен');
       // сохраняем JWT
-      localStorage.setItem('token', authToken);
+      setAuthToken(accessToken);
 
       // получаем пользователя
       await fetchUser();
@@ -103,8 +105,8 @@ export const AuthProvider = ({ children }) => {
     const updatePassword = async (token, newPassword) => {
     try {
       const response = await apiClient.post('/auth/update-password', { token, newPassword });
-      const { token: authToken } = response.data;
-      localStorage.setItem('token', authToken);
+      const { accessToken } = response.data;
+      setAuthToken(accessToken);
       await fetchUser();
       return response;
     } catch (error) {
@@ -115,10 +117,16 @@ export const AuthProvider = ({ children }) => {
     };
 
   // Выход
-  const logout = () => {
-    clearSessionState();
-    localStorage.removeItem('token');
-    setUser(null);
+  const logout = async () => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setAuthToken(null);
+      clearSessionState();
+      setUser(null);
+    }
   };
 
   const updateUser = async (data) => {

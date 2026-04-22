@@ -7,6 +7,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Handler struct {
@@ -27,6 +28,35 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
+}
+
+func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
+	var req RefreshRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.writeError(w, http.StatusBadRequest, errors.New("invalid request body"))
+		return
+	}
+
+	if req.RefreshToken == "" {
+		h.writeError(w, http.StatusBadRequest, errors.New("refresh token required"))
+		return
+	}
+
+	newAccessToken, err := h.authUseCase.RefreshToken(r.Context(), req.RefreshToken)
+	if err != nil {
+		switch {
+		case errors.Is(err, auth.ErrTokenInvalid):
+			h.writeError(w, http.StatusBadRequest, err)
+		case errors.Is(err, auth.ErrTokenRevoked),
+			errors.Is(err, auth.ErrTokenExpired):
+			h.writeError(w, http.StatusUnauthorized, err)
+		default:
+			h.writeError(w, http.StatusInternalServerError, errors.New("failed to get new access token"))
+		}
+		return
+	}
+
+	h.writeJSON(w, http.StatusOK, map[string]string{"accessToken": newAccessToken})
 }
 
 // Register godoc
@@ -100,7 +130,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.authUseCase.Login(r.Context(), req.Email, req.Password)
+	user, err := h.authUseCase.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		switch {
 		case errors.Is(err, auth.ErrInvalidUsername),
@@ -118,7 +148,23 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, TokenResponse{Token: token})
+	accessToken, refreshToken, err := h.authUseCase.GenerateTokens(r.Context(), user.Id)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to generate tokens"))
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/auth/refresh",
+		MaxAge:   int(24 * time.Hour.Seconds()), // или из конфига
+	})
+
+	h.writeJSON(w, http.StatusOK, TokenResponse{AccessToken: accessToken})
 }
 
 // RequestPasswordReset godoc
@@ -168,7 +214,7 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("Raw token handler: %q", req.Token)
-	authToken, err := h.authUseCase.UpdatePasswordAndVerify(r.Context(), req.Token, req.NewPassword)
+	userId, err := h.authUseCase.UpdatePasswordAndVerify(r.Context(), req.Token, req.NewPassword)
 	if err != nil {
 		switch {
 		case errors.Is(err, auth.ErrWeakPassword):
@@ -183,7 +229,23 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, TokenResponse{Token: authToken})
+	accessToken, refreshToken, err := h.authUseCase.GenerateTokens(r.Context(), userId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to generate tokens"))
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/auth/refresh",
+		MaxAge:   int(24 * time.Hour.Seconds()), // или из конфига
+	})
+
+	h.writeJSON(w, http.StatusOK, TokenResponse{AccessToken: accessToken})
 }
 
 // VerifyEmail godoc
@@ -201,13 +263,29 @@ func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authToken, err := h.authUseCase.VerifyEmailAndLogin(r.Context(), token)
+	userId, err := h.authUseCase.VerifyEmailAndLogin(r.Context(), token)
 	if err != nil {
 		h.writeError(w, http.StatusBadRequest, errors.New("invalid or expire token"))
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, TokenResponse{Token: authToken})
+	accessToken, refreshToken, err := h.authUseCase.GenerateTokens(r.Context(), userId)
+	if err != nil {
+		h.writeError(w, http.StatusInternalServerError, errors.New("failed to generate tokens"))
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/auth/refresh",
+		MaxAge:   int(24 * time.Hour.Seconds()), // или из конфига
+	})
+
+	h.writeJSON(w, http.StatusOK, TokenResponse{AccessToken: accessToken})
 }
 
 func (h *Handler) ResendVerification(w http.ResponseWriter, r *http.Request) {
@@ -326,5 +404,22 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("refresh_token")
+	if err == nil && cookie.Value != "" {
+		_ = h.authUseCase.RevokeRefreshToken(r.Context(), cookie.Value)
+	}
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/auth/refresh",
+		MaxAge:   -1,
+	})
 	w.WriteHeader(http.StatusOK)
 }
