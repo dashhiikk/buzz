@@ -106,7 +106,7 @@ func main() {
 	chatHTTPHandler := chatHandler.NewHandler(chatUseCase, roomUseCase, hub, jwtService)
 	boardHTTPHandler := boardHandler.NewHandler(boardUseCase, roomUseCase, hub)
 	jitsiHTTPHandler := jitsiHandler.NewHandler(jitsiJWT, roomUseCase, cfg.Jitsi.ServerUrl)
-	notificationWSHandler := notificationHandler.NewHandler(notificationHub)
+	notificationWSHandler := notificationHandler.NewHandler(notificationHub, jwtService)
 
 	uploader := upload.NewFileUploader(cfg.Upload.Path, cfg.Upload.MaxSize, cfg.Upload.AllowedExts)
 	uploadHTTPHandler := uploadHandler.NewHandler(uploader)
@@ -137,18 +137,18 @@ func main() {
 		r.Post("/password-reset", authHTTPHandler.RequestPasswordReset)
 		r.Post("/update-password", authHTTPHandler.UpdatePassword)
 		r.Post("/resend-verification", authHTTPHandler.ResendVerification)
-		r.Post("/auth/refresh", authHTTPHandler.Refresh)
+		r.Post("/refresh", authHTTPHandler.Refresh)
 	})
 
 	r.Get("/ws/chat", chatHTTPHandler.ServeWebSocket)
 	r.Get("/ws/board", boardHTTPHandler.ServeWebSocket)
+	r.Get("/ws/notifications", notificationWSHandler.ServeWebSocket)
 
 	r.Group(func(r chi.Router) {
 		r.Use(appMiddleware.AuthMiddleware(jwtService))
 
 		r.Get("/auth/me", authHTTPHandler.GetMe)
 		r.Post("/auth/logout", authHTTPHandler.Logout)
-		r.Get("/ws/notifications", notificationWSHandler.ServeWebSocket)
 		r.Patch("/users/me", authHTTPHandler.UpdateProfile)
 		r.Post("/auth/change-password", authHTTPHandler.ChangePassword)
 

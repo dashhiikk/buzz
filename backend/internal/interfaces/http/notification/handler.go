@@ -2,17 +2,26 @@ package notification
 
 import (
 	ws "Buzz/internal/infra/websocket"
-	"Buzz/internal/middleware"
+	"Buzz/pkg/jwt"
+	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 )
 
 type Handler struct {
-	hub *ws.NotificationHub
+	hub        *ws.NotificationHub
+	jwtService jwt.Service
 }
 
-func NewHandler(hub *ws.NotificationHub) *Handler {
-	return &Handler{hub: hub}
+func NewHandler(hub *ws.NotificationHub, jwtService jwt.Service) *Handler {
+	return &Handler{hub: hub, jwtService: jwtService}
+}
+
+func (h *Handler) writeError(w http.ResponseWriter, status int, err error) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 }
 
 // ServeWebSocket godoc
@@ -24,11 +33,18 @@ func NewHandler(hub *ws.NotificationHub) *Handler {
 // @Failure      401 "Неавторизован"
 // @Router       /ws/notifications [get]
 func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
-	userId, ok := r.Context().Value(middleware.UserIdKey).(string)
-	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		h.writeError(w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
+
+	claims, err := h.jwtService.Validate(token)
+	if err != nil {
+		h.writeError(w, http.StatusUnauthorized, errors.New("invalid token"))
+		return
+	}
+	userId := claims.UserId
 
 	conn, err := ws.Upgrader.Upgrade(w, r, nil)
 	if err != nil {
