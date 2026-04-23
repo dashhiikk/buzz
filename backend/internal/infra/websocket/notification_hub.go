@@ -27,7 +27,7 @@ func (h *NotificationHub) Run() {
 		case client := <-h.Register:
 			h.Clients[client.UserId] = client
 		case client := <-h.Unregister:
-			if _, ok := (h.Clients[client.UserId]); !ok {
+			if _, ok := (h.Clients[client.UserId]); ok {
 				delete(h.Clients, client.UserId)
 				close(client.Send)
 			}
@@ -45,5 +45,8 @@ func (h *NotificationHub) Run() {
 }
 
 func (h *NotificationHub) SendToUser(userId string, payload []byte) {
-	h.Broadcast <- &Notification{UserId: userId, Payload: payload}
+	h.Broadcast <- &Notification{
+		UserId:  userId,
+		Payload: payload,
+	}
 }

@@ -25,17 +25,23 @@ var Upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	Hub       *Hub
-	Conn      *websocket.Conn
-	Send      chan []byte
-	UserId    string
-	RoomId    string
-	OnMessage func(*Client, []byte)
+	Hub             *Hub
+	NotificationHub *NotificationHub
+	Conn            *websocket.Conn
+	Send            chan []byte
+	UserId          string
+	RoomId          string
+	OnMessage       func(*Client, []byte)
 }
 
 func (c *Client) ReadPump() {
 	defer func() {
-		c.Hub.Unregister <- c
+		if c.Hub != nil {
+			c.Hub.Unregister <- c
+		}
+		if c.NotificationHub != nil {
+			c.NotificationHub.Unregister <- c
+		}
 		c.Conn.Close()
 	}()
 

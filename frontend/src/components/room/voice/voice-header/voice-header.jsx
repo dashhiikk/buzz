@@ -9,7 +9,7 @@ import { useRef, useEffect } from "react";
 import RoomMenu from "../../room-menu";
 import RoomMembers from "./members";
 import SendRequest from "../../../../modals/send-request";
-import Notification from "./invite-link";
+import Notification from "../../../notification";
 
 export default function RoomVoiceHeader({
     room,

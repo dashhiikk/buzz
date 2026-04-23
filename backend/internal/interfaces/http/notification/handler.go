@@ -37,11 +37,11 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &ws.Client{
-		Hub:       nil,
-		Conn:      conn,
-		Send:      make(chan []byte, 256),
-		UserId:    userId,
-		OnMessage: func(c *ws.Client, msg []byte) {},
+		NotificationHub: h.hub,
+		Conn:            conn,
+		Send:            make(chan []byte, 256),
+		UserId:          userId,
+		OnMessage:       func(c *ws.Client, msg []byte) {},
 	}
 
 	h.hub.Register <- client
