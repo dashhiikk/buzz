@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import '../css/notification.css';
 
-export default function Notification({ message, duration = 2500, onClose }) {
+export default function NotificationToast({ message, duration = 2500, onClose }) {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ export default function Notification({ message, duration = 2500, onClose }) {
     }, [duration, onClose]);
 
     return (
-        <div className={`notification ${isVisible ? 'show' : 'hide'}`}>
+        <div className={`notification-toast ${isVisible ? 'show' : 'hide'}`}>
             <p className="small-text text--light">{message}</p>
         </div>
     );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
 import { AuthContext } from './AuthContext';
 import { updateProfile } from '../api/users'
+import {tokenManager} from './tokenManager';
 import clearSessionState from '../hooks/clear-session';
 
 export const AuthProvider = ({ children }) => {
@@ -20,9 +21,9 @@ export const AuthProvider = ({ children }) => {
   
   const setAuthToken = (token) => {
     if (token) {
-      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      tokenManager.setToken(token);
     } else {
-      delete apiClient.defaults.headers.common['Authorization'];
+      tokenManager.clearToken();
     }
   };
 
@@ -40,7 +41,27 @@ export const AuthProvider = ({ children }) => {
 
   // Проверка авторизации при загрузке приложения
   useEffect(() => {
-    setLoading(false);
+    const initAuth = async () => {
+      try {
+        const refreshResponse = await apiClient.post('/auth/refresh');
+        const { accessToken } = refreshResponse.data;
+
+        if (accessToken) {
+          setAuthToken(accessToken);
+          await fetchUser();
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.log(err)
+        tokenManager.clearToken();
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
   // Вход
@@ -76,11 +97,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await apiClient.get(`/auth/verify?token=${token}`);
       const { accessToken } = response.data;
-      if (!accessToken) throw new Error('Токен не получен');
-      // сохраняем JWT
-      setAuthToken(accessToken);
 
-      // получаем пользователя
+      if (!accessToken) throw new Error('Токен не получен');
+
+      setAuthToken(accessToken);
       await fetchUser();
 
       return true;

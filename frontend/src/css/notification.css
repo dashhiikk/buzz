@@ -1,4 +1,4 @@
-.notification {
+.notification-toast {
     position: absolute;
     margin-top: 5px;
     top: 100%; /* под иконкой */
@@ -19,12 +19,12 @@
     pointer-events: none;
 }
 
-.notification.show {
+.notification-toast.show {
     opacity: 1;
     transform: translateX(-50%) scale(1);
 }
 
-.notification.hide {
+.notification-toast.hide {
     opacity: 0;
     transform: translateX(-50%) scale(0.95);
 }

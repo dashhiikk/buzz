@@ -7,7 +7,7 @@ import RequestItem from './request-item';
 
 import { getIncomingRequests, getOutgoingRequests, cancelRequest, acceptRequest, rejectRequest } from '../../api/requests';
 
-export default function Requests({ isOpen, onClose }) {
+export default function Requests({ isOpen, onClose, refreshKey = 0 }) {
     const [active, setActive] = useState("incoming");
     const [incoming, setIncoming] = useState([]);
     const [outgoing, setOutgoing] = useState([]);
@@ -34,9 +34,9 @@ export default function Requests({ isOpen, onClose }) {
 
     useEffect(() => {
         if (isOpen) {
-            fetchData();
+        fetchData();
         }
-    }, [isOpen, fetchData]);
+    }, [isOpen, fetchData, refreshKey]);
 
     const handleCancel = async (id) => {
         try {

@@ -8,10 +8,60 @@ import '../../css/header.css'
 import Settings from "../settings/settings"
 import UserPopup from "./user-popup"
 import Requests from "../../modals/requests/requests"
+import NotificationToast from "../notification"
 
-import { useState } from "react"
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+
 import {useAuth} from "../../hooks/use-auth"
+import { useNotificationWebSocket } from "../../hooks/useNotificationWebSocket";
+import usePersistedState from "../../hooks/use-persisted-state"
+
+const INCOMING_REQUEST_TYPES = new Set([
+  "friend_request",
+  "room_request",
+  "room_invite",
+  "room_invitation",
+  "room_join_request",
+]);
+
+function buildNotificationMessage(payload) {
+  const from = payload?.data?.from;
+  const fromLabel = from
+    ? `${from.username}${from.code ? `#${from.code}` : ""}`
+    : "Пользователь";
+
+  switch (payload?.type) {
+    case "friend_request":
+      return `Новый запрос в друзья от ${fromLabel}`;
+
+    case "friend_request_accepted":
+      return `${fromLabel} принял(а) ваш запрос в друзья`;
+
+    case "friend_request_rejected":
+      return `${fromLabel} отклонил(а) ваш запрос в друзья`;
+
+    case "room_request":
+    case "room_invite":
+    case "room_invitation":
+    case "room_join_request":
+      return `Новый запрос, связанный с комнатой, от ${fromLabel}`;
+
+    case "room_request_accepted":
+    case "room_invite_accepted":
+    case "room_invitation_accepted":
+    case "room_join_request_accepted":
+      return `${fromLabel} принял(а) запрос, связанный с комнатой`;
+
+    case "room_request_rejected":
+    case "room_invite_rejected":
+    case "room_invitation_rejected":
+    case "room_join_request_rejected":
+      return `${fromLabel} отклонил(а) запрос, связанный с комнатой`;
+
+    default:
+      return null;
+  }
+}
 
 export default function Header({ hideIconsAndLogo }) {
   const { user } = useAuth();
@@ -36,24 +86,64 @@ export default function Header({ hideIconsAndLogo }) {
       setIsRequestOpen(true);     // открываем модалку
   };
 
-  const [hasUnread, setHasUnread] = useState(true);
   const [animateRing, setAnimateRing] = useState(true);
+  const [hasUnreadRequests, setHasUnreadRequests] = usePersistedState(
+    "notifications:hasUnreadRequests",
+    false
+  );
+  const [requestsRefreshKey, setRequestsRefreshKey] = useState(0);
+  const [toast, setToast] = useState(null);
+  const showToast = useCallback((message) => {
+    if (!message) return;
+
+    setToast({
+      id: `${Date.now()}-${Math.random()}`,
+      message,
+    });
+  }, []);
+
+   const handleNotification = useCallback(
+    (payload) => {
+      setRequestsRefreshKey((prev) => prev + 1);
+
+      const message = buildNotificationMessage(payload);
+      if (message) {
+        showToast(message);
+      }
+
+      if (INCOMING_REQUEST_TYPES.has(payload?.type) && !isRequestsOpen) {
+        setHasUnreadRequests(true);
+      }
+    },
+    [isRequestsOpen, setHasUnreadRequests, showToast]
+  );
+
+  useNotificationWebSocket({
+    onNotification: handleNotification,
+  });
+
 
   useEffect(() => {
-    if (!hasUnread) return;
+    if (!hasUnreadRequests) return;
+
     let timeoutId;
+    let ringResetId;
 
     const scheduleRing = () => {
-        timeoutId = setTimeout(() => {
-            setAnimateRing(true);
-            setTimeout(() => setAnimateRing(false), 500);
-            scheduleRing(); // запускаем следующий через минуту
-        }, 2000);
+      timeoutId = setTimeout(() => {
+        setAnimateRing(true);
+        ringResetId = setTimeout(() => setAnimateRing(false), 500);
+        scheduleRing();
+      }, 2000);
     };
 
     scheduleRing();
-    return () => clearTimeout(timeoutId);
-}, [hasUnread]);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(ringResetId);
+    };
+  }, [hasUnreadRequests]);
 
   const settingsRef = useRef();
   useEffect(() => {
@@ -65,6 +155,7 @@ export default function Header({ hideIconsAndLogo }) {
     document.addEventListener("mousedown", handleClickOutsideSettings);
     return () => document.removeEventListener("mousedown", handleClickOutsideSettings);
   }, []);
+
   const userRef = useRef();
   useEffect(() => {
     const handleClickOutsideUser = (e) => {
@@ -98,9 +189,9 @@ export default function Header({ hideIconsAndLogo }) {
               className={`header-wrapper-img ${rotatedUser ? "rotated" : ""}`}
               onClick={handleUserClick}
             />
-            {hasUnread && (
-              <div className={`notification ${animateRing ? 'ring' : ''}`}>
-                <img src={notificationIcon}/>
+            {hasUnreadRequests && (
+              <div className={`notification-bell ${animateRing ? "ring" : ""}`}>
+                <img src={notificationIcon} alt="Новые уведомления" />
               </div>
             )}
             {openUser && <UserPopup onOpenRequests={openRequestsModal}/>}
@@ -108,9 +199,18 @@ export default function Header({ hideIconsAndLogo }) {
           <Requests 
             isOpen={isRequestsOpen}
             onClose={() => setIsRequestOpen(false)}
+            refreshKey={requestsRefreshKey}
           />
         </div>
       </div>
+
+      {toast && (
+        <NotificationToast
+          key={toast.id}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      )}
     </main>
   ); 
 }

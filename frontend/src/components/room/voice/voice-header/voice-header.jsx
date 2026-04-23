@@ -9,7 +9,7 @@ import { useRef, useEffect } from "react";
 import RoomMenu from "../../room-menu";
 import RoomMembers from "./members";
 import SendRequest from "../../../../modals/send-request";
-import Notification from "../../../notification";
+import NotificationToast from "../../../notification"
 
 export default function RoomVoiceHeader({
     room,
@@ -74,7 +74,7 @@ export default function RoomVoiceHeader({
                         alt="Скопировать ссылку"
                     />
                     {notificationMessage && (
-                        <Notification
+                        <NotificationToast
                             message={notificationMessage}
                             onClose={() => setNotificationMessage(null)}
                         />
