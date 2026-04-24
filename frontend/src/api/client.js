@@ -20,11 +20,27 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  response => response,
+  (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config || {};
+    const url = originalRequest.url || "";
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthRequest =
+      url.includes('/auth/login') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/verify') ||
+      url.includes('/auth/password-reset') ||
+      url.includes('/auth/update-password') ||
+      url.includes('/auth/resend-verification');
+
+    const isRefreshRequest = url.includes('/auth/refresh');
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthRequest &&
+      !isRefreshRequest
+    ) {
       originalRequest._retry = true;
 
       try {
@@ -32,6 +48,7 @@ apiClient.interceptors.response.use(
         const { accessToken } = response.data;
 
         tokenManager.setToken(accessToken);
+        originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         return apiClient(originalRequest);

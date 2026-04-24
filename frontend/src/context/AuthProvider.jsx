@@ -18,6 +18,16 @@ export const AuthProvider = ({ children }) => {
     setShowRegistrationModal(false);
     setShowRecoveryModal(false);
   };
+
+  const getErrorMessage = (error, fallback) => {
+    const raw =
+      error?.response?.data?.error ??
+      error?.response?.data?.message ??
+      error?.message ??
+      fallback;
+
+    return typeof raw === "string" ? raw : fallback;
+  };
   
   const setAuthToken = (token) => {
     if (token) {
@@ -75,7 +85,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login error:', error);
       // Извлекаем сообщение об ошибке из ответа сервера или используем стандартное
-      const message = error.response?.data?.error || error.message || 'Ошибка входа';
+      const message = getErrorMessage(error, 'Ошибка входа');
       throw new Error(message);
     }
   };
@@ -87,7 +97,7 @@ export const AuthProvider = ({ children }) => {
       return response;
     } catch (error) {
       console.error('Register error:', error);
-      const message = error.response?.data?.error || error.message || 'Ошибка регистрации';
+      const message = getErrorMessage(error, 'Ошибка регистрации');
       throw new Error(message);
     }
   };
@@ -106,7 +116,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error('Verify error:', error);
-      const message = error.response?.data?.error || error.message || 'Ошибка подтверждения';
+      const message = getErrorMessage(error, 'Ошибка подтверждения');
       throw new Error(message);
     }
   };
@@ -117,7 +127,7 @@ export const AuthProvider = ({ children }) => {
       return response;
     } catch (error) {
       console.error('Password reset request error:', error);
-      const message = error.response?.data?.error || error.message || 'Ошибка сброса пароля';
+      const message = getErrorMessage(error, 'Ошибка сброса пароля');
       throw new Error(message);
     }
     };
@@ -131,7 +141,7 @@ export const AuthProvider = ({ children }) => {
       return response;
     } catch (error) {
       console.error('Reset password error:', error);
-      const message = error.response?.data?.error || error.message || 'Ошибка смены пароля';
+      const message = getErrorMessage(error, 'Ошибка смены пароля');
       throw new Error(message);
     }
     };

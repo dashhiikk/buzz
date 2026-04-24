@@ -20,27 +20,38 @@
 
 /* Модальное окно */
 
-.modal-content {
+.modal-content,
+.reguests-modal-content {
     position: relative;
-    width: fit-content;
-    min-width: 300px;
-    max-width: 500px;
-    height: fit-content;
     max-height: 50%;
     background-color: #4F6273;
-    border-radius: 20px;
+    border-radius: 10px;
 
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     gap: 15px;
-    padding-top: 10px;
     box-sizing: border-box;
 }
 
+.modal-content {
+    padding: 15px 10px;
+    width: fit-content;
+    min-width: 300px;
+    max-width: 600px;
+    height: fit-content;
+}
+
+.reguests-modal-content {
+    padding-top: 15px;
+    width: 350px;
+    height: 50%;
+}
+
 @media (max-width: 550px) {
-    .modal-content {
+    .modal-content,
+    .reguests-modal-content {
         width: 90%;
     }
 }
@@ -82,11 +93,10 @@
 
 .modal-input-btn {
     width: 100%;
-    height: 40px;
+    height: 35px;
     border-radius: 10px;
     border: none;
     text-decoration: none;
-    margin-bottom: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,7 +117,7 @@
 
 .modal-input-block,
 .modal-input-avatar {
-    width: 80%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;

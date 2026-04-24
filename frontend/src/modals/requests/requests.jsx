@@ -74,7 +74,7 @@ export default function Requests({ isOpen, onClose, refreshKey = 0 }) {
 
     return (
         <main className="modal">
-            <div className="modal-content">
+            <div className="reguests-modal-content">
                 <p className="medium-text text--light">Запросы</p>
                 <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>

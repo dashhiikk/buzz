@@ -8,8 +8,6 @@
     margin: 0;
     font-weight: 600;
     font-size: clamp(14px, 1.4vw + 0.3vh, 18px);
-    flex: 0 0 auto;
-    word-break: break-word;
 }
 
 .small-text {

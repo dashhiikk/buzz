@@ -82,8 +82,9 @@ export default function Header({ hideIconsAndLogo }) {
 
   const [isRequestsOpen, setIsRequestOpen] = useState(false);
   const openRequestsModal = () => {
-      setOpenUser(false);      // закрываем меню
-      setIsRequestOpen(true);     // открываем модалку
+    setOpenUser(false);
+    setHasUnreadRequests(false);
+    setIsRequestOpen(true);
   };
 
   const [animateRing, setAnimateRing] = useState(true);
@@ -118,7 +119,7 @@ export default function Header({ hideIconsAndLogo }) {
     [isRequestsOpen, setHasUnreadRequests, showToast]
   );
 
-  useNotificationWebSocket({
+  useNotificationWebSocket(user?.id, {
     onNotification: handleNotification,
   });
 
@@ -194,6 +195,13 @@ export default function Header({ hideIconsAndLogo }) {
                 <img src={notificationIcon} alt="Новые уведомления" />
               </div>
             )}
+            {toast && (
+              <NotificationToast
+                key={toast.id}
+                message={toast.message}
+                onClose={() => setToast(null)}
+              />
+            )}
             {openUser && <UserPopup onOpenRequests={openRequestsModal}/>}
           </div>
           <Requests 
@@ -203,14 +211,6 @@ export default function Header({ hideIconsAndLogo }) {
           />
         </div>
       </div>
-
-      {toast && (
-        <NotificationToast
-          key={toast.id}
-          message={toast.message}
-          onClose={() => setToast(null)}
-        />
-      )}
     </main>
   ); 
 }
