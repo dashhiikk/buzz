@@ -31,18 +31,13 @@ func (h *Handler) writeJSON(w http.ResponseWriter, status int, data interface{})
 }
 
 func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
-	var req RefreshRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		h.writeError(w, http.StatusBadRequest, errors.New("invalid request body"))
+	cookie, err := r.Cookie("refresh_token")
+	if err != nil || cookie.Value == "" {
+		h.writeError(w, http.StatusUnauthorized, errors.New("refresh token required"))
 		return
 	}
 
-	if req.RefreshToken == "" {
-		h.writeError(w, http.StatusBadRequest, errors.New("refresh token required"))
-		return
-	}
-
-	newAccessToken, err := h.authUseCase.RefreshToken(r.Context(), req.RefreshToken)
+	newAccessToken, err := h.authUseCase.RefreshToken(r.Context(), cookie.Value)
 	if err != nil {
 		switch {
 		case errors.Is(err, auth.ErrTokenInvalid):
@@ -56,7 +51,9 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.writeJSON(w, http.StatusOK, map[string]string{"accessToken": newAccessToken})
+	h.writeJSON(w, http.StatusOK, map[string]string{
+		"accessToken": newAccessToken,
+	})
 }
 
 // Register godoc
@@ -160,7 +157,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/auth/refresh",
+		Path:     "/",
 		MaxAge:   int(24 * time.Hour.Seconds()), // или из конфига
 	})
 
@@ -241,7 +238,7 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/auth/refresh",
+		Path:     "/",
 		MaxAge:   int(24 * time.Hour.Seconds()), // или из конфига
 	})
 
@@ -281,7 +278,7 @@ func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/auth/refresh",
+		Path:     "/",
 		MaxAge:   int(24 * time.Hour.Seconds()), // или из конфига
 	})
 
@@ -418,7 +415,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/auth/refresh",
+		Path:     "/",
 		MaxAge:   -1,
 	})
 	w.WriteHeader(http.StatusOK)
