@@ -43,7 +43,7 @@ func (r *RoomRepository) GetRoomById(ctx context.Context, id string) (*entity.Ro
 	err := r.db.GetContext(ctx, &room, query, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, sql.ErrNoRows
+			return nil, nil
 		}
 		return nil, fmt.Errorf("get room by id: %w", err)
 	}

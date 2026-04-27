@@ -136,7 +136,6 @@ export default function RoomChat({
             setAttachedFiles((prev) => [...prev, ...uploadedFiles]);
         } catch (err) {
             console.error("Failed to upload files:", err);
-            alert("Не удалось загрузить файлы");
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -176,7 +175,6 @@ export default function RoomChat({
             await deleteMessage(messageId);
         } catch (err) {
             console.error("Failed to delete message:", err);
-            alert("Не удалось удалить сообщение");
         }
     };
 
@@ -185,7 +183,6 @@ export default function RoomChat({
             await pinMessage(roomId, messageId);
         } catch (err) {
             console.error("Failed to pin message:", err);
-            alert("Не удалось закрепить сообщение");
         }
     };
 

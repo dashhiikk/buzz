@@ -70,6 +70,11 @@
     font-weight: 700;
 }
 
+.join-btn:disabled {
+    cursor: default;
+    opacity: 0.65;
+}
+
 .join-btn p {
     font-family: 'Comfortaa', sans-serif;
     font-weight: 500;
@@ -98,4 +103,13 @@
 .voice-chat-btns img {
     width: 30px;
     height: 30px;
+}
+
+.voice-chat-error {
+    width: 90%;
+    margin: 8px 0 0;
+    color: #7a2f2f;
+    font-size: 12px;
+    line-height: 1.35;
+    text-align: left;
 }

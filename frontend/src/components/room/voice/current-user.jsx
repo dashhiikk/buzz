@@ -1,56 +1,89 @@
-import micON from "../../../assets/mic-on.svg";
-import headON from "../../../assets/head-on.svg";
-import micOFF from "../../../assets/mic-off.svg";
-import headOFF from "../../../assets/head-off.svg";
-import demoON from "../../../assets/demo-on.svg"
-import demoOFF from "../../../assets/demo-off.svg"
-import cameraON from "../../../assets/camera-on.svg"
 import cameraOFF from "../../../assets/camera-off.svg"
-
+import cameraON from "../../../assets/camera-on.svg"
+import demoOFF from "../../../assets/demo-off.svg"
+import demoON from "../../../assets/demo-on.svg"
+import headOFF from "../../../assets/head-off.svg"
+import headON from "../../../assets/head-on.svg"
+import micOFF from "../../../assets/mic-off.svg"
+import micON from "../../../assets/mic-on.svg"
 import defaultAvatar from "../../../assets/user-icon.svg"
 
 import "../../../css/voice/current-user.css"
 
+function VoiceControlIcon({
+    active,
+    activeIcon,
+    inactiveIcon,
+    alt,
+    onClick,
+    disabled,
+}) {
+    return (
+        <img
+            src={active ? activeIcon : inactiveIcon}
+            onClick={disabled ? undefined : onClick}
+            alt={alt}
+            className={disabled ? "voice-icon-disabled" : ""}
+        />
+    )
+}
+
 export default function CurrentVoiceUser({
     user,
+    isJoined,
     micOn,
-    setMicOn,
     headphonesOn,
-    setHeadphonesOn,
     demoOn,
-    setDemoOn,
     cameraOn,
-    setCameraOn
+    onToggleMicrophone,
+    onToggleHeadphones,
+    onToggleScreenShare,
+    onToggleCamera,
 }) {
     return (
         <div className="user-voice">
             <div className="user-voice-chat-member">
-                <img src={user?.avatar || defaultAvatar } alt="Аватар пользователя" />
+                <img
+                    src={user?.avatar || defaultAvatar}
+                    alt="Аватар пользователя"
+                />
                 <p className="medium-text text--light">{user.username}</p>
             </div>
 
             <div className="voice-icons">
-                <img
-                    src={micOn ? micON : micOFF}
-                    onClick={() => setMicOn((prev) => !prev)}
+                <VoiceControlIcon
+                    active={micOn}
+                    activeIcon={micON}
+                    inactiveIcon={micOFF}
                     alt="Микрофон"
+                    onClick={onToggleMicrophone}
+                    disabled={!isJoined}
                 />
-                <img
-                    src={headphonesOn ? headON : headOFF}
-                    onClick={() => setHeadphonesOn((prev) => !prev)}
+                <VoiceControlIcon
+                    active={headphonesOn}
+                    activeIcon={headON}
+                    inactiveIcon={headOFF}
                     alt="Наушники"
+                    onClick={onToggleHeadphones}
+                    disabled={!isJoined}
                 />
-                <img
-                    src={demoOn ? demoON : demoOFF}
-                    onClick={() => setDemoOn((prev) => !prev)}
+                <VoiceControlIcon
+                    active={demoOn}
+                    activeIcon={demoON}
+                    inactiveIcon={demoOFF}
                     alt="Демонстрация экрана"
+                    onClick={onToggleScreenShare}
+                    disabled={!isJoined}
                 />
-                <img
-                    src={cameraOn ? cameraON : cameraOFF}
-                    onClick={() => setCameraOn((prev) => !prev)}
+                <VoiceControlIcon
+                    active={cameraOn}
+                    activeIcon={cameraON}
+                    inactiveIcon={cameraOFF}
                     alt="Видео"
+                    onClick={onToggleCamera}
+                    disabled={!isJoined}
                 />
             </div>
         </div>
-    );
+    )
 }

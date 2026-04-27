@@ -9,7 +9,7 @@ import { useRef, useEffect } from "react";
 import RoomMenu from "../../room-menu";
 import RoomMembers from "./members";
 import SendRequest from "../../../../modals/send-request";
-import NotificationToast from "../../../notification"
+import NotificationToast from "../../../notification";
 
 export default function RoomVoiceHeader({
     room,
@@ -28,20 +28,34 @@ export default function RoomVoiceHeader({
     onCopyInviteLink,
     onRemoveFriend,
     onLeave,
+    onDeleteRoom,
     onParticipantsUpdate,
 }) {
-    const menuRef = useRef(null);
+    const copyTriggerRef = useRef(null);
+    const menuTriggerRef = useRef(null);
+    const menuContentRef = useRef(null);
 
     useEffect(() => {
+        if (!menuVisible) {
+            return;
+        }
+
         const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
+            const clickedTrigger =
+                menuTriggerRef.current &&
+                menuTriggerRef.current.contains(event.target);
+            const clickedMenu =
+                menuContentRef.current &&
+                menuContentRef.current.contains(event.target);
+
+            if (!clickedTrigger && !clickedMenu) {
                 setMenuVisible(false);
             }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [setMenuVisible]);
+    }, [menuVisible, setMenuVisible]);
 
     const openMembersModal = () => {
         setMenuVisible(false);
@@ -56,34 +70,38 @@ export default function RoomVoiceHeader({
     return (
         <div className="left-block-header">
             <Link to="/start">
-                <img src={backward} className="left-block-header-btn" alt="Назад" />
+                <img src={backward} className="left-block-header-btn" alt="РќР°Р·Р°Рґ" />
             </Link>
 
             <div className="left-block-header-name">
-                <img src={room.icon || defaultRoom} alt="Иконка комнаты" />
+                <img src={room.icon || defaultRoom} alt="РРєРѕРЅРєР° РєРѕРјРЅР°С‚С‹" />
                 <p className="medium-text text--light">{room.name}</p>
             </div>
 
             <div>
                 {isAdmin && (
-                   <div className="voice-wrapper">
-                    <img
-                        src={link}
-                        className="left-block-header-btn"
-                        onClick={onCopyInviteLink}
-                        alt="Скопировать ссылку"
-                    />
-                    {notificationMessage && (
-                        <NotificationToast
-                            message={notificationMessage}
-                            onClose={() => setNotificationMessage(null)}
+                    <div className="voice-wrapper">
+                        <img
+                            ref={copyTriggerRef}
+                            src={link}
+                            className="left-block-header-btn"
+                            onClick={onCopyInviteLink}
+                            alt="РЎРєРѕРїРёСЂРѕРІР°С‚СЊ СЃСЃС‹Р»РєСѓ"
                         />
-                    )}
-                </div> 
+                        {notificationMessage && (
+                            <NotificationToast
+                                message={notificationMessage}
+                                anchorRef={copyTriggerRef}
+                                usePortal
+                                onClose={() => setNotificationMessage(null)}
+                            />
+                        )}
+                    </div>
                 )}
-                
-                <div className="voice-wrapper" ref={menuRef}>
+
+                <div className="voice-wrapper">
                     <img
+                        ref={menuTriggerRef}
                         src={dots}
                         className="left-block-header-btn"
                         alt="menu"
@@ -96,6 +114,9 @@ export default function RoomVoiceHeader({
                                 type="friend"
                                 onCancel={() => setMenuVisible(false)}
                                 onRemoveFriend={onRemoveFriend}
+                                anchorRef={menuTriggerRef}
+                                usePortal
+                                contentRef={menuContentRef}
                             />
                         ) : (
                             <RoomMenu
@@ -104,6 +125,10 @@ export default function RoomVoiceHeader({
                                 onCancel={() => setMenuVisible(false)}
                                 onOpenMembers={openMembersModal}
                                 onLeave={onLeave}
+                                onDeleteRoom={onDeleteRoom}
+                                anchorRef={menuTriggerRef}
+                                usePortal
+                                contentRef={menuContentRef}
                             />
                         ))}
 

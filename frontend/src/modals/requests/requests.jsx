@@ -7,7 +7,12 @@ import RequestItem from './request-item';
 
 import { getIncomingRequests, getOutgoingRequests, cancelRequest, acceptRequest, rejectRequest } from '../../api/requests';
 
-export default function Requests({ isOpen, onClose, refreshKey = 0 }) {
+export default function Requests({
+    isOpen,
+    onClose,
+    refreshKey = 0,
+    onRequestAccepted,
+}) {
     const [active, setActive] = useState("incoming");
     const [incoming, setIncoming] = useState([]);
     const [outgoing, setOutgoing] = useState([]);
@@ -43,8 +48,8 @@ export default function Requests({ isOpen, onClose, refreshKey = 0 }) {
             await cancelRequest(id);
             fetchData();
         } catch (err) {
-            console.log(err)
-            alert('Не удалось отменить запрос');
+            console.error(err)
+            setError('Не удалось отменить запрос');
         }
     };
 
@@ -52,9 +57,10 @@ export default function Requests({ isOpen, onClose, refreshKey = 0 }) {
         try {
             await acceptRequest(id);
             fetchData();
+            onRequestAccepted?.();
         } catch (err) {
             console.error(err);
-            alert('Не удалось принять запрос');
+            setError('Не удалось принять запрос');
         }
     };
 
@@ -64,7 +70,7 @@ export default function Requests({ isOpen, onClose, refreshKey = 0 }) {
             fetchData();
         } catch (err) {
             console.error(err);
-            alert('Не удалось отклонить запрос');
+            setError('Не удалось отклонить запрос');
         }
     };
 

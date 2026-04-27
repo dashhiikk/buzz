@@ -26,7 +26,6 @@ export default function JoinRoom() {
             })
             .catch(err => {
                 console.error(err);
-                alert("Не удалось присоединиться к комнате. Ссылка может быть недействительной.");
                 navigate("/start");
             });
     }, [user, loading, token, navigate]);

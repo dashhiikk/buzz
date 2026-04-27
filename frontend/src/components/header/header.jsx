@@ -3,17 +3,18 @@ import settings from "../../assets/settings-icon.svg"
 import userIcon from "../../assets/user-icon.svg"
 import notificationIcon from "../../assets/notification.svg"
 
-import '../../css/header.css'
+import "../../css/header.css"
 
 import Settings from "../settings/settings"
 import UserPopup from "./user-popup"
 import Requests from "../../modals/requests/requests"
 import NotificationToast from "../notification"
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 
-import {useAuth} from "../../hooks/use-auth"
-import { useNotificationWebSocket } from "../../hooks/useNotificationWebSocket";
+import { useAuth } from "../../hooks/use-auth"
+import { useNotificationWebSocket } from "../../hooks/useNotificationWebSocket"
 import usePersistedState from "../../hooks/use-persisted-state"
 
 const INCOMING_REQUEST_TYPES = new Set([
@@ -22,169 +23,206 @@ const INCOMING_REQUEST_TYPES = new Set([
   "room_invite",
   "room_invitation",
   "room_join_request",
-]);
+])
 
 function buildNotificationMessage(payload) {
-  const from = payload?.data?.from;
-  const fromLabel = from
-    ? `${from.username}${from.code ? `#${from.code}` : ""}`
-    : "Пользователь";
+  const data = payload?.data
+  const from = data?.from
+  const senderName =
+    from?.username || data?.senderName || payload?.senderName || null
+  const senderCode = from?.code || data?.senderCode || payload?.senderCode || null
+  const roomName =
+    data?.room?.name || data?.roomName || payload?.roomName || null
+  const roomLabel = roomName || "без названия"
+  const fromLabel = senderName
+    ? `${senderName}${senderCode ? `#${senderCode}` : ""}`
+    : "Пользователь"
 
   switch (payload?.type) {
     case "friend_request":
-      return `Новый запрос в друзья от ${fromLabel}`;
+      return `${fromLabel} отправил(а) вам запрос на дружбу`
 
     case "friend_request_accepted":
-      return `${fromLabel} принял(а) ваш запрос в друзья`;
+      return `${fromLabel} принял(а) ваш запрос на дружбу`
 
     case "friend_request_rejected":
-      return `${fromLabel} отклонил(а) ваш запрос в друзья`;
+      return `${fromLabel} отклонил(а) ваш запрос на дружбу`
 
     case "room_request":
     case "room_invite":
     case "room_invitation":
     case "room_join_request":
-      return `Новый запрос, связанный с комнатой, от ${fromLabel}`;
+      return `${fromLabel} отправил(а) вам приглашение на вступление в комнату ${roomLabel}`
 
     case "room_request_accepted":
     case "room_invite_accepted":
     case "room_invitation_accepted":
     case "room_join_request_accepted":
-      return `${fromLabel} принял(а) запрос, связанный с комнатой`;
+      return `${fromLabel} принял(а) ваше приглашение на вступление в комнату ${roomLabel}`
 
     case "room_request_rejected":
     case "room_invite_rejected":
     case "room_invitation_rejected":
     case "room_join_request_rejected":
-      return `${fromLabel} отклонил(а) запрос, связанный с комнатой`;
+      return `${fromLabel} отклонил(а) ваше приглашение на вступление в комнату ${roomLabel}`
+
+    case "room_deleted":
+      return `Комната ${roomLabel} была удалена`
 
     default:
-      return null;
+      return null
   }
 }
 
-export default function Header({ hideIconsAndLogo }) {
-  const { user } = useAuth();
+export default function Header({
+  hideIconsAndLogo,
+  currentRoomId,
+  onRequestAccepted,
+}) {
+  const { user } = useAuth()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const [rotatedSettings, setRotatedSettings] = useState(false);
+  const [rotatedSettings, setRotatedSettings] = useState(false)
   const handleClick = () => {
-    setOpenSettings(prev => !prev);
-    setRotatedSettings(prev => !prev);
-  };
+    setOpenSettings((prev) => !prev)
+    setRotatedSettings((prev) => !prev)
+  }
 
-  const [openUser, setOpenUser] = useState(false);
-  const [rotatedUser, setRotatedUser] = useState(false);
+  const [openUser, setOpenUser] = useState(false)
+  const [rotatedUser, setRotatedUser] = useState(false)
   const handleUserClick = () => {
-    setOpenUser(prev => !prev);
-    setRotatedUser(prev => !prev);
-  };
+    setOpenUser((prev) => !prev)
+    setRotatedUser((prev) => !prev)
+  }
 
-  const [isRequestsOpen, setIsRequestOpen] = useState(false);
+  const [isRequestsOpen, setIsRequestOpen] = useState(false)
   const openRequestsModal = () => {
-    setOpenUser(false);
-    setHasUnreadRequests(false);
-    setIsRequestOpen(true);
-  };
+    setOpenUser(false)
+    setHasUnreadRequests(false)
+    setIsRequestOpen(true)
+  }
 
-  const [animateRing, setAnimateRing] = useState(true);
+  const [animateRing, setAnimateRing] = useState(true)
   const [hasUnreadRequests, setHasUnreadRequests] = usePersistedState(
     "notifications:hasUnreadRequests",
     false
-  );
-  const [requestsRefreshKey, setRequestsRefreshKey] = useState(0);
-  const [toast, setToast] = useState(null);
+  )
+  const [requestsRefreshKey, setRequestsRefreshKey] = useState(0)
+  const [toast, setToast] = useState(null)
   const showToast = useCallback((message) => {
-    if (!message) return;
+    if (!message) return
 
     setToast({
       id: `${Date.now()}-${Math.random()}`,
       message,
-    });
-  }, []);
+    })
+  }, [])
 
-   const handleNotification = useCallback(
+  const handleNotification = useCallback(
     (payload) => {
-      setRequestsRefreshKey((prev) => prev + 1);
+      const deletedRoomId = payload?.data?.roomId || payload?.data?.room?.id
+      const activeRoomId = currentRoomId ?? location.state?.roomId
 
-      const message = buildNotificationMessage(payload);
+      if (
+        payload?.type === "room_deleted" &&
+        location.pathname === "/room" &&
+        activeRoomId &&
+        activeRoomId === deletedRoomId
+      ) {
+        navigate("/start", { replace: true })
+        return
+      }
+
+      setRequestsRefreshKey((prev) => prev + 1)
+
+      const message = buildNotificationMessage(payload)
       if (message) {
-        showToast(message);
+        showToast(message)
       }
 
       if (INCOMING_REQUEST_TYPES.has(payload?.type) && !isRequestsOpen) {
-        setHasUnreadRequests(true);
+        setHasUnreadRequests(true)
       }
     },
-    [isRequestsOpen, setHasUnreadRequests, showToast]
-  );
+    [
+      currentRoomId,
+      isRequestsOpen,
+      location.pathname,
+      location.state,
+      navigate,
+      setHasUnreadRequests,
+      showToast,
+    ]
+  )
 
   useNotificationWebSocket(user?.id, {
     onNotification: handleNotification,
-  });
-
+  })
 
   useEffect(() => {
-    if (!hasUnreadRequests) return;
+    if (!hasUnreadRequests) return
 
-    let timeoutId;
-    let ringResetId;
+    let timeoutId
+    let ringResetId
 
     const scheduleRing = () => {
       timeoutId = setTimeout(() => {
-        setAnimateRing(true);
-        ringResetId = setTimeout(() => setAnimateRing(false), 500);
-        scheduleRing();
-      }, 2000);
-    };
+        setAnimateRing(true)
+        ringResetId = setTimeout(() => setAnimateRing(false), 500)
+        scheduleRing()
+      }, 2000)
+    }
 
-    scheduleRing();
+    scheduleRing()
 
     return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(ringResetId);
-    };
-  }, [hasUnreadRequests]);
+      clearTimeout(timeoutId)
+      clearTimeout(ringResetId)
+    }
+  }, [hasUnreadRequests])
 
-  const settingsRef = useRef();
+  const settingsRef = useRef()
   useEffect(() => {
     const handleClickOutsideSettings = (e) => {
       if (settingsRef.current && !settingsRef.current.contains(e.target)) {
-        setOpenSettings(false);
+        setOpenSettings(false)
       }
-    };
-    document.addEventListener("mousedown", handleClickOutsideSettings);
-    return () => document.removeEventListener("mousedown", handleClickOutsideSettings);
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutsideSettings)
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutsideSettings)
+  }, [])
 
-  const userRef = useRef();
+  const userRef = useRef()
   useEffect(() => {
     const handleClickOutsideUser = (e) => {
       if (userRef.current && !userRef.current.contains(e.target)) {
-        setOpenUser(false);
+        setOpenUser(false)
       }
-    };
-    document.addEventListener("mousedown", handleClickOutsideUser);
-    return () => document.removeEventListener("mousedown", handleClickOutsideUser);
-  }, []);
+    }
+    document.addEventListener("mousedown", handleClickOutsideUser)
+    return () => document.removeEventListener("mousedown", handleClickOutsideUser)
+  }, [])
 
   return (
     <main className={`header ${hideIconsAndLogo ? "hidden" : ""}`}>
       <div className="header-content">
-        <img className="header-buzz-img" src={buzziconbee} ></img>
+        <img className="header-buzz-img" src={buzziconbee}></img>
         <h1 className="buzz">buzz</h1>
         <div className="header-icons">
           <div className="header-wrapper" ref={settingsRef}>
-            <img 
-              src={settings} 
-              alt="settings" 
+            <img
+              src={settings}
+              alt="settings"
               className={`header-wrapper-img ${rotatedSettings ? "rotated" : ""}`}
-              onClick={handleClick} 
+              onClick={handleClick}
             />
-            { openSettings && <Settings/> }
+            {openSettings && <Settings />}
           </div>
           <div className="header-wrapper" ref={userRef}>
-            <img 
+            <img
               src={user?.avatar || userIcon}
               alt="user"
               className={`header-wrapper-img ${rotatedUser ? "rotated" : ""}`}
@@ -199,18 +237,20 @@ export default function Header({ hideIconsAndLogo }) {
               <NotificationToast
                 key={toast.id}
                 message={toast.message}
+                duration={5000}
                 onClose={() => setToast(null)}
               />
             )}
-            {openUser && <UserPopup onOpenRequests={openRequestsModal}/>}
+            {openUser && <UserPopup onOpenRequests={openRequestsModal} />}
           </div>
-          <Requests 
+          <Requests
             isOpen={isRequestsOpen}
             onClose={() => setIsRequestOpen(false)}
             refreshKey={requestsRefreshKey}
+            onRequestAccepted={onRequestAccepted}
           />
         </div>
       </div>
     </main>
-  ); 
+  )
 }

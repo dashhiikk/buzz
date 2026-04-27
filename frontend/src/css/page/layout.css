@@ -38,7 +38,7 @@
 }
 
 .page[data-layout="split"] .panel-shell--right {
-  flex: 0 0 1;
+  flex: 1 1 0;
   min-width: 420px;
 }
 

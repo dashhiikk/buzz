@@ -1,22 +1,30 @@
 .notification-toast {
     position: absolute;
     margin-top: 5px;
-    top: 100%; /* под иконкой */
-    left: 50%; /* центр относительно иконки */
-    transform: translateX(-50%) scale(0.9); /* смещение для центрирования */
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) scale(0.9);
     z-index: 100;
     background-color: rgb(40, 55, 64, 0.6);
     border-radius: 10px;
     padding: 5px 10px;
-    text-align:center;
+    text-align: center;
     width: fit-content;
     height: fit-content;
     max-width: 200px;
     opacity: 0;
-    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                 transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     pointer-events: none;
+}
+
+.notification-toast--floating {
+    position: fixed;
+    margin-top: 0;
+    top: 0;
+    left: 0;
+    transform: scale(0.9);
 }
 
 .notification-toast.show {
@@ -27,4 +35,12 @@
 .notification-toast.hide {
     opacity: 0;
     transform: translateX(-50%) scale(0.95);
+}
+
+.notification-toast--floating.show {
+    transform: scale(1);
+}
+
+.notification-toast--floating.hide {
+    transform: scale(0.95);
 }

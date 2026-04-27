@@ -6,16 +6,16 @@ import { useAuth } from "../../hooks/use-auth";
 export default function SuccessMessage({ title, message, email, onResend, onBack, isRegistration }) {
   const { user } = useAuth();
   const [emailVerified, setEmailVerified] = useState(false);
+  const [error, setError] = useState("");
  
   const handleCancel = async () => {
     try {
-      console.log(email)
+      setError("");
       await apiClient.post("/auth/register/cancel", { email });
-      alert("Регистрация отменена");
       onBack(); 
     } catch (err) {
       console.error(err);
-      alert("Не удалось отменить регистрацию");
+      setError("Не удалось отменить регистрацию");
     }
   };
 
@@ -37,6 +37,7 @@ export default function SuccessMessage({ title, message, email, onResend, onBack
       {!user && !emailVerified && ( 
         <div className="entry-input-block">
           <p className="medium-text text--light">На почту <strong>{email}</strong> {message}</p>
+          {error && <p className="small-text text--average">{error}</p>}
           <button onClick={onResend} className="entry-input-btn">Отправить повторно</button>
           {isRegistration && (
             <button onClick={handleCancel} className="entry-input-btn">

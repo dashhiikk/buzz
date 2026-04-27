@@ -11,6 +11,7 @@ export const sendMessage = (roomId, text, files = []) =>
 export const getBoardState = (roomId) => apiClient.get(`/rooms/${roomId}/board`);
 export const getJitsiToken = (roomId) => apiClient.get(`/rooms/${roomId}/voice-chat`);
 export const leaveRoom = (roomId) => apiClient.post(`/rooms/${roomId}/leave`);
+export const deleteRoom = (roomId) => apiClient.delete(`/rooms/${roomId}`);
 export const sendRoomInvite = (roomId, username, code) =>
     apiClient.post(`/rooms/${roomId}/send-invite`, { username, code });
 export const getInviteLink = (roomId) => apiClient.get(`/rooms/${roomId}/invite-link`);
@@ -20,7 +21,7 @@ export const pinMessage = (roomId, messageId) => apiClient.post(`/rooms/messages
 export const unpinMessage = (roomId) => apiClient.delete(`/rooms/${roomId}/pinned-message`);
 export const getPinnedMessage = (roomId) => apiClient.get(`rooms/${roomId}/pinned-message`);
 export const appointAdmin = (roomId, userId) => 
-    apiClient.post(`/rooms/${roomId}/admin`, { userId });
+    apiClient.post(`/rooms/${roomId}/admin`, { newAdminId: userId });
 
 export const removeParticipant = (roomId, userId) => 
     apiClient.delete(`/rooms/${roomId}/participants/${userId}`);

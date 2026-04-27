@@ -151,6 +151,9 @@ func (uc *RoomUseCase) GetUserRooms(ctx context.Context, userId string) ([]UserR
 func (uc *RoomUseCase) GetRoom(ctx context.Context, roomId string) (*entity.Room, error) {
 	room, err := uc.roomRepo.GetRoomById(ctx, roomId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrRoomNotFound
+		}
 		return nil, err
 	}
 	if room == nil {
@@ -232,19 +235,29 @@ func (uc *RoomUseCase) SendRoomInvite(ctx context.Context, inviterId, roomId, ta
 	}
 
 	if uc.notificationHub != nil {
-		notif := map[string]interface{}{
-			"type": "room_invite",
-			"data": map[string]interface{}{
-				"requestId": req.Id,
-				"from": map[string]string{
-					"id":       room.Id,
-					"username": room.Name,
+		inviter, err := uc.userRepo.GetUserById(ctx, inviterId)
+		if err == nil {
+			notif := map[string]interface{}{
+				"type": "room_invite",
+				"data": map[string]interface{}{
+					"requestId": req.Id,
+					"from": map[string]string{
+						"id":       inviter.Id,
+						"username": inviter.Username,
+						"code":     inviter.Code,
+					},
+					"room": map[string]string{
+						"id":   room.Id,
+						"name": room.Name,
+					},
+					"createdAt": req.CreatedAt,
 				},
-				"createdAt": req.CreatedAt,
-			},
+			}
+			payload, _ := json.Marshal(notif)
+			uc.notificationHub.SendToUser(targetUser.Id, payload)
+		} else {
+			log.Printf("failed to get sender info for notification: %v", err)
 		}
-		payload, _ := json.Marshal(notif)
-		uc.notificationHub.SendToUser(targetUser.Id, payload)
 	}
 
 	return nil
@@ -297,6 +310,10 @@ func (uc *RoomUseCase) AcceptRoomInvite(ctx context.Context, userId, requestId s
 						"username": receiver.Username,
 						"code":     receiver.Code,
 					},
+					"room": map[string]string{
+						"id":   room.Id,
+						"name": room.Name,
+					},
 				},
 			}
 			payload, _ := json.Marshal(notif)
@@ -310,28 +327,50 @@ func (uc *RoomUseCase) AcceptRoomInvite(ctx context.Context, userId, requestId s
 }
 
 func (uc *RoomUseCase) RejectRoomInvite(ctx context.Context, userId, requestId string) error {
-	if err := uc.requestRepo.DeleteRequest(ctx, requestId); err != nil {
+	req, err := uc.requestRepo.GetRequestById(ctx, requestId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrRequestNotFound
+		}
+		return err
+	}
+
+	var room *entity.Room
+	if req.RoomId != nil {
+		room, err = uc.roomRepo.GetRoomById(ctx, *req.RoomId)
+		if err != nil {
+			return err
+		}
+		if room == nil {
+			return ErrRoomNotFound
+		}
+	}
+
+	if err := uc.requestRepo.UpdateStatus(ctx, requestId, "rejected"); err != nil {
 		return err
 	}
 
 	if uc.notificationHub != nil {
-		req, err := uc.requestRepo.GetRequestById(ctx, requestId)
-		if err != nil {
-			log.Printf("failed to get request: %v", err)
-			return nil
-		}
 		receiver, err := uc.userRepo.GetUserById(ctx, req.ReceiverId)
 		if err == nil {
+			data := map[string]interface{}{
+				"requestId": requestId,
+				"from": map[string]string{
+					"id":       receiver.Id,
+					"username": receiver.Username,
+					"code":     receiver.Code,
+				},
+			}
+			if room != nil {
+				data["room"] = map[string]string{
+					"id":   room.Id,
+					"name": room.Name,
+				}
+			}
+
 			notif := map[string]interface{}{
 				"type": "room_invite_rejected",
-				"data": map[string]interface{}{
-					"requestId": requestId,
-					"from": map[string]string{
-						"id":       receiver.Id,
-						"username": receiver.Username,
-						"code":     receiver.Code,
-					},
-				},
+				"data": data,
 			}
 			payload, _ := json.Marshal(notif)
 			uc.notificationHub.SendToUser(req.SenderId, payload)
@@ -436,8 +475,31 @@ func (uc *RoomUseCase) DeleteRoom(ctx context.Context, roomId, adminId string) e
 		return ErrNotAdmin
 	}
 
+	participants, err := uc.roomRepo.GetParticipants(ctx, roomId)
+	if err != nil {
+		return err
+	}
+
 	if err := uc.roomRepo.DeleteRoom(ctx, roomId); err != nil {
 		return err
+	}
+
+	if uc.notificationHub != nil {
+		notif := map[string]interface{}{
+			"type": "room_deleted",
+			"data": map[string]interface{}{
+				"roomId": room.Id,
+				"room": map[string]string{
+					"id":   room.Id,
+					"name": room.Name,
+				},
+			},
+		}
+		payload, _ := json.Marshal(notif)
+
+		for _, participant := range participants {
+			uc.notificationHub.SendToUser(participant.Id, payload)
+		}
 	}
 
 	return nil

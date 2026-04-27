@@ -69,7 +69,7 @@ export default function Start() {
 
     return (
         <main>
-            <Header/>
+            <Header onRequestAccepted={fetchRooms} />
             <div className="page" data-layout={layout.layoutMode}>
                 {active === "room" && (
                     <>
@@ -114,7 +114,9 @@ export default function Start() {
                         >
                             <div className="right-panel-stack">
                                 <div className="right-block">
-                                    <StartChat text="Зайдите в комнату, чтобы начать общение"/>
+                                    <main className="right-block-content">
+                                        <StartChat text="Зайдите в комнату, чтобы начать общение"/>
+                                    </main>
                                 </div>
                             </div>
                         </div>

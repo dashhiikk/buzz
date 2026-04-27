@@ -45,3 +45,12 @@
     transform: translateY(-2px);
 }
 
+.voice-icons img.voice-icon-disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.voice-icons img.voice-icon-disabled:hover {
+    transform: none;
+}
+

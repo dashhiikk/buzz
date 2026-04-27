@@ -9,17 +9,23 @@
     justify-content: center;
     gap: 7px;
     padding: 10px 10px;
-    z-index: 1000;
+    z-index: 2000;
     box-shadow: -4px 4px 6px rgba(0, 0, 0, 0.6);
 }
 
 .left-menu {
     position: absolute;
-    top: 100%; /* под иконкой */
-    left: 50%; /* центр относительно иконки */
-    transform: translateX(-50%); /* смещение для центрирования */
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
 }
-    
+
+.menu--floating {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+	    
 .menu-btn {
     width: 180px;
     height: fit-content;

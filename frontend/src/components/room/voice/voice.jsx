@@ -1,25 +1,26 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-import { useAuth } from "../../../hooks/use-auth";
-import { useRoomAdmin } from "../../../hooks/useRoomAdmin";
+import { useAuth } from "../../../hooks/use-auth"
 
-import { leaveRoom, getInviteLink } from "../../../api/rooms";
-import { removeFriend } from "../../../api/friends";
+import { deleteRoom, getInviteLink, leaveRoom } from "../../../api/rooms"
+import { removeFriend } from "../../../api/friends"
 
-import RoomVoiceHeader from "./voice-header/voice-header";
-import VoiceChatPanel from "./voice-pannel";
-import CurrentVoiceUser from "./current-user";
+import CurrentVoiceUser from "./current-user"
+import RoomVoiceHeader from "./voice-header/voice-header"
+import VoiceChatPanel from "./voice-pannel"
 
-import "../../../css/left-block.css";
+import "../../../css/left-block.css"
 
 export default function RoomVoiceChat({
     room,
     participants: initialParticipants,
-    jitsiToken,
     roomId,
     onParticipantsUpdate,
     voiceMembers,
+    meetingError,
+    hasMeetingCredentials,
+    isConnecting,
     isJoined,
     onJoinVoice,
     onDisconnectVoice,
@@ -28,75 +29,84 @@ export default function RoomVoiceChat({
     onOpenChat,
     onOpenBoard,
     micOn,
-    setMicOn,
     headphonesOn,
-    setHeadphonesOn,
     demoOn,
-    setDemoOn,
     cameraOn,
-    setCameraOn,
+    onToggleMicrophone,
+    onToggleHeadphones,
+    onToggleScreenShare,
+    onToggleCamera,
 }) {
-    const { user } = useAuth();
-    const { isAdmin } = useRoomAdmin(roomId);
-    const navigate = useNavigate();
+    const { user } = useAuth()
+    const navigate = useNavigate()
+    const isAdmin = room?.adminId === user?.id
 
-    const [participants, setParticipants] = useState(initialParticipants);
-    const [menuVisible, setMenuVisible] = useState(false);
-    const [isMembersOpen, setIsMembersOpen] = useState(false);
-    const [isInviteOpen, setIsInviteOpen] = useState(false);
-
-    const [, setCopying] = useState(false);
-    const [notificationMessage, setNotificationMessage] = useState(null);
+    const [participants, setParticipants] = useState(initialParticipants)
+    const [menuVisible, setMenuVisible] = useState(false)
+    const [isMembersOpen, setIsMembersOpen] = useState(false)
+    const [isInviteOpen, setIsInviteOpen] = useState(false)
+    const [, setCopying] = useState(false)
+    const [notificationMessage, setNotificationMessage] = useState(null)
 
     useEffect(() => {
-        setParticipants(initialParticipants);
-    }, [initialParticipants]);
+        setParticipants(initialParticipants)
+    }, [initialParticipants])
 
     const handleLeave = async () => {
         try {
-            await leaveRoom(roomId);
-            navigate("/start");
+            await leaveRoom(roomId)
+            navigate("/start")
         } catch (err) {
-            console.error("Failed to leave room:", err);
-            alert("Не удалось покинуть комнату");
+            console.error("Failed to leave room:", err)
         }
-    };
+    }
+
+    const handleDeleteRoom = async () => {
+        if (!window.confirm("Удалить комнату?")) {
+            return
+        }
+
+        try {
+            await deleteRoom(roomId)
+            navigate("/start")
+        } catch (err) {
+            console.error("Failed to delete room:", err)
+        }
+    }
 
     const handleRemoveFriend = async () => {
         try {
-            const friend = participants.find((p) => p.id !== user.id);
+            const friend = participants.find((participant) => participant.id !== user.id)
 
             if (friend) {
-                await removeFriend(friend.id);
-                navigate("/start");
+                await removeFriend(friend.id)
+                navigate("/start")
             }
         } catch (err) {
-            console.error("Failed to remove friend:", err);
-            alert("Не удалось удалить друга");
+            console.error("Failed to remove friend:", err)
         }
-    };
+    }
 
     const handleCopyInviteLink = async () => {
         try {
-            setCopying(true);
-            const response = await getInviteLink(roomId);
-            const inviteLink = response.data.link;
-            await navigator.clipboard.writeText(inviteLink);
-            setNotificationMessage("Ссылка скопирована!");
-            setTimeout(() => setNotificationMessage(null), 2000);
+            setCopying(true)
+            const response = await getInviteLink(roomId)
+            await navigator.clipboard.writeText(response.data.link)
+            setNotificationMessage("Ссылка скопирована!")
+            window.setTimeout(() => setNotificationMessage(null), 2000)
         } catch (err) {
-            console.error("Failed to get invite link:", err);
-            setNotificationMessage("Не удалось скопировать ссылку");
-            setTimeout(() => setNotificationMessage(null), 2000);
+            console.error("Failed to get invite link:", err)
+            setNotificationMessage("Не удалось скопировать ссылку")
+            window.setTimeout(() => setNotificationMessage(null), 2000)
         } finally {
-            setCopying(false);
+            setCopying(false)
         }
-    };
+    }
 
-    const handleParticipantsUpdate = (newParticipants) => {
-        setParticipants(newParticipants);
-        onParticipantsUpdate?.(newParticipants);
-    };
+    const handleParticipantsUpdate = (newParticipants, nextAdminId) => {
+        setParticipants(newParticipants)
+        onParticipantsUpdate?.(newParticipants, nextAdminId)
+    }
 
     return (
         <main className="left-block-content">
@@ -117,33 +127,36 @@ export default function RoomVoiceChat({
                 onCopyInviteLink={handleCopyInviteLink}
                 onRemoveFriend={handleRemoveFriend}
                 onLeave={handleLeave}
+                onDeleteRoom={handleDeleteRoom}
                 onParticipantsUpdate={handleParticipantsUpdate}
             />
 
             <VoiceChatPanel
                 voiceMembers={voiceMembers}
-                demoOn = {demoOn}
-                jitsiToken={jitsiToken}
-                isJoined = {isJoined}
+                meetingError={meetingError}
+                hasMeetingCredentials={hasMeetingCredentials}
+                isConnecting={isConnecting}
+                isJoined={isJoined}
                 onJoinVoice={onJoinVoice}
                 onDisconnectVoice={onDisconnectVoice}
                 onOpenScreenShare={onOpenScreenShare}
-                onOpenVideoChat = {onOpenVideoChat}
-                onOpenChat ={onOpenChat}
-                onOpenBoard = {onOpenBoard}
+                onOpenVideoChat={onOpenVideoChat}
+                onOpenChat={onOpenChat}
+                onOpenBoard={onOpenBoard}
             />
 
             <CurrentVoiceUser
                 user={user}
+                isJoined={isJoined}
                 micOn={micOn}
-                setMicOn={setMicOn}
                 headphonesOn={headphonesOn}
-                setHeadphonesOn={setHeadphonesOn}
                 demoOn={demoOn}
-                setDemoOn={setDemoOn}
                 cameraOn={cameraOn}
-                setCameraOn={setCameraOn}
+                onToggleMicrophone={onToggleMicrophone}
+                onToggleHeadphones={onToggleHeadphones}
+                onToggleScreenShare={onToggleScreenShare}
+                onToggleCamera={onToggleCamera}
             />
         </main>
-    );
+    )
 }

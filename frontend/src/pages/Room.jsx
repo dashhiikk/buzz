@@ -1,222 +1,341 @@
-import RoomChat from "../components/room/chat/chat";
-import RoomVoiceChat from "../components/room/voice/voice";
-import Header from "../components/header/header";
-import ScreenShare from "../components/room/screen-sharing";
-import VideoChat from "../components/room/video";
-import VirtualBoard from "../components/room/virtual-board";
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 
-import { useAuth } from "../hooks/use-auth";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getRoom, getParticipants, getMessages, getBoardState, getJitsiToken } from "../api/rooms";
- import usePersistedState from "../hooks/use-persisted-state";
+import Header from "../components/header/header"
+import RoomChat from "../components/room/chat/chat"
+import MiniUserVoice from "../components/room/mini-voice/mini-user-voice"
+import MiniVoiceMembers from "../components/room/mini-voice/mini-voice-members"
+import ScreenShare from "../components/room/screen-sharing"
+import VideoChat from "../components/room/video"
+import VirtualBoard from "../components/room/virtual-board"
+import RoomVoiceChat from "../components/room/voice/voice"
 
-import useTwoPanelLayout from "../hooks/use-two-panel-layout";
-import useSwipe from "../hooks/swipe";
-import MiniUserVoice from "../components/room/mini-voice/mini-user-voice";
-import MiniVoiceMembers from "../components/room/mini-voice/mini-voice-members";
+import { useAuth } from "../hooks/use-auth"
+import useJitsiMeeting from "../hooks/use-jitsi-meeting"
+import usePersistedState from "../hooks/use-persisted-state"
+import useSwipe from "../hooks/swipe"
+import useTwoPanelLayout from "../hooks/use-two-panel-layout"
+
+import {
+    getBoardState,
+    getJitsiToken,
+    getMessages,
+    getParticipants,
+    getRoom,
+} from "../api/rooms"
 
 import "../css/page/blocks.css"
 import "../css/page/layout.css"
 import "../css/page/transition-btn.css"
 import "../css/swipe.css"
 
-import voice from "../assets/voice.svg"
-import chat from "../assets/chat.svg"
-import video from "../assets/video.svg"
-import demo from "../assets/demo.svg"
 import board from "../assets/board.svg"
+import chat from "../assets/chat.svg"
+import demo from "../assets/demo.svg"
+import video from "../assets/video.svg"
+import voice from "../assets/voice.svg"
 
-const RIGHT_VIEW_ANIMATION_MS = 220;
+const RIGHT_VIEW_ANIMATION_MS = 220
 
-export default function Room () {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { user } = useAuth();
-    const roomId = location.state?.roomId;
+function isRoomUnavailableError(err) {
+    const status = err?.response?.status
+    const errorMessage = err?.response?.data?.error
+
+    return (
+        status === 403 ||
+        status === 404 ||
+        (status === 500 && errorMessage === "failed to get room")
+    )
+}
+
+export default function Room() {
+    const location = useLocation()
+    const navigate = useNavigate()
+    const { user } = useAuth()
+    const roomId = location.state?.roomId
 
     const [rightView, setRightView] = usePersistedState(
         `room:${roomId}:rightView`,
         "chat"
-    );
-    const isBoardView = rightView === "board";
+    )
+    const [screenShareParticipantId, setScreenShareParticipantId] = useState(null)
+    const isBoardView = rightView === "board"
 
     const layout = useTwoPanelLayout({
         defaultPane: "left",
-        storageKey: `room:${roomId}`
-    });
+        storageKey: `room:${roomId}`,
+    })
 
-    const effectiveIsSinglePane = layout.isSinglePane || isBoardView;
-    const effectiveLayoutMode = effectiveIsSinglePane ? "single" : "split";
-    const effectiveActivePane = layout.activePane;
+    const effectiveIsSinglePane = layout.isSinglePane || isBoardView
+    const effectiveLayoutMode = effectiveIsSinglePane ? "single" : "split"
+    const effectiveActivePane = layout.activePane
 
-    const [room, setRoom] = useState(null);
-    const [participants, setParticipants] = useState([]);
-    const [voiceMembers, setVoiceMembers] = usePersistedState(
-        `room:${roomId}:voiceMembers`,
-        []
-    );
-    const [messages, setMessages] = useState([]);
-    const [boardState, setBoardState] = useState(null);
-    const [jitsiToken, setJitsiToken] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [room, setRoom] = useState(null)
+    const [participants, setParticipants] = useState([])
+    const [messages, setMessages] = useState([])
+    const [boardState, setBoardState] = useState(null)
+    const [jitsiCredentials, setJitsiCredentials] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-    const [micOn, setMicOn] = useState(true);
-    const [headphonesOn, setHeadphonesOn] = useState(true);
-    const [demoOn, setDemoOn] = useState(false);
-    const [cameraOn, setCameraOn] = useState(false);
+    const [displayedRightView, setDisplayedRightView] = useState(rightView)
+    const [rightViewStage, setRightViewStage] = useState("entered")
 
-    const [displayedRightView, setDisplayedRightView] = useState(rightView);
-    const [rightViewStage, setRightViewStage] = useState("entered");
-
-    const dataFetched = useRef(false);
+    const dataFetched = useRef(false)
 
     const fetchData = useCallback(async () => {
-        if (!roomId) return;
+        if (!roomId) {
+            return
+        }
+
         try {
-            setLoading(true);
-            const [roomRes, participantsRes, messagesRes, boardRes, jitsiRes] = await Promise.all([
+            setLoading(true)
+
+            const [
+                roomRes,
+                participantsRes,
+                messagesRes,
+                boardRes,
+                jitsiRes,
+            ] = await Promise.all([
                 getRoom(roomId),
                 getParticipants(roomId),
                 getMessages(roomId, 50, 0),
                 getBoardState(roomId),
-                getJitsiToken(roomId)
-            ]);
-            setRoom(roomRes.data);
-            setParticipants(participantsRes.data);
-            setMessages(Array.isArray(messagesRes.data) ? messagesRes.data : []);
-            setBoardState(boardRes.data);
-            setJitsiToken(jitsiRes.data.token);
-            setError(null);
-        } catch (err) {
-            console.error(err);
-            setError(err.message);
+                getJitsiToken(roomId),
+            ])
+
+            setRoom(roomRes.data)
+            setParticipants(participantsRes.data)
+            setMessages(Array.isArray(messagesRes.data) ? messagesRes.data : [])
+            setBoardState(boardRes.data)
+            setJitsiCredentials(jitsiRes.data)
+            setError(null)
+        } catch (fetchError) {
+            console.error(fetchError)
+
+            if (isRoomUnavailableError(fetchError)) {
+                navigate("/start", { replace: true })
+                return
+            }
+
+            setError(fetchError.message)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    }, [roomId]);
+    }, [navigate, roomId])
 
     useEffect(() => {
         if (!roomId) {
-            navigate("/start");
-            return;
+            navigate("/start")
+            return
         }
-        if (dataFetched.current) return;
-        dataFetched.current = true;
-        fetchData();
-    }, [roomId, navigate, fetchData]);
-               
+
+        if (dataFetched.current) {
+            return
+        }
+
+        dataFetched.current = true
+        fetchData()
+    }, [fetchData, navigate, roomId])
+
+    useEffect(() => {
+        if (!roomId) {
+            return
+        }
+
+        const intervalId = setInterval(async () => {
+            try {
+                await getRoom(roomId)
+            } catch (pollError) {
+                if (isRoomUnavailableError(pollError)) {
+                    navigate("/start", { replace: true })
+                }
+            }
+        }, 3000)
+
+        return () => clearInterval(intervalId)
+    }, [navigate, roomId])
+
     const swipeHandlers = useSwipe({
         onSwipeLeft: () => {
             if (layout.isSinglePane && layout.activePane === "left") {
-                layout.openPane("right");
+                layout.openPane("right")
             }
         },
         onSwipeRight: () => {
             if (layout.isSinglePane && layout.activePane === "right") {
-                layout.openPane("left");
+                layout.openPane("left")
             }
-        }
-    });
+        },
+    })
 
     useEffect(() => {
         if (!effectiveIsSinglePane) {
-            setDisplayedRightView(rightView);
-            setRightViewStage("entered");
-            return;
+            setDisplayedRightView(rightView)
+            setRightViewStage("entered")
+            return
         }
 
-        if (rightView === displayedRightView) return;
+        if (rightView === displayedRightView) {
+            return
+        }
 
-        let enterRafId = 0;
+        let enterRafId = 0
 
-        setRightViewStage("exiting");
+        setRightViewStage("exiting")
 
         const exitTimer = setTimeout(() => {
-            setDisplayedRightView(rightView);
-            setRightViewStage("entering");
+            setDisplayedRightView(rightView)
+            setRightViewStage("entering")
 
             enterRafId = requestAnimationFrame(() => {
-                setRightViewStage("entered");
-            });
-        }, RIGHT_VIEW_ANIMATION_MS);
+                setRightViewStage("entered")
+            })
+        }, RIGHT_VIEW_ANIMATION_MS)
 
         return () => {
-            clearTimeout(exitTimer);
-            cancelAnimationFrame(enterRafId);
-        };
-    }, [rightView, displayedRightView, effectiveIsSinglePane]);
-
-    const handleParticipantsUpdate = (newParticipants) => {
-        setParticipants(newParticipants);
-        // Если изменился администратор, можно обновить комнату
-        if (room && !newParticipants.some(p => p.id === room.adminId)) {
-            // Перезагрузить комнату, чтобы получить нового adminId
-            fetchData(); // ваша функция загрузки комнаты
+            clearTimeout(exitTimer)
+            cancelAnimationFrame(enterRafId)
         }
-    };
+    }, [displayedRightView, effectiveIsSinglePane, rightView])
 
-    const isJoined = voiceMembers.some((member) => member.id === user?.id);
+    const meeting = useJitsiMeeting({
+        roomId,
+        credentials: jitsiCredentials,
+        user,
+        roomParticipants: participants,
+    })
+
+    const voiceMembers = meeting.participants
+    const sharingParticipants = voiceMembers.filter(
+        (participant) => participant.isScreenSharing
+    )
+    const activeScreenSharer =
+        voiceMembers.find(
+            (participant) =>
+                participant.participantId === screenShareParticipantId
+        ) || sharingParticipants[0] || null
+
+    useEffect(() => {
+        if (meeting.isJoined || rightView === "chat" || rightView === "board") {
+            return
+        }
+
+        setRightView("chat")
+        setScreenShareParticipantId(null)
+    }, [meeting.isJoined, rightView, setRightView])
+
+    useEffect(() => {
+        if (rightView !== "screenShare") {
+            return
+        }
+
+        if (!sharingParticipants.length) {
+            setRightView("chat")
+            setScreenShareParticipantId(null)
+            return
+        }
+
+        const selectedParticipantExists = sharingParticipants.some(
+            (participant) =>
+                participant.participantId === screenShareParticipantId
+        )
+
+        if (!selectedParticipantExists) {
+            setScreenShareParticipantId(sharingParticipants[0].participantId)
+        }
+    }, [rightView, screenShareParticipantId, setRightView, sharingParticipants])
+
+    const handleParticipantsUpdate = (newParticipants, nextAdminId) => {
+        setParticipants(newParticipants)
+
+        if (nextAdminId) {
+            setRoom((prev) => (prev ? { ...prev, adminId: nextAdminId } : prev))
+            return
+        }
+
+        if (room && !newParticipants.some((participant) => participant.id === room.adminId)) {
+            fetchData()
+        }
+    }
 
     const handleJoinVoice = () => {
-        if (!user) return;
-
-        const currentUserVoiceItem = {
-            id: user.id,
-            name: user.username,
-            icon: user.avatar,
-        };
-
-        setVoiceMembers((prev) => {
-            const alreadyExists = prev.some((member) => member.id === user.id);
-            return alreadyExists ? prev : [...prev, currentUserVoiceItem];
-        });
-    };
+        meeting.joinConference()
+    }
 
     const handleDisconnectVoice = () => {
-        if (!user) return;
+        meeting.leaveConference()
+        setScreenShareParticipantId(null)
 
-        setVoiceMembers((prev) =>
-            prev.filter((member) => member.id !== user.id)
-        );
-    };
-
-    const openScreenShare = () => {
-        setRightView("screenShare");
-        if (layout.isSinglePane) {
-            layout.openPane("right");
+        if (rightView === "screenShare" || rightView === "videoChat") {
+            setRightView("chat")
         }
-    };
+    }
+
+    const openScreenShare = (participant) => {
+        const nextParticipant =
+            participant ||
+            voiceMembers.find(
+                (voiceMember) =>
+                    voiceMember.participantId === screenShareParticipantId
+            ) ||
+            sharingParticipants[0]
+
+        if (!nextParticipant) {
+            return
+        }
+
+        setScreenShareParticipantId(nextParticipant.participantId)
+        setRightView("screenShare")
+
+        if (layout.isSinglePane) {
+            layout.openPane("right")
+        }
+    }
 
     const openChat = () => {
-        setRightView("chat");
+        setRightView("chat")
+
         if (layout.isSinglePane) {
-            layout.openPane("right");
+            layout.openPane("right")
         }
-    };
+    }
 
     const openVideoChat = () => {
-        setRightView("videoChat");
-        if (layout.isSinglePane) {
-            layout.openPane("right");
+        if (!meeting.isJoined) {
+            return
         }
-    };
+
+        setRightView("videoChat")
+
+        if (layout.isSinglePane) {
+            layout.openPane("right")
+        }
+    }
 
     const openBoard = () => {
-        setRightView("board");
-        layout.openPane("right");
-    };
+        setRightView("board")
+        layout.openPane("right")
+    }
 
-    if (loading) return <div>Загрузка...</div>;
-    if (error) return <div>Ошибка: {error}</div>;
-    if (!room) return null;
+    if (loading) {
+        return <div>Загрузка...</div>
+    }
+
+    if (error) {
+        return <div>Ошибка: {error}</div>
+    }
+
+    if (!room) {
+        return null
+    }
 
     return (
         <main>
-            <Header/>
-            <div 
-                className="page" 
+            <Header currentRoomId={roomId} />
+            <div
+                className="page"
                 data-layout={effectiveLayoutMode}
                 data-right-view={rightView}
                 {...swipeHandlers}
@@ -237,34 +356,57 @@ export default function Room () {
                                 type="button"
                                 onClick={() => layout.openPane("right")}
                             >
-                                {rightView === "chat" && <img src={chat} alt="Открыть чат" />}
-                                {rightView === "screenShare" && <img src={demo} alt="Открыть демонстрацию" />}
-                                {rightView === "videoChat" && <img src={video} alt="Открыть видеочат" />}
-                                {rightView === "board" && <img src={board} alt="Открыть виртуальную доску" />}
+                                {rightView === "chat" && (
+                                    <img src={chat} alt="Открыть чат" />
+                                )}
+                                {rightView === "screenShare" && (
+                                    <img
+                                        src={demo}
+                                        alt="Открыть демонстрацию"
+                                    />
+                                )}
+                                {rightView === "videoChat" && (
+                                    <img
+                                        src={video}
+                                        alt="Открыть видеочат"
+                                    />
+                                )}
+                                {rightView === "board" && (
+                                    <img
+                                        src={board}
+                                        alt="Открыть виртуальную доску"
+                                    />
+                                )}
                             </button>
                         )}
+
                         <RoomVoiceChat
                             room={room}
                             participants={participants}
-                            jitsiToken={jitsiToken}
                             roomId={roomId}
                             onParticipantsUpdate={handleParticipantsUpdate}
                             voiceMembers={voiceMembers}
-                            isJoined = {isJoined}
+                            meetingError={meeting.error}
+                            hasMeetingCredentials={Boolean(
+                                jitsiCredentials?.token &&
+                                    jitsiCredentials?.serverUrl
+                            )}
+                            isConnecting={meeting.isConnecting}
+                            isJoined={meeting.isJoined}
                             onJoinVoice={handleJoinVoice}
                             onDisconnectVoice={handleDisconnectVoice}
                             onOpenScreenShare={openScreenShare}
                             onOpenVideoChat={openVideoChat}
                             onOpenChat={openChat}
-                            onOpenBoard = {openBoard}
-                            micOn={micOn}
-                            setMicOn={setMicOn}
-                            headphonesOn={headphonesOn}
-                            setHeadphonesOn={setHeadphonesOn}
-                            demoOn={demoOn}
-                            setDemoOn={setDemoOn}
-                            cameraOn={cameraOn}
-                            setCameraOn={setCameraOn}
+                            onOpenBoard={openBoard}
+                            micOn={meeting.micOn}
+                            headphonesOn={meeting.headphonesOn}
+                            demoOn={meeting.demoOn}
+                            cameraOn={meeting.cameraOn}
+                            onToggleMicrophone={meeting.toggleMicrophone}
+                            onToggleHeadphones={meeting.toggleHeadphones}
+                            onToggleScreenShare={meeting.toggleScreenShare}
+                            onToggleCamera={meeting.toggleCamera}
                         />
                     </div>
                 </div>
@@ -286,69 +428,82 @@ export default function Room () {
                                     type="button"
                                     onClick={() => layout.openPane("left")}
                                 >
-                                    <img src={voice} alt="Открыть голосовой чат" />
+                                    <img
+                                        src={voice}
+                                        alt="Открыть голосовой чат"
+                                    />
                                 </button>
                             )}
 
                             {effectiveIsSinglePane && voiceMembers.length > 0 && (
-                                <MiniVoiceMembers
-                                    voiceMembers={participants}
-                                />
+                                <MiniVoiceMembers voiceMembers={voiceMembers} />
                             )}
-                            <main className={`right-block-content right-block-content--${rightViewStage}`}>
-                                    {displayedRightView === "chat" && (
-                                        <RoomChat
-                                            roomId={roomId}
-                                            initialMessages={messages}
-                                            onSwitchToLeft={() => layout.openPane("left")}
-                                            isSinglePane={layout.isSinglePane}
-                                        />
-                                    )}
 
-                                    {displayedRightView === "screenShare" && (
-                                        <ScreenShare 
-                                            onClose={openChat} 
-                                            participantVideos={participants.map((member) => ({
-                                                id: member.id,
-                                                title: member.username,
-                                                src: member.avatar
-                                            }))}
-                                        />
-                                    )} 
+                            <main
+                                className={`right-block-content right-block-content--${rightViewStage}`}
+                            >
+                                {displayedRightView === "chat" && (
+                                    <RoomChat
+                                        roomId={roomId}
+                                        initialMessages={messages}
+                                        onSwitchToLeft={() => layout.openPane("left")}
+                                        isSinglePane={layout.isSinglePane}
+                                    />
+                                )}
 
-                                    {displayedRightView === "videoChat" && (
-                                        <VideoChat
-                                            onClose={openChat}
-                                            videos={participants.map((member) => ({
-                                                id: member.id,
-                                                title: member.username,
-                                                src: member.avatar
-                                            }))}
-                                        />
-                                    )}
+                                {displayedRightView === "screenShare" && (
+                                    <ScreenShare
+                                        onClose={openChat}
+                                        sharerName={
+                                            activeScreenSharer?.name ||
+                                            "Пользователь"
+                                        }
+                                        participantVideos={voiceMembers.map(
+                                            (member) => ({
+                                                id: member.participantId,
+                                                title: member.name,
+                                                src: member.avatar,
+                                            })
+                                        )}
+                                        attachStage={meeting.attachStage}
+                                        participantId={
+                                            activeScreenSharer?.participantId ||
+                                            null
+                                        }
+                                        isJoined={meeting.isJoined}
+                                    />
+                                )}
 
-                                    {displayedRightView === "board" && (
-                                        <VirtualBoard
-                                            state = {boardState}
-                                            onClose={openChat} 
-                                        />
-                                    )}
+                                {displayedRightView === "videoChat" && (
+                                    <VideoChat
+                                        attachStage={meeting.attachStage}
+                                        isJoined={meeting.isJoined}
+                                    />
+                                )}
+
+                                {displayedRightView === "board" && (
+                                    <VirtualBoard
+                                        state={boardState}
+                                        onClose={openChat}
+                                    />
+                                )}
                             </main>
                         </div>
-                        {effectiveIsSinglePane && isJoined && (
+
+                        {effectiveIsSinglePane && meeting.isJoined && (
                             <MiniUserVoice
-                                user = {user}
-                                onOpenVideoChat = {openVideoChat}
-                                onOpenChat = {openChat}
-                                onOpenBoard = {openBoard}
-                                micOn={micOn}
-                                setMicOn={setMicOn}
-                                headphonesOn={headphonesOn}
-                                setHeadphonesOn={setHeadphonesOn}
-                                demoOn={demoOn}
-                                setDemoOn={setDemoOn}
-                                cameraOn={cameraOn}
-                                setCameraOn={setCameraOn}
+                                user={user}
+                                micOn={meeting.micOn}
+                                headphonesOn={meeting.headphonesOn}
+                                demoOn={meeting.demoOn}
+                                cameraOn={meeting.cameraOn}
+                                onToggleMicrophone={meeting.toggleMicrophone}
+                                onToggleHeadphones={meeting.toggleHeadphones}
+                                onToggleScreenShare={meeting.toggleScreenShare}
+                                onToggleCamera={meeting.toggleCamera}
+                                onOpenVideoChat={openVideoChat}
+                                onOpenChat={openChat}
+                                onOpenBoard={openBoard}
                             />
                         )}
                     </div>
@@ -359,12 +514,16 @@ export default function Room () {
                 <div className="swipe-dots">
                     <button
                         type="button"
-                        className={`swipe-dot ${layout.activePane === "left" ? "active" : ""}`}
+                        className={`swipe-dot ${
+                            layout.activePane === "left" ? "active" : ""
+                        }`}
                         onClick={() => layout.openPane("left")}
                     />
                     <button
                         type="button"
-                        className={`swipe-dot ${layout.activePane === "right" ? "active" : ""}`}
+                        className={`swipe-dot ${
+                            layout.activePane === "right" ? "active" : ""
+                        }`}
                         onClick={() => layout.openPane("right")}
                     />
                 </div>

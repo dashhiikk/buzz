@@ -64,7 +64,7 @@ export default function MiniVoiceMembers({
                     {voiceMembers.map((item) => (
                         <li key={item.id} className="mini-voice-members-list-element">
                                 <img
-                                    src={item.avatar || defaultAvatar}
+                                    src={item.avatar || item.icon || defaultAvatar}
                                     alt=""
                                     className="voice-member-icon"
                                 />        

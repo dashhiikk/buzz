@@ -68,19 +68,35 @@ func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 		h.writeError(w, http.StatusInternalServerError, errors.New("failed to verify membership"))
 		return
 	}
-	isParticipant := false
+
+	var currentUserContext *jitsi.UserContext
 	for _, p := range participants {
 		if p.Id == userId {
-			isParticipant = true
+			displayName := p.Username
+			if p.Code != "" {
+				displayName = p.Username + "#" + p.Code
+			}
+
+			avatarURL := ""
+			if p.Avatar != nil {
+				avatarURL = *p.Avatar
+			}
+
+			currentUserContext = &jitsi.UserContext{
+				ID:          p.Id,
+				DisplayName: displayName,
+				Email:       p.Email,
+				AvatarURL:   avatarURL,
+			}
 			break
 		}
 	}
-	if !isParticipant {
+	if currentUserContext == nil {
 		h.writeError(w, http.StatusForbidden, errors.New("not a member of this room"))
 		return
 	}
 
-	token, err := h.jitsi.GenerateToken(roomId, userId)
+	token, err := h.jitsi.GenerateToken(roomId, *currentUserContext)
 	if err != nil {
 		h.writeError(w, http.StatusInternalServerError, errors.New("failed to generate token"))
 		return

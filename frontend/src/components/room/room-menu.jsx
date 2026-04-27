@@ -1,4 +1,9 @@
-import '../../css/menu.css'
+import { createPortal } from "react-dom";
+import { useRef } from "react";
+
+import useAnchoredPortalPosition from "../../hooks/use-anchored-portal-position";
+
+import "../../css/menu.css";
 
 export default function RoomMenu({
     type,
@@ -10,7 +15,21 @@ export default function RoomMenu({
     onRemoveFromRoom,
     onRemoveFriend,
     isAdmin,
+    anchorRef,
+    usePortal = false,
+    contentRef,
 }) {
+    const fallbackRef = useRef(null);
+    const menuRef = contentRef ?? fallbackRef;
+    const positionStyle = useAnchoredPortalPosition({
+        isOpen: usePortal,
+        anchorRef,
+        contentRef: menuRef,
+        offset: 6,
+        margin: 8,
+        zIndex: 4000,
+    });
+
     const config = {
         room: [
             {
@@ -59,7 +78,7 @@ export default function RoomMenu({
 
         friend: [
             {
-                label: "Удалить друга и очистить чат",
+                label: "Удалить друга",
                 className: "gray-menu-btn menu-btn",
                 onClick: onRemoveFriend,
             },
@@ -73,20 +92,31 @@ export default function RoomMenu({
 
     const buttons = config[type] || [];
 
+    const menuContent = (
+        <div
+            ref={menuRef}
+            style={usePortal ? positionStyle : undefined}
+            className={`menu ${usePortal ? "menu--floating" : "left-menu"}`}
+        >
+            {buttons.map((button, index) => (
+                <button
+                    key={index}
+                    className={button.className}
+                    onClick={button.onClick}
+                >
+                    {button.label}
+                </button>
+            ))}
+        </div>
+    );
+
+    if (usePortal) {
+        return createPortal(menuContent, document.body);
+    }
+
     return (
         <main>
-            <div className="menu left-menu">
-                {buttons.map((button, index) => (
-                    <button
-                        key={index}
-                        className={button.className}
-                        onClick={button.onClick}
-                    >
-                        {button.label}
-                    </button>
-                ))}
-            </div>
+            {menuContent}
         </main>
     );
 }
-    

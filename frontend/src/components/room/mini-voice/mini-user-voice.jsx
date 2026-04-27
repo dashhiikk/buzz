@@ -1,70 +1,94 @@
-import defaultAvatar from "../../../assets/user-icon.svg"
-
-import "../../../css/voice/mini-voice.css"
-import "../../../css/voice/current-user.css"
-
-import micON from "../../../assets/mic-on.svg";
-import headON from "../../../assets/head-on.svg";
-import micOFF from "../../../assets/mic-off.svg";
-import headOFF from "../../../assets/head-off.svg";
-import demoON from "../../../assets/demo-on.svg"
-import demoOFF from "../../../assets/demo-off.svg"
-import cameraON from "../../../assets/camera-on.svg"
-import cameraOFF from "../../../assets/camera-off.svg"
-
-import chat from "../../../assets/chat.svg"
-import video from "../../../assets/video.svg"
 import board from "../../../assets/board.svg"
+import cameraOFF from "../../../assets/camera-off.svg"
+import cameraON from "../../../assets/camera-on.svg"
+import chat from "../../../assets/chat.svg"
+import demoOFF from "../../../assets/demo-off.svg"
+import demoON from "../../../assets/demo-on.svg"
+import headOFF from "../../../assets/head-off.svg"
+import headON from "../../../assets/head-on.svg"
+import micOFF from "../../../assets/mic-off.svg"
+import micON from "../../../assets/mic-on.svg"
+import defaultAvatar from "../../../assets/user-icon.svg"
+import video from "../../../assets/video.svg"
+
+import "../../../css/voice/current-user.css"
+import "../../../css/voice/mini-voice.css"
+
+function VoiceControlIcon({
+    active,
+    activeIcon,
+    inactiveIcon,
+    alt,
+    onClick,
+}) {
+    return (
+        <img
+            src={active ? activeIcon : inactiveIcon}
+            onClick={onClick}
+            alt={alt}
+        />
+    )
+}
 
 export default function MiniUserVoice({
     user,
     micOn,
-    setMicOn,
     headphonesOn,
-    setHeadphonesOn,
     demoOn,
-    setDemoOn,
     cameraOn,
-    setCameraOn,
+    onToggleMicrophone,
+    onToggleHeadphones,
+    onToggleScreenShare,
+    onToggleCamera,
     onOpenVideoChat,
     onOpenChat,
-    onOpenBoard
+    onOpenBoard,
 }) {
-
     return (
         <div className="mini-voice-user-panel">
             <div className="mini-voice-user">
                 <div className="mini-user-voice-chat-member">
-                    <img src={user?.avatar || defaultAvatar } alt="Аватар пользователя" />
+                    <img
+                        src={user?.avatar || defaultAvatar}
+                        alt="Аватар пользователя"
+                    />
                     <p className="medium-text text--light">{user.username}</p>
                 </div>
-    
+
                 <div className="mini-voice-icons">
-                    <img
-                        src={micOn ? micON : micOFF}
-                        onClick={() => setMicOn((prev) => !prev)}
+                    <VoiceControlIcon
+                        active={micOn}
+                        activeIcon={micON}
+                        inactiveIcon={micOFF}
                         alt="Микрофон"
+                        onClick={onToggleMicrophone}
                     />
-                    <img
-                        src={headphonesOn ? headON : headOFF}
-                        onClick={() => setHeadphonesOn((prev) => !prev)}
+                    <VoiceControlIcon
+                        active={headphonesOn}
+                        activeIcon={headON}
+                        inactiveIcon={headOFF}
                         alt="Наушники"
+                        onClick={onToggleHeadphones}
                     />
-                    <img
-                        src={demoOn ? demoON : demoOFF}
-                        onClick={() => setDemoOn((prev) => !prev)}
+                    <VoiceControlIcon
+                        active={demoOn}
+                        activeIcon={demoON}
+                        inactiveIcon={demoOFF}
                         alt="Демонстрация экрана"
+                        onClick={onToggleScreenShare}
                     />
-                    <img
-                        src={cameraOn ? cameraON : cameraOFF}
-                        onClick={() => setCameraOn((prev) => !prev)}
+                    <VoiceControlIcon
+                        active={cameraOn}
+                        activeIcon={cameraON}
+                        inactiveIcon={cameraOFF}
                         alt="Видео"
+                        onClick={onToggleCamera}
                     />
                 </div>
             </div>
 
             <div className="mini-voice-btns">
-                <button type="button" onClick={onOpenChat}> 
+                <button type="button" onClick={onOpenChat}>
                     <img src={chat} alt="Чат" />
                 </button>
                 <button type="button" onClick={onOpenVideoChat}>
@@ -72,8 +96,8 @@ export default function MiniUserVoice({
                 </button>
                 <button type="button" onClick={onOpenBoard}>
                     <img src={board} alt="Доска" />
-                </button>           
+                </button>
             </div>
         </div>
-    );
+    )
 }

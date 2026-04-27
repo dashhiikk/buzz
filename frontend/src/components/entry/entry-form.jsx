@@ -47,20 +47,16 @@ export default function EntryForm({
   const resendVerification = async () => {
     try {
       await apiClient.post('/auth/resend-verification', { email: registeredEmail });
-      alert("Письмо отправлено повторно");
     } catch (err) {
       console.error(err);
-      alert("Не удалось отправить письмо");
     }
   };
 
   const resendRecovery = async () => {
     try {
       await requestPasswordReset(recoveryEmail);
-      alert("Письмо отправлено повторно");
     } catch (err) {
       console.error(err);
-      alert("Не удалось отправить письмо");
     }
   };
 

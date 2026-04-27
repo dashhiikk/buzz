@@ -6,124 +6,33 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
-.video-chat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-    gap: 14px;
+.video-chat-stage,
+.video-chat-empty {
     width: 100%;
-}
-
-.video-chat-featured {
-    width: 100%;
-}
-
-.video-tile {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
+    min-height: 420px;
+    flex: 1 1 auto;
     border-radius: 10px;
+    overflow: hidden;
     background: #11181d;
     box-shadow: 0 0 12px rgba(0, 0, 0, 1);
 }
 
-.video-tile--expanded {
-    width: 100%;
-}
-
-.video-tile--compact {
-    width: 100%;
-}
-
-.video-tile-media {
-    display: block;
+.video-chat-stage iframe {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    border: 0;
 }
 
-.video-tile-label {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    padding: 4px 8px;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
-    font-size: 14px;
-    line-height: 1.2;
-}
-
-.video-size-btn {
-    position: absolute;
-    width: 26px;
-    height: 26px;
-    border: none;
-    border-radius: 8px;
-    padding: 0;
+.video-chat-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    bottom: 10px;
-    right: 10px;
-}
-
-.video-share-media {
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-}
-
-.video-chat-strip-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.video-chat-strip {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(200px, 250px);
-    gap: 14px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 4px;
-    flex: 1;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    scroll-behavior: smooth;
-}
-
-.video-chat-strip::-webkit-scrollbar {
-    display: none;
-}
-
-.video-chat-strip-arrow {
-    width: 28px;
-    height: 28px;
-    flex: 0 0 28px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(40, 55, 64, 0.9);
-    color: #fff;
-    font-size: 20px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.video-chat-strip-arrow:hover {
-    transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-    .video-chat-strip-arrow {
-        display: none;
-    }
+    padding: 24px;
+    box-sizing: border-box;
+    color: #d9dde0;
+    text-align: center;
 }

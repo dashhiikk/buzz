@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import "../css/modals.css";
 import close from "../assets/close.svg"
 
@@ -50,7 +51,7 @@ export default function SendRequest({ isOpen, onClose, type = "friend", roomId =
         }
     };
 
-    return (
+    return createPortal(
         <div className="modal">
             <div className="modal-content">
                 <p className="medium-text text--light">{title}</p>
@@ -81,6 +82,7 @@ export default function SendRequest({ isOpen, onClose, type = "friend", roomId =
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

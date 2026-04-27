@@ -1,27 +1,31 @@
-import chat from "../../../assets/chat.svg"
-import video from "../../../assets/video.svg"
 import board from "../../../assets/board.svg"
+import chat from "../../../assets/chat.svg"
 import disconnect from "../../../assets/disconnect.svg"
+import video from "../../../assets/video.svg"
 
 import VoiceChatMembers from "./voice-chat-members"
+
 import "../../../css/voice/voice-pannel.css"
 
 export default function VoiceChatPanel({
     voiceMembers,
-    demoOn,
-    jitsiToken,
+    meetingError,
+    hasMeetingCredentials,
+    isConnecting,
     isJoined,
     onJoinVoice,
     onDisconnectVoice,
     onOpenScreenShare,
     onOpenVideoChat,
     onOpenChat,
-    onOpenBoard
+    onOpenBoard,
 }) {
+    const canJoinVoice = hasMeetingCredentials && !isConnecting
 
     return (
         <div className="voice-chat">
             <p className="voice-chat-header">Голосовой чат</p>
+
             {isJoined && (
                 <button
                     type="button"
@@ -31,25 +35,34 @@ export default function VoiceChatPanel({
                     <img src={disconnect} alt="Отключиться" />
                 </button>
             )}
-            <VoiceChatMembers 
+
+            <VoiceChatMembers
                 items={voiceMembers}
-                demoOn = {demoOn}
-                onOpenScreenShare = {onOpenScreenShare}
+                onOpenScreenShare={onOpenScreenShare}
             />
-            <div className="voice-chat-control"> 
-                {!isJoined && jitsiToken && (
+
+            <div className="voice-chat-control">
+                {!isJoined && (
                     <button
                         type="button"
                         className="join-btn"
                         onClick={onJoinVoice}
+                        disabled={!canJoinVoice}
                     >
-                        <p>Присоединиться</p>
+                        <p>
+                            {isConnecting
+                                ? "Подключение..."
+                                : hasMeetingCredentials
+                                  ? "Присоединиться"
+                                  : "Jitsi недоступен"}
+                        </p>
                     </button>
                 )}
+
                 {isJoined && (
                     <div className="voice-chat-btns">
-                        <button type="button" onClick={onOpenChat}> 
-                            <img src={chat} alt="Демонстрация" />
+                        <button type="button" onClick={onOpenChat}>
+                            <img src={chat} alt="Чат" />
                         </button>
                         <button type="button" onClick={onOpenVideoChat}>
                             <img src={video} alt="Видео" />
@@ -60,6 +73,10 @@ export default function VoiceChatPanel({
                     </div>
                 )}
             </div>
+
+            {meetingError && (
+                <p className="voice-chat-error">{meetingError}</p>
+            )}
         </div>
-    );
+    )
 }

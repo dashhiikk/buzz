@@ -7,7 +7,6 @@ export default function MessageMenu({ type, messageId, messageText, onClose, onD
             onClose();
         } catch (error) {
             console.error("Не удалось скопировать сообщение:", error);
-            alert("Не удалось скопировать сообщение");
         }
     };
     

@@ -1,33 +1,53 @@
-import '../../../../css/list.css'
-import '../../../../css/modals.css'
+import "../../../../css/list.css";
+import "../../../../css/modals.css";
 
-import close from "../../../../assets/close.svg"
-import plus from "../../../../assets/plus.svg"
-import defaultAvatar from "../../../../assets/user-icon.svg"
-import miniDots from "../../../../assets/dots-mini.svg"
+import close from "../../../../assets/close.svg";
+import plus from "../../../../assets/plus.svg";
+import defaultAvatar from "../../../../assets/user-icon.svg";
+import miniDots from "../../../../assets/dots-mini.svg";
 
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 
-import { appointAdmin, removeParticipant, getParticipants } from '../../../../api/rooms';
+import {
+    appointAdmin,
+    removeParticipant,
+    getParticipants,
+} from "../../../../api/rooms";
 
-import RoomMenu from '../../room-menu'
+import RoomMenu from "../../room-menu";
 
-export default function RoomMembers({ isOpen, onClose, onOpenInvite, participants, roomAdminId, isAdmin, currentUserId, roomId, onParticipantsUpdate }) {
-    const members = participants.map(p => {
-        let status = '';
+export default function RoomMembers({
+    isOpen,
+    onClose,
+    onOpenInvite,
+    participants,
+    roomAdminId,
+    isAdmin,
+    currentUserId,
+    roomId,
+    onParticipantsUpdate,
+}) {
+    const onParticipantsUpdateRef = useRef(onParticipantsUpdate);
+
+    useEffect(() => {
+        onParticipantsUpdateRef.current = onParticipantsUpdate;
+    }, [onParticipantsUpdate]);
+
+    const members = participants.map((p) => {
+        let status = "";
         if (p.id === roomAdminId && p.id === currentUserId) {
-            status = 'Администратор (Вы)';
+            status = "Администратор (Я)";
         } else if (p.id === roomAdminId) {
-            status = 'Администратор';
+            status = "Администратор";
         } else if (p.id === currentUserId) {
-            status = 'Вы';
+            status = "Я";
         }
         return {
             id: p.id,
             name: `${p.username}#${p.code}`,
             icon: p.avatar,
-            status: status,
+            status,
         };
     });
 
@@ -63,26 +83,27 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
             };
         });
     };
-    
+
     const handleCloseMenu = () => {
         setMenuState((prev) => ({ ...prev, visible: false }));
     };
 
-    const handleMakeAdmin = async (memberId) => {
+    const sendMakeAdminRequest = async (memberId) => {
         try {
             await appointAdmin(roomId, memberId);
-            // Обновляем список участников
             const updated = await getParticipants(roomId);
-            onParticipantsUpdate(updated.data);
+            onParticipantsUpdate(updated.data, memberId);
             handleCloseMenu();
         } catch (err) {
             console.error("Failed to appoint admin:", err);
-            alert("Не удалось назначить администратора");
         }
     };
 
-    const handleRemoveMember = async (memberId) => {
-        if (!window.confirm("Удалить участника из комнаты?")) return;
+    const sendRemoveFromRoomRequest = async (memberId) => {
+        if (!window.confirm("РЈРґР°Р»РёС‚СЊ СѓС‡Р°СЃС‚РЅРёРєР° РёР· РєРѕРјРЅР°С‚С‹?")) {
+            return;
+        }
+
         try {
             await removeParticipant(roomId, memberId);
             const updated = await getParticipants(roomId);
@@ -90,8 +111,23 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
             handleCloseMenu();
         } catch (err) {
             console.error("Failed to remove participant:", err);
-            alert("Не удалось удалить участника");
         }
+    };
+
+    const onMakeAdmin = async () => {
+        if (!menuState.memberId) {
+            return;
+        }
+
+        await sendMakeAdminRequest(menuState.memberId);
+    };
+
+    const onRemoveFromRoom = async () => {
+        if (!menuState.memberId) {
+            return;
+        }
+
+        await sendRemoveFromRoomRequest(menuState.memberId);
     };
 
     useLayoutEffect(() => {
@@ -119,6 +155,31 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
             }));
         }
     }, [menuState.visible, menuState.anchor.x, menuState.anchor.y]);
+
+    useEffect(() => {
+        if (!isOpen || !roomId) {
+            return;
+        }
+
+        let isActive = true;
+
+        const refreshParticipants = async () => {
+            try {
+                const updated = await getParticipants(roomId);
+                if (isActive) {
+                    onParticipantsUpdateRef.current?.(updated.data);
+                }
+            } catch (err) {
+                console.error("Failed to refresh participants:", err);
+            }
+        };
+
+        refreshParticipants();
+
+        return () => {
+            isActive = false;
+        };
+    }, [isOpen, roomId]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -153,46 +214,48 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
         ) {
             handleCloseMenu();
         }
-    }, [menuState.visible, menuState.memberId, isAdmin, currentUserId, roomAdminId]);
+    }, [
+        menuState.visible,
+        menuState.memberId,
+        isAdmin,
+        currentUserId,
+        roomAdminId,
+    ]);
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <main className="modal">
             <div className="modal-content">
-                <button className="modal-add-btn" >
+                <button className="modal-add-btn">
                     <img src={plus} onClick={onOpenInvite}></img>
                 </button>
                 <p className="medium-text text--light">Участники</p>
                 <button className="modal-close-btn" onClick={onClose}>
                     <img src={close}></img>
                 </button>
-                <ul
-                    ref={listRef}
-                    className={`list list--light`}
-                >
-                    {members.map(item => {
-                        const canManageMember = isAdmin && item.id !== currentUserId && item.id !== roomAdminId;
+                <ul ref={listRef} className="list list--light">
+                    {members.map((item) => {
+                        const canManageMember =
+                            isAdmin &&
+                            item.id !== currentUserId &&
+                            item.id !== roomAdminId;
+
                         return (
-                            <li
-                                key={item.id}
-                                className={`list-element`}
-                            >
+                            <li key={item.id} className="list-element">
                                 <div className="list-element-name">
                                     <img src={item.icon || defaultAvatar} alt="" />
-                                    <p className={`small-text text--light`}>
-                                        {item.name}
-                                    </p>
+                                    <p className="small-text text--light">{item.name}</p>
                                 </div>
-        
+
                                 {item.status && (
                                     <div className="list-status">
-                                        <p className={`input-text text--average`}>
+                                        <p className="input-text text--average">
                                             {item.status}
                                         </p>
                                     </div>
-                                    
                                 )}
+
                                 {canManageMember && (
                                     <img
                                         src={miniDots}
@@ -205,30 +268,32 @@ export default function RoomMembers({ isOpen, onClose, onOpenInvite, participant
                         );
                     })}
                 </ul>
-                {menuState.visible && 
-                isAdmin && menuState.memberId !== roomAdminId && 
-                menuState.memberId !== currentUserId &&
-                createPortal(
-                    <div
-                        ref={menuRef}
-                        style={{
-                            position: "fixed",
-                            top: menuState.position.y,
-                            left: menuState.position.x,
-                            zIndex: 9999,
-                        }}
-                    >
-                        <RoomMenu
-                            type="member"
-                            isAdmin={isAdmin}
-                            onCancel={handleCloseMenu}
-                            onMakeAdmi = {handleMakeAdmin}
-                            onRemoveFromRoom = {handleRemoveMember}
-                        />
-                    </div>,
-                    document.body
-                )}
+                {menuState.visible &&
+                    isAdmin &&
+                    menuState.memberId !== roomAdminId &&
+                    menuState.memberId !== currentUserId &&
+                    createPortal(
+                        <div
+                            ref={menuRef}
+                            style={{
+                                position: "fixed",
+                                top: menuState.position.y,
+                                left: menuState.position.x,
+                                zIndex: 9999,
+                            }}
+                        >
+                            <RoomMenu
+                                type="member"
+                                isAdmin={isAdmin}
+                                onCancel={handleCloseMenu}
+                                onMakeAdmin={onMakeAdmin}
+                                onRemoveFromRoom={onRemoveFromRoom}
+                            />
+                        </div>,
+                        document.body
+                    )}
             </div>
-        </main>
-    )
+        </main>,
+        document.body
+    );
 }

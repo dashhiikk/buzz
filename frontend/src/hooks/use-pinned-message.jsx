@@ -73,7 +73,6 @@ export default function usePinnedMessage({ roomId, chatRef }) {
             handleClosePinnedMenu();
         } catch (err) {
             console.error("Failed to unpin message:", err);
-            alert("Не удалось открепить сообщение");
         }
     }, [pinnedMessage, roomId, handleClosePinnedMenu]);
 

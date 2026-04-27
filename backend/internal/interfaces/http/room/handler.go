@@ -3,6 +3,7 @@ package room
 import (
 	"Buzz/internal/app/room"
 	"Buzz/internal/middleware"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -116,7 +117,7 @@ func (h *Handler) GetRoom(w http.ResponseWriter, r *http.Request) {
 	rm, err := h.roomUseCase.GetRoom(r.Context(), roomId)
 	if err != nil {
 		switch {
-		case errors.Is(err, room.ErrRoomNotFound):
+		case errors.Is(err, room.ErrRoomNotFound), errors.Is(err, sql.ErrNoRows):
 			h.writeError(w, http.StatusNotFound, err)
 		default:
 			h.writeError(w, http.StatusInternalServerError, errors.New("failed to get room"))
