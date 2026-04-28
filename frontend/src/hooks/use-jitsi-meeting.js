@@ -33,6 +33,30 @@ function shouldUseJwt(serverUrl) {
     return Boolean(domain) && domain !== "meet.jit.si"
 }
 
+function getJitsiErrorName(event) {
+    return event?.error?.name || event?.details?.name || event?.name || ""
+}
+
+function buildJitsiErrorMessage(event, serverUrl) {
+    const errorName = getJitsiErrorName(event)
+    const domain = getJitsiDomain(serverUrl)
+
+    if (errorName === "conference.connectionError.membersOnly") {
+        if (domain === "meet.jit.si") {
+            return "meet.jit.si больше не поддерживает анонимное создание комнат из встраиваемых приложений. Нужен свой Jitsi-сервер или JaaS."
+        }
+
+        return "Вход в конференцию ограничен настройками lobby или moderator на Jitsi-сервере."
+    }
+
+    return (
+        event?.details?.message ||
+        event?.error?.message ||
+        errorName ||
+        "Jitsi error"
+    )
+}
+
 function loadJitsiApi(serverUrl) {
     const normalized = normalizeServerUrl(serverUrl)
     if (!normalized) {
@@ -110,6 +134,24 @@ function createHiddenHost() {
     return host
 }
 
+function normalizeParticipantInfo(participant) {
+    if (!participant?.participantId && !participant?.id) {
+        return null
+    }
+
+    return {
+        participantId: participant.participantId || participant.id,
+        id: participant.id || participant.participantId,
+        displayName:
+            participant.displayName ||
+            participant.formattedDisplayName ||
+            participant.name ||
+            "",
+        avatarURL: participant.avatarURL || participant.avatarUrl || null,
+        userContext: participant.userContext || null,
+    }
+}
+
 export default function useJitsiMeeting({
     roomId,
     credentials,
@@ -128,6 +170,7 @@ export default function useJitsiMeeting({
     const roomParticipantsRef = useRef(roomParticipants)
     const userRef = useRef(user)
     const participantsRef = useRef([])
+    const conferenceRosterRef = useRef(new Map())
     const pendingDisposeRef = useRef(false)
 
     const [participants, setParticipants] = useState([])
@@ -211,8 +254,11 @@ export default function useJitsiMeeting({
         }
 
         if (surface.mode === "video") {
-            api.executeCommand?.("setTileView", true)
-            api.executeCommand?.("pinParticipant", null)
+            api.executeCommand?.("setTileView", false)
+            if (localParticipantIdRef.current) {
+                api.pinParticipant?.(localParticipantIdRef.current)
+                api.setLargeVideoParticipant?.(localParticipantIdRef.current)
+            }
             return
         }
 
@@ -243,16 +289,21 @@ export default function useJitsiMeeting({
         }
 
         try {
-            const roomsInfo = await api.getRoomsInfo?.()
-            const mainRoom =
-                roomsInfo?.rooms?.find(
-                    (room) =>
-                        room.isMainRoom ||
-                        room.name === roomId ||
-                        room.id?.startsWith(`${roomId}@`)
-                ) || roomsInfo?.rooms?.[0]
+            let conferenceParticipants = []
 
-            const conferenceParticipants = mainRoom?.participants || []
+            if (typeof api.getParticipantsInfo === "function") {
+                conferenceParticipants = await api.getParticipantsInfo()
+            }
+
+            if (!Array.isArray(conferenceParticipants) || !conferenceParticipants.length) {
+                conferenceParticipants = Array.from(
+                    conferenceRosterRef.current.values()
+                )
+            }
+
+            const normalizedParticipants = conferenceParticipants
+                .map(normalizeParticipantInfo)
+                .filter(Boolean)
             const lookup = getParticipantLookup()
             const sharingParticipants = sharingParticipantIdsRef.current
             const previousById = new Map(
@@ -262,21 +313,22 @@ export default function useJitsiMeeting({
                 ])
             )
 
-            const nextParticipants = conferenceParticipants
+            const nextParticipants = normalizedParticipants
                 .map((participant) => {
+                    const participantId = participant.participantId
                     const isLocal =
-                        participant.id === localParticipantIdRef.current
+                        participantId === localParticipantIdRef.current
                     const appUserId =
                         participant.userContext?.id ||
                         (isLocal ? userRef.current?.id : null)
                     const fallbackParticipant = appUserId
                         ? lookup.byId.get(appUserId)
                         : lookup.byName.get(participant.displayName)
-                    const previousParticipant = previousById.get(participant.id)
+                    const previousParticipant = previousById.get(participantId)
 
                     return {
-                        id: participant.id,
-                        participantId: participant.id,
+                        id: participantId,
+                        participantId,
                         appUserId,
                         name:
                             participant.displayName ||
@@ -297,7 +349,7 @@ export default function useJitsiMeeting({
                             previousParticipant?.isAudioMuted ?? false,
                         isVideoMuted:
                             previousParticipant?.isVideoMuted ?? false,
-                        isScreenSharing: sharingParticipants.has(participant.id),
+                        isScreenSharing: sharingParticipants.has(participantId),
                     }
                 })
                 .sort((left, right) => {
@@ -314,11 +366,12 @@ export default function useJitsiMeeting({
         } catch (syncError) {
             console.error("Failed to sync Jitsi participants:", syncError)
         }
-    }, [getParticipantLookup, roomId, setConferenceParticipants])
+    }, [getParticipantLookup, setConferenceParticipants])
 
     const resetConferenceState = useCallback(() => {
         localParticipantIdRef.current = null
         sharingParticipantIdsRef.current = new Set()
+        conferenceRosterRef.current = new Map()
         requestedSurfaceRef.current = {
             ...requestedSurfaceRef.current,
             participantId: null,
@@ -335,10 +388,16 @@ export default function useJitsiMeeting({
     const disposeConference = useCallback((force = false) => {
         const api = apiRef.current
         if (!api) {
+            console.log("Jitsi disposeConference skipped: no api", { force })
             resetConferenceState()
             return
         }
 
+        console.log("Jitsi disposeConference", {
+            force,
+            pendingDispose: pendingDisposeRef.current,
+            localParticipantId: localParticipantIdRef.current,
+        })
         pendingDisposeRef.current = false
 
         try {
@@ -380,6 +439,11 @@ export default function useJitsiMeeting({
 
     const attachStage = useCallback(
         (container, { mode = "hidden", participantId = null } = {}) => {
+            console.log("Jitsi attachStage", {
+                mode,
+                participantId,
+                hasContainer: Boolean(container),
+            })
             requestedSurfaceRef.current = {
                 container,
                 mode,
@@ -409,6 +473,12 @@ export default function useJitsiMeeting({
             const parentNode = ensureHiddenHost()
             const domain = getJitsiDomain(credentials.serverUrl)
 
+            console.log("Jitsi create api instance", {
+                roomId,
+                domain,
+                hasJwt: Boolean(credentials.token),
+            })
+
             const api = new window.JitsiMeetExternalAPI(domain, {
                 roomName: roomId,
                 parentNode,
@@ -419,7 +489,6 @@ export default function useJitsiMeeting({
                     : undefined,
                 userInfo: {
                     displayName: buildDisplayName(user),
-                    email: user.email,
                 },
                 configOverwrite: {
                     prejoinConfig: {
@@ -440,7 +509,21 @@ export default function useJitsiMeeting({
             apiRef.current = api
 
             api.addListener("videoConferenceJoined", async (event) => {
+                console.log("Jitsi videoConferenceJoined", event)
                 localParticipantIdRef.current = event?.id || null
+
+                if (event?.id) {
+                    conferenceRosterRef.current.set(event.id, {
+                        participantId: event.id,
+                        id: event.id,
+                        displayName: buildDisplayName(user),
+                        userContext: {
+                            id: user.id,
+                        },
+                    })
+                }
+
+                setError(null)
                 setIsJoined(true)
                 setIsConnecting(false)
                 setMicOn(true)
@@ -451,12 +534,26 @@ export default function useJitsiMeeting({
                 applySurface()
             })
 
-            api.addListener("participantJoined", () => {
+            api.addListener("participantJoined", (event) => {
+                const normalizedParticipant = normalizeParticipantInfo(event)
+
+                if (normalizedParticipant) {
+                    conferenceRosterRef.current.set(
+                        normalizedParticipant.participantId,
+                        normalizedParticipant
+                    )
+                }
+
                 syncConferenceParticipants()
             })
 
             api.addListener("participantLeft", (event) => {
                 sharingParticipantIdsRef.current.delete(event?.id)
+
+                if (event?.id) {
+                    conferenceRosterRef.current.delete(event.id)
+                }
+
                 setConferenceParticipants((prev) =>
                     prev.filter(
                         (participant) => participant.participantId !== event?.id
@@ -464,11 +561,43 @@ export default function useJitsiMeeting({
                 )
             })
 
-            api.addListener("displayNameChange", () => {
+            api.addListener("displayNameChange", (event) => {
+                const normalizedParticipant = normalizeParticipantInfo(event)
+
+                if (normalizedParticipant) {
+                    const previousParticipant = conferenceRosterRef.current.get(
+                        normalizedParticipant.participantId
+                    )
+
+                    conferenceRosterRef.current.set(
+                        normalizedParticipant.participantId,
+                        {
+                            ...previousParticipant,
+                            ...normalizedParticipant,
+                        }
+                    )
+                }
+
                 syncConferenceParticipants()
             })
 
-            api.addListener("avatarChanged", () => {
+            api.addListener("avatarChanged", (event) => {
+                const normalizedParticipant = normalizeParticipantInfo(event)
+
+                if (normalizedParticipant) {
+                    const previousParticipant = conferenceRosterRef.current.get(
+                        normalizedParticipant.participantId
+                    )
+
+                    conferenceRosterRef.current.set(
+                        normalizedParticipant.participantId,
+                        {
+                            ...previousParticipant,
+                            ...normalizedParticipant,
+                        }
+                    )
+                }
+
                 syncConferenceParticipants()
             })
 
@@ -502,6 +631,7 @@ export default function useJitsiMeeting({
             })
 
             api.addListener("videoMuteStatusChanged", (event) => {
+                console.log("Jitsi videoMuteStatusChanged:", event)
                 const nextCameraOn = !event?.muted
                 setCameraOn(nextCameraOn)
 
@@ -551,12 +681,18 @@ export default function useJitsiMeeting({
             })
 
             api.addListener("readyToClose", () => {
+                console.log("Jitsi readyToClose", {
+                    pendingDispose: pendingDisposeRef.current,
+                })
                 if (pendingDisposeRef.current) {
                     disposeConference(true)
                 }
             })
 
             api.addListener("videoConferenceLeft", () => {
+                console.log("Jitsi videoConferenceLeft", {
+                    pendingDispose: pendingDisposeRef.current,
+                })
                 if (pendingDisposeRef.current) {
                     disposeConference(true)
                     return
@@ -567,7 +703,28 @@ export default function useJitsiMeeting({
 
             api.addListener("errorOccurred", (event) => {
                 console.error("Jitsi error:", event)
-                setError(event?.details?.message || event?.name || "Jitsi error")
+                const errorName = getJitsiErrorName(event)
+                const isFatal = Boolean(event?.error?.isFatal || event?.isFatal)
+                const errorMessage = buildJitsiErrorMessage(
+                    event,
+                    credentials?.serverUrl
+                )
+
+                setError(errorMessage)
+                setIsConnecting(false)
+
+                if (
+                    !localParticipantIdRef.current &&
+                    errorName === "conference.connectionError.membersOnly" &&
+                    getJitsiDomain(credentials?.serverUrl) === "meet.jit.si"
+                ) {
+                    disposeConference(true)
+                    return
+                }
+
+                if (!localParticipantIdRef.current && isFatal) {
+                    disposeConference(true)
+                }
             })
 
             api.addListener("cameraError", (event) => {
@@ -607,8 +764,14 @@ export default function useJitsiMeeting({
     }, [])
 
     const toggleCamera = useCallback(() => {
+        console.log("Jitsi toggleCamera invoked", {
+            isJoined,
+            localParticipantId: localParticipantIdRef.current,
+            cameraOn,
+            hasApi: Boolean(apiRef.current),
+        })
         apiRef.current?.executeCommand?.("toggleVideo")
-    }, [])
+    }, [cameraOn, isJoined])
 
     const toggleScreenShare = useCallback(() => {
         apiRef.current?.executeCommand?.("toggleShareScreen")

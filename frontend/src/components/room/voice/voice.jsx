@@ -62,10 +62,6 @@ export default function RoomVoiceChat({
     }
 
     const handleDeleteRoom = async () => {
-        if (!window.confirm("Удалить комнату?")) {
-            return
-        }
-
         try {
             await deleteRoom(roomId)
             navigate("/start")

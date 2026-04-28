@@ -157,7 +157,11 @@ export default function RoomChat({
         const trimmedText = newMessage.trim();
         if (trimmedText === "" && attachedFiles.length === 0) return;
 
-        sendMessage(trimmedText, attachedFiles);
+        const sent = sendMessage(trimmedText, attachedFiles);
+        if (!sent) {
+            return;
+        }
+
         setNewMessage("");
         setAttachedFiles([]);
         shouldStickToBottomRef.current = true;

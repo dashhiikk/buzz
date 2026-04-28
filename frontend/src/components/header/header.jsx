@@ -25,6 +25,11 @@ const INCOMING_REQUEST_TYPES = new Set([
   "room_join_request",
 ])
 
+const ROOM_EXIT_NOTIFICATION_TYPES = new Set([
+  "room_deleted",
+  "room_access_revoked",
+])
+
 function buildNotificationMessage(payload) {
   const data = payload?.data
   const from = data?.from
@@ -68,6 +73,9 @@ function buildNotificationMessage(payload) {
 
     case "room_deleted":
       return `Комната ${roomLabel} была удалена`
+
+    case "room_access_revoked":
+      return `Вы больше не состоите в комнате ${roomLabel}`
 
     default:
       return null
@@ -126,7 +134,7 @@ export default function Header({
       const activeRoomId = currentRoomId ?? location.state?.roomId
 
       if (
-        payload?.type === "room_deleted" &&
+        ROOM_EXIT_NOTIFICATION_TYPES.has(payload?.type) &&
         location.pathname === "/room" &&
         activeRoomId &&
         activeRoomId === deletedRoomId

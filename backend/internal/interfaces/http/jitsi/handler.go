@@ -85,7 +85,6 @@ func (h *Handler) GetToken(w http.ResponseWriter, r *http.Request) {
 			currentUserContext = &jitsi.UserContext{
 				ID:          p.Id,
 				DisplayName: displayName,
-				Email:       p.Email,
 				AvatarURL:   avatarURL,
 			}
 			break

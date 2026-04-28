@@ -436,6 +436,8 @@ func (uc *RoomUseCase) RemoveParticipant(ctx context.Context, roomId, adminId, u
 		return err
 	}
 
+	uc.notifyRoomAccessRevoked(room, userIdToRemove)
+
 	return nil
 }
 
@@ -484,23 +486,7 @@ func (uc *RoomUseCase) DeleteRoom(ctx context.Context, roomId, adminId string) e
 		return err
 	}
 
-	if uc.notificationHub != nil {
-		notif := map[string]interface{}{
-			"type": "room_deleted",
-			"data": map[string]interface{}{
-				"roomId": room.Id,
-				"room": map[string]string{
-					"id":   room.Id,
-					"name": room.Name,
-				},
-			},
-		}
-		payload, _ := json.Marshal(notif)
-
-		for _, participant := range participants {
-			uc.notificationHub.SendToUser(participant.Id, payload)
-		}
-	}
+	uc.notifyRoomDeleted(room, participants)
 
 	return nil
 }
@@ -530,6 +516,8 @@ func (uc *RoomUseCase) DeletePrivateRoom(ctx context.Context, userId1, userId2 s
 			if err := uc.roomRepo.DeleteRoom(ctx, room.Id); err != nil {
 				return err
 			}
+			roomCopy := room
+			uc.notifyRoomDeleted(&roomCopy, participants)
 			break
 		}
 	}
@@ -589,6 +577,57 @@ func (uc *RoomUseCase) LeaveRoom(ctx context.Context, userId, roomId string) err
 	}
 
 	return nil
+}
+
+func (uc *RoomUseCase) notifyRoomDeleted(room *entity.Room, participants []entity.User) {
+	if uc.notificationHub == nil || room == nil || len(participants) == 0 {
+		return
+	}
+
+	notif := map[string]interface{}{
+		"type": "room_deleted",
+		"data": map[string]interface{}{
+			"roomId": room.Id,
+			"room": map[string]string{
+				"id":   room.Id,
+				"name": room.Name,
+			},
+		},
+	}
+	payload, err := json.Marshal(notif)
+	if err != nil {
+		log.Printf("failed to marshal room_deleted notification: %v", err)
+		return
+	}
+
+	for _, participant := range participants {
+		uc.notificationHub.SendToUser(participant.Id, payload)
+	}
+}
+
+func (uc *RoomUseCase) notifyRoomAccessRevoked(room *entity.Room, userId string) {
+	if uc.notificationHub == nil || room == nil || userId == "" {
+		return
+	}
+
+	notif := map[string]interface{}{
+		"type": "room_access_revoked",
+		"data": map[string]interface{}{
+			"roomId": room.Id,
+			"reason": "removed",
+			"room": map[string]string{
+				"id":   room.Id,
+				"name": room.Name,
+			},
+		},
+	}
+	payload, err := json.Marshal(notif)
+	if err != nil {
+		log.Printf("failed to marshal room_access_revoked notification: %v", err)
+		return
+	}
+
+	uc.notificationHub.SendToUser(userId, payload)
 }
 
 func (uc *RoomUseCase) GetInviteToken(ctx context.Context, roomId string) (string, error) {

@@ -128,44 +128,98 @@ func (h *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
 
 // handleMessage оправляет сообщение в текстовый чат комнаты, сохраняет его в БД и рассылает всем участникам комнаты.
 func (h *Handler) handleMessage(ctx context.Context, client *ws.Client, msg []byte) {
-	type MessageRequest struct {
-		Type    string `json:"type"`
-		Payload struct {
-			Text  string               `json:"text"`
-			Files []entity.MessageFile `json:"files,omitempty"`
-		} `json:"payload"`
+	type Envelope struct {
+		Type    string          `json:"type"`
+		Payload json.RawMessage `json:"payload"`
 	}
 
-	var req MessageRequest
+	type ChatMessagePayload struct {
+		Text  string               `json:"text"`
+		Files []entity.MessageFile `json:"files,omitempty"`
+	}
+
+	var req Envelope
 	if err := json.Unmarshal(msg, &req); err != nil {
 		log.Printf("invalid message format: %v", err)
 		return
 	}
-	if req.Type != "message" {
+
+	switch req.Type {
+	case "message":
+		var payload ChatMessagePayload
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			log.Printf("invalid chat message payload: %v", err)
+			return
+		}
+
+		savedMsg, err := h.chatUseCase.SendMessage(
+			ctx,
+			client.RoomId,
+			client.UserId,
+			payload.Text,
+			payload.Files,
+		)
+		if err != nil {
+			log.Printf("faliled to save message: %v", err)
+			return
+		}
+
+		messageData := map[string]interface{}{
+			"id":        savedMsg.Id,
+			"roomId":    savedMsg.RoomId,
+			"senderId":  savedMsg.SenderId,
+			"text":      savedMsg.Text,
+			"files":     savedMsg.Files,
+			"createdAt": savedMsg.CreatedAt,
+		}
+
+		participants, err := h.roomUseCase.GetParticipants(ctx, client.RoomId)
+		if err != nil {
+			log.Printf("failed to get participants for message broadcast: %v", err)
+		} else {
+			for _, participant := range participants {
+				if participant.Id != client.UserId {
+					continue
+				}
+
+				senderUsername := participant.Username
+				if participant.Code != "" {
+					senderUsername = participant.Username + "#" + participant.Code
+				}
+
+				messageData["senderUsername"] = senderUsername
+				messageData["senderAvatar"] = participant.Avatar
+				break
+			}
+		}
+
+		resp := map[string]interface{}{
+			"type": "message",
+			"data": messageData,
+		}
+		respBytes, _ := json.Marshal(resp)
+
+		h.hub.Broadcast <- &ws.BroadcastMessage{
+			RoomId:  client.RoomId,
+			Message: respBytes,
+		}
+	case "voice_presence_snapshot":
+		resp := map[string]json.RawMessage{
+			"type": json.RawMessage(`"voice_presence_snapshot"`),
+			"data": req.Payload,
+		}
+		respBytes, err := json.Marshal(resp)
+		if err != nil {
+			log.Printf("failed to marshal voice presence payload: %v", err)
+			return
+		}
+
+		h.hub.Broadcast <- &ws.BroadcastMessage{
+			RoomId:  client.RoomId,
+			Message: respBytes,
+		}
+	default:
 		return
-	}
-
-	savedMsg, err := h.chatUseCase.SendMessage(
-		ctx,
-		client.RoomId,
-		client.UserId,
-		req.Payload.Text,
-		req.Payload.Files,
-	)
-	if err != nil {
-		log.Printf("faliled to save message: %v", err)
-		return
-	}
-
-	resp := map[string]interface{}{
-		"type": "message",
-		"data": savedMsg,
-	}
-	respBytes, _ := json.Marshal(resp)
-
-	h.hub.Broadcast <- &ws.BroadcastMessage{
-		RoomId:  client.RoomId,
-		Message: respBytes,
 	}
 }
 

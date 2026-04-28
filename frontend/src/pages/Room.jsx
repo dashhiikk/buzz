@@ -13,6 +13,7 @@ import RoomVoiceChat from "../components/room/voice/voice"
 import { useAuth } from "../hooks/use-auth"
 import useJitsiMeeting from "../hooks/use-jitsi-meeting"
 import usePersistedState from "../hooks/use-persisted-state"
+import useRoomVoicePresence from "../hooks/use-room-voice-presence"
 import useSwipe from "../hooks/swipe"
 import useTwoPanelLayout from "../hooks/use-two-panel-layout"
 
@@ -139,24 +140,6 @@ export default function Room() {
         fetchData()
     }, [fetchData, navigate, roomId])
 
-    useEffect(() => {
-        if (!roomId) {
-            return
-        }
-
-        const intervalId = setInterval(async () => {
-            try {
-                await getRoom(roomId)
-            } catch (pollError) {
-                if (isRoomUnavailableError(pollError)) {
-                    navigate("/start", { replace: true })
-                }
-            }
-        }, 3000)
-
-        return () => clearInterval(intervalId)
-    }, [navigate, roomId])
-
     const swipeHandlers = useSwipe({
         onSwipeLeft: () => {
             if (layout.isSinglePane && layout.activePane === "left") {
@@ -206,8 +189,15 @@ export default function Room() {
         user,
         roomParticipants: participants,
     })
+    const {
+        voiceMembers: passiveVoiceMembers,
+        sendSnapshot: sendVoicePresenceSnapshot,
+    } = useRoomVoicePresence(roomId)
 
-    const voiceMembers = meeting.participants
+    const voiceMembers = meeting.isJoined
+        ? meeting.participants
+        : passiveVoiceMembers
+
     const sharingParticipants = voiceMembers.filter(
         (participant) => participant.isScreenSharing
     )
@@ -246,6 +236,37 @@ export default function Room() {
             setScreenShareParticipantId(sharingParticipants[0].participantId)
         }
     }, [rightView, screenShareParticipantId, setRightView, sharingParticipants])
+
+    useEffect(() => {
+        if (!meeting.isJoined) {
+            return
+        }
+
+        const buildSnapshotMembers = () =>
+            meeting.participants.map((participant) => ({
+                id: participant.id,
+                participantId: participant.participantId,
+                appUserId: participant.appUserId,
+                name: participant.name,
+                icon: participant.icon,
+                avatar: participant.avatar,
+                isLocal: participant.isLocal,
+                isAudioMuted: participant.isAudioMuted,
+                isVideoMuted: participant.isVideoMuted,
+                isScreenSharing: participant.isScreenSharing,
+            }))
+
+        const sendSnapshot = () => {
+            sendVoicePresenceSnapshot(buildSnapshotMembers())
+        }
+
+        sendSnapshot()
+        const intervalId = window.setInterval(sendSnapshot, 3000)
+
+        return () => {
+            window.clearInterval(intervalId)
+        }
+    }, [meeting.isJoined, meeting.participants, sendVoicePresenceSnapshot])
 
     const handleParticipantsUpdate = (newParticipants, nextAdminId) => {
         setParticipants(newParticipants)

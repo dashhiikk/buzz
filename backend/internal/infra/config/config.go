@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -77,9 +78,9 @@ func Load() (*Config, error) {
 	viper.SetDefault("JWT_ACCESS_EXPIRE", "15m")
 	viper.SetDefault("JWT_REFRESH_EXPIRE", "24h")
 
-	viper.SetDefault("JITSI_SERVER_URL", "https://meet.jit.si")
-	viper.SetDefault("JITSI_JWT_SECRET", "my-jitsi-secret")
-	viper.SetDefault("JITSI_APP_ID", "buzzId")
+	viper.SetDefault("JITSI_SERVER_URL", "https://jitsi.buzz.su")
+	viper.SetDefault("JITSI_JWT_SECRET", "755ffc07c31b38890b7b593ba0312a418848d201262a938605c4f71dc875423c")
+	viper.SetDefault("JITSI_APP_ID", "buzz")
 
 	viper.SetDefault("EMAIL_SMTP_HOST", "smtp.mail.ru")
 	viper.SetDefault("EMAIL_SMTP_PORT", 587)
@@ -149,5 +150,37 @@ func Load() (*Config, error) {
 		AppURL: viper.GetString("APP_URL"),
 	}
 
+	if err := validateJitsiConfig(cnfg.Jitsi); err != nil {
+		return nil, err
+	}
+
 	return cnfg, nil
+}
+
+func validateJitsiConfig(cfg JitsiConfig) error {
+	serverURL := strings.TrimSpace(cfg.ServerUrl)
+	appID := strings.TrimSpace(cfg.AppID)
+	jwtSecret := strings.TrimSpace(cfg.JWTSecret)
+
+	if serverURL == "" && appID == "" && jwtSecret == "" {
+		return nil
+	}
+
+	if serverURL == "" {
+		return fmt.Errorf("missing APP_JITSI_SERVER_URL")
+	}
+
+	if appID == "" {
+		return fmt.Errorf("missing APP_JITSI_APP_ID")
+	}
+
+	if jwtSecret == "" {
+		return fmt.Errorf("missing APP_JITSI_JWT_SECRET")
+	}
+
+	if strings.Contains(serverURL, "meet.jit.si") {
+		return fmt.Errorf("APP_JITSI_SERVER_URL must point to your self-hosted Jitsi server, not meet.jit.si")
+	}
+
+	return nil
 }

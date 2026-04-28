@@ -100,10 +100,6 @@ export default function RoomMembers({
     };
 
     const sendRemoveFromRoomRequest = async (memberId) => {
-        if (!window.confirm("РЈРґР°Р»РёС‚СЊ СѓС‡Р°СЃС‚РЅРёРєР° РёР· РєРѕРјРЅР°С‚С‹?")) {
-            return;
-        }
-
         try {
             await removeParticipant(roomId, memberId);
             const updated = await getParticipants(roomId);

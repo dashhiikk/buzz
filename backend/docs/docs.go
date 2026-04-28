@@ -1343,7 +1343,7 @@ const docTemplate = `{
                 "serverUrl": {
                     "description": "URL Jitsi-сервера",
                     "type": "string",
-                    "example": "https://meet.jit.si"
+                    "example": "https://jitsi.example.ru"
                 },
                 "token": {
                     "description": "JWT для доступа к Jitsi",
